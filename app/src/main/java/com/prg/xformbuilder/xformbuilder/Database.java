@@ -22,7 +22,7 @@ public class Database extends SQLiteOpenHelper {
     private static String LastName = "LastName";
     private static String Password = "Password";
     private static String ParentId = "ParentId";
-    private static String Company = "Company";
+    private static String Company = "Company"; 
     private static String DecoderPassword = "DecoderPassword";
 
     public Database(Context context) {
