@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -28,6 +29,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -36,6 +39,13 @@ public class MainActivity extends ActionBarActivity {
     private EditText  password=null;
     private Button login;
     String jsonUserName="";
+    int parentId=0;
+
+
+    ArrayAdapter<String> adapter;
+    ArrayList<HashMap<String, String>> user_list;
+    String User_name[];
+    int User_id[];
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,12 +71,23 @@ public class MainActivity extends ActionBarActivity {
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
-
                 }
             }
         });
     }
+/*
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Database db = new Database(getApplicationContext()); // Db ba�lant�s� olu�turuyoruz. �lk seferde database olu�turulur.
+        user_list = db.UserList();//kitap listesini al�yoruz
 
+        if(user_list.size()==0) {//kitap listesi bo�sa
+            Toast.makeText(getApplicationContext(), "Hen�z Kitap Eklenmemi�.\nYukar�daki + Butonundan Ekleyiniz", Toast.LENGTH_LONG).show();
+        }
+
+    }
+*/
     public String GET(String url){
 
         InputStream inputStream = null;
@@ -128,10 +149,16 @@ public class MainActivity extends ActionBarActivity {
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 jsonUserName=jsonObject.getString("UserName").toString();
+                parentId=jsonObject.getInt("ParentId");
+                final Bundle bundle = new Bundle();
+
                 if (jsonUserName.equals(username.getText().toString()))
                 {
+                    bundle.putInt("ParentId",parentId);
+
                     Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
+                    i.putExtras(bundle);
                     startActivity(i);
                 }else
                 {
@@ -164,4 +191,7 @@ public class MainActivity extends ActionBarActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
 }
