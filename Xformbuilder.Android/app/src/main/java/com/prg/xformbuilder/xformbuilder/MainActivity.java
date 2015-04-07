@@ -1,70 +1,93 @@
 package com.prg.xformbuilder.xformbuilder;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.WebView;
+import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
 import org.json.JSONObject;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 
-public class FormActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
-int parentId=0;
+    private EditText  username=null;
+    private EditText  password=null;
+    private Button login;
+    String jsonUserName="";
+    int parentId=0;
+
+
+    ArrayAdapter<String> adapter;
+    ArrayList<HashMap<String, String>> user_list;
+    String User_name[];
+    int User_id[];
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_form);
+        setContentView(R.layout.activity_main);
+        username = (EditText)findViewById(R.id.editText_userName);
+        password = (EditText)findViewById(R.id.editText_password);
 
+        login = (Button)findViewById(R.id.button_login);
 
-        ListView lv;
-        lv = (ListView) findViewById(R.id.liste);
+        login.setOnClickListener(new View.OnClickListener() {
 
+         /*   EditText userEditText = (EditText) findViewById(R.id.editText_password);
+            String userName = userEditText.getText().toString();
 
-        FormList bankaDizi[] = new FormList[]{
-                new FormList(1, "Contact", "0 212 212 12 12", R.mipmap.ic_launcher),
-                new FormList(2, "User", " 0212 111 11 11", R.mipmap.ic_launcher),
-                new FormList(3, "Form List", "0 212 222 22 22",R.mipmap.ic_launcher),
-                new FormList(4, "Demos", "0 212 333 33 33", R.mipmap.ic_launcher),
-                new FormList(5, "Demoss", "0212 444 44 44", R.mipmap.ic_launcher),
-        };
+            EditText passEditText = (EditText) findViewById(R.id.editText_password);
+            String password = passEditText.getText().toString();*/
 
+            @Override
+            public void onClick(View v) {
+                if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
+                    // call AsynTask to perform network operation on separate thread
+                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+/*
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Database db = new Database(getApplicationContext()); // Db ba�lant�s� olu�turuyoruz. �lk seferde database olu�turulur.
+        user_list = db.UserList();//kitap listesini al�yoruz
 
-        FormAdaptor adap = new FormAdaptor(this, R.layout.line_layout, bankaDizi);
-
-        lv.setAdapter(adap);
-
-
-
-
-    //   new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=3358");
-     //   Bundle bundle=getIntent().getExtras();
-     //   parentId=bundle.getInt("ParentId");
+        if(user_list.size()==0) {//kitap listesi bo�sa
+            Toast.makeText(getApplicationContext(), "Hen�z Kitap Eklenmemi�.\nYukar�daki + Butonundan Ekleyiniz", Toast.LENGTH_LONG).show();
+        }
 
     }
+*/
     public String GET(String url){
 
         InputStream inputStream = null;
@@ -124,46 +147,24 @@ int parentId=0;
         @Override
         protected void onPostExecute(String result) {
             try {
+                JSONObject jsonObject = new JSONObject(result);
+                jsonUserName=jsonObject.getString("UserName").toString();
+                parentId=jsonObject.getInt("ParentId");
+                final Bundle bundle = new Bundle();
 
-                JSONArray jsonArray = new JSONArray(result);
-                String[] Forms;
-
-
-                final String[] array_spinner = new String[jsonArray.length()];
-                final ArrayList<String> list = new ArrayList<String>();
-                for(int i=0;i<jsonArray.length();i++){
-                    JSONObject json_data = jsonArray.getJSONObject(i);
-                    String jj=json_data.getString("FormTitle");
-                    array_spinner[i] = jj;
-                    list.add(jj);
-                }
-                //(A) adımı
-            //    ListView listemiz=(ListView) findViewById(R.id.listView1);
-
-
-            //    ListView listView =(listView)findViewById(R.id.list);
-                for(int i=0; i<jsonArray.length(); i++){
-                    JSONObject obj = jsonArray.getJSONObject(i);
-
-                    String name = obj.getString("FormTitle");
-                    String url = obj.getString("FormId");
-
-                    System.out.println(name);
-                    System.out.println(url);
-                }
-                //   JSONObject jsonObject = new JSONObject(result);
-
-              /*  jsonUserName=jsonObject.getString("UserName").toString();
                 if (jsonUserName.equals(username.getText().toString()))
                 {
+                    bundle.putInt("ParentId",parentId);
+
                     Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
+                    i.putExtras(bundle);
                     startActivity(i);
                 }else
                 {
                     Toast.makeText(getApplicationContext(), "Giriş Başarısız",Toast.LENGTH_SHORT).show();
                 }
-*/
+
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
                 Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
@@ -174,10 +175,9 @@ int parentId=0;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_form, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -189,7 +189,9 @@ int parentId=0;
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+
+
 }
