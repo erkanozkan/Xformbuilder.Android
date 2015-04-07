@@ -20,10 +20,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ResultActivity"
-            android:label="@string/title_activity_result" >
-        </activity>
-        <activity
             android:name=".FormActivity"
             android:label="@string/title_activity_form" >
         </activity>

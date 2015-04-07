@@ -1,7 +1,10 @@
 package com.prg.xformbuilder.xformbuilder;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -12,9 +15,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +36,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -38,20 +44,30 @@ public class MainActivity extends ActionBarActivity {
     private EditText  username=null;
     private EditText  password=null;
     private Button login;
-    String jsonUserName="";
-    int parentId=0;
+    String jsonUserName="",jsonCompany="", jsonLastName="", jsonFirstName="", jsonPassword="";
+    int jsonParentId=0,jsonUserId=0 ;
+    DatabaseHandler dbHandler;
 
 
-    ArrayAdapter<String> adapter;
-    ArrayList<HashMap<String, String>> user_list;
-    String User_name[];
-    int User_id[];
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         username = (EditText)findViewById(R.id.editText_userName);
         password = (EditText)findViewById(R.id.editText_password);
+        dbHandler = new DatabaseHandler(getApplicationContext());
+
+
+        
+        boolean InternetConnection = false;
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //we are connected to a network
+            InternetConnection = true;
+        }
+        else
+            InternetConnection = false;
 
         login = (Button)findViewById(R.id.button_login);
 
@@ -74,20 +90,8 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         });
-    }
-/*
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Database db = new Database(getApplicationContext()); // Db ba�lant�s� olu�turuyoruz. �lk seferde database olu�turulur.
-        user_list = db.UserList();//kitap listesini al�yoruz
-
-        if(user_list.size()==0) {//kitap listesi bo�sa
-            Toast.makeText(getApplicationContext(), "Hen�z Kitap Eklenmemi�.\nYukar�daki + Butonundan Ekleyiniz", Toast.LENGTH_LONG).show();
-        }
 
     }
-*/
     public String GET(String url){
 
         InputStream inputStream = null;
@@ -137,6 +141,7 @@ public class MainActivity extends ActionBarActivity {
             return false;
 
     }
+
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -149,20 +154,37 @@ public class MainActivity extends ActionBarActivity {
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 jsonUserName=jsonObject.getString("UserName").toString();
-                parentId=jsonObject.getInt("ParentId");
+                jsonFirstName=jsonObject.getString("FirstName").toString();
+                jsonLastName=jsonObject.getString("LastName").toString();
+                jsonPassword=jsonObject.getString("Password").toString();
+                jsonParentId=jsonObject.getInt("ParentId");
+                jsonUserId=jsonObject.getInt("UserId");
+                jsonCompany=jsonObject.getString("Company").toString();
+
                 final Bundle bundle = new Bundle();
 
                 if (jsonUserName.equals(username.getText().toString()))
                 {
-                    bundle.putInt("ParentId",parentId);
+                    bundle.putInt("ParentId", jsonParentId);
+                    List<User> userss = dbHandler.getAllUserList();
+                   // if (dbHandler.AccountLogin("admin","admin")){
+                        Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(MainActivity.this,FormActivity.class);
+                        i.putExtras(bundle);
+                        startActivity(i);
+                  /*}else {
+                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
+                        dbHandler.CreateUser(user);
+                        Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(MainActivity.this,FormActivity.class);
+                        i.putExtras(bundle);
+                        startActivity(i);
+                  //  }*/
 
-                    Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(MainActivity.this,FormActivity.class);
-                    i.putExtras(bundle);
-                    startActivity(i);
+
                 }else
                 {
-                    Toast.makeText(getApplicationContext(), "Giriş Başarısız",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
                 }
 
             } catch (Exception e) {
@@ -171,7 +193,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
     }
-
+//deneme
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
