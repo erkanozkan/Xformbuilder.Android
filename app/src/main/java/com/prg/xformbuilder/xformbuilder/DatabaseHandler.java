@@ -39,6 +39,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 +KEY_FIRSTNAME + " TEXT," +KEY_LASTNAME + " TEXT," +KEY_PASSWORD + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERID + " TEXT,"+KEY_COMPANY + " TEXT)");
                 Log.d("DBHelper", "SQL : " + sql);
                 db.execSQL(sql);
+                db.close();
     }
 
  @Override
@@ -46,6 +47,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
        // db.execSQL("ALTER TABLE IF EXISTS " + TABLE_USER);
         onCreate(db);
+     db.close();
     }
 
     public void CreateUser (User user){
@@ -99,8 +101,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER +" WHERE "+KEY_USERNAME+"='"+userName+"' " ,null);
         cursor.close();
         db.close();
-        int count = cursor.getCount();
-        if (count>1){
+
+        if (cursor!=null){
             return true;
         }else{
             return false;
@@ -120,30 +122,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_COMPANY, user.getCompany());
 
         return db.update(TABLE_USER, values, KEY_ID + "=?", new String[]{String.valueOf(user.getId())});
-    }
-    /*
-    public List<User> getAllUsers(){
-        List<User> users = new ArrayList<User>();
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER, null);
-        if (cursor.moveToFirst()){
-            do {
-                User user = new User(Integer.parseInt(cursor.getString(0)), cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5),Integer.parseInt(cursor.getString(6)),Integer.parseInt(cursor.getString(7)));
-                users.add(user);
 
-            }
-            while (cursor.moveToNext());
-        }
-        return users;
-    }*/
+    }
+
+
     public List<User> getAllUserList() {
         List<User> userList = new ArrayList<User>();
         SQLiteDatabase db = this.getWritableDatabase();
-
-        // String sqlQuery = "SELECT  * FROM " + TABLE_COUNTRIES;
-        // Cursor cursor = db.rawQuery(sqlQuery, null);
-
         Cursor cursor = db.query(TABLE_USER, new String[]{"id", "userName", "firstName","lastName","company","password","userId","parentId"}, null, null, null, null, null);
+
         while (cursor.moveToNext()) {
             User user = new User(Integer.parseInt(cursor.getString(0)), cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5),Integer.parseInt(cursor.getString(6)),Integer.parseInt(cursor.getString(7)));
             userList.add(user);
