@@ -29,7 +29,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_USERID="userid",
             KEY_PARENTID="parentid",
             KEY_COMPANY="company",
-            KEY_PASSWORD="password";
+            KEY_PASSWORD="password",
+            TABLE_FORM ="form",
+            KEY_FORMTITLE="formtitle",
+            KEY_FORMID="formid",
+            KEY_MOBILEHTML="mobilehtml",
+            KEY_MODIFIEDDATE="modifieddate";
 
 
     public DatabaseHandler(Context context){
@@ -38,11 +43,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db){
-        String sql= ("CREATE TABLE IF NOT EXISTS  "+TABLE_USER + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USERNAME + " TEXT,"
+        String sqlUser= ("CREATE TABLE IF NOT EXISTS  "+TABLE_USER + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USERNAME + " TEXT,"
                 +KEY_FIRSTNAME + " TEXT," +KEY_LASTNAME + " TEXT," +KEY_PASSWORD + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERID + " TEXT,"+KEY_COMPANY + " TEXT)");
-        Log.d("DBHelper", "SQL : " + sql);
-        db.execSQL(sql);
 
+        Log.d("DBHelper", "SQL : " + sqlUser);
+
+        db.execSQL(sqlUser);
+        String sqlForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_FORMTITLE + " TEXT,"
+                +KEY_FORMID + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERNAME + " TEXT," +KEY_MOBILEHTML + " TEXT," +KEY_MODIFIEDDATE + " TEXT NULL)");
+        Log.d("DBHelper", "SQL : " + sqlForm);
+        db.execSQL(sqlForm);
     }
 
     @Override
@@ -69,7 +79,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
     }
+    public void CreateForm (Form form){
+        SQLiteDatabase db = getWritableDatabase();
 
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_FORMTITLE, form.getFormTitle());
+        values.put(KEY_FORMID,form.getFormId());
+        values.put(KEY_PARENTID,form.getParentId());
+        values.put(KEY_USERNAME,form.getUserName());
+        values.put(KEY_MOBILEHTML,form.getMobileHtml());
+        values.put(KEY_MODIFIEDDATE,form.getModifiedDate());
+
+        db.insert(TABLE_FORM, null, values);
+
+
+    }
 
 
     public User getUser( int userId){
@@ -143,6 +168,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
 
         return userList;
+    }
+
+    public List<Form> getFormList() {
+        List<Form> formList = new ArrayList<Form>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_FORM, new String[]{"id", "formtitle", "formid","parentid","username","mobilehtml","modifieddate"}, null, null, null, null, null);
+
+        while (cursor.moveToNext()) {
+            Form form = new Form(Integer.parseInt(cursor.getString(0)), cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)),cursor.getString(4),cursor.getString(5),cursor.getString(6));
+            formList.add(form);
+        }
+        cursor.close();
+
+        return formList;
     }
 
     public boolean GetUserByUserId(int userId){

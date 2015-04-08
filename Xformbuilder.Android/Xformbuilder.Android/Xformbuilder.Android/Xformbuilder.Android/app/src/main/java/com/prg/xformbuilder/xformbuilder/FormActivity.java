@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -37,9 +38,32 @@ int parentId=0;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form);
-        new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=3358");
-        Bundle bundle=getIntent().getExtras();
-        parentId=bundle.getInt("ParentId");
+
+
+        ListView lv;
+        lv = (ListView) findViewById(R.id.liste);
+
+
+        FormList bankaDizi[] = new FormList[]{
+                new FormList(1, "Contact", "0 212 212 12 12", R.mipmap.ic_launcher),
+                new FormList(2, "User", " 0212 111 11 11", R.mipmap.ic_launcher),
+                new FormList(3, "Form List", "0 212 222 22 22",R.mipmap.ic_launcher),
+                new FormList(4, "Demos", "0 212 333 33 33", R.mipmap.ic_launcher),
+                new FormList(5, "Demoss", "0212 444 44 44", R.mipmap.ic_launcher),
+        };
+
+
+        FormAdaptor adap = new FormAdaptor(this, R.layout.line_layout, bankaDizi);
+
+        lv.setAdapter(adap);
+
+
+
+
+    //   new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=3358");
+     //   Bundle bundle=getIntent().getExtras();
+     //   parentId=bundle.getInt("ParentId");
+
     }
     public String GET(String url){
 
@@ -114,7 +138,7 @@ int parentId=0;
                     list.add(jj);
                 }
                 //(A) adımı
-                ListView listemiz=(ListView) findViewById(R.id.listView1);
+            //    ListView listemiz=(ListView) findViewById(R.id.listView1);
 
 
             //    ListView listView =(listView)findViewById(R.id.list);
