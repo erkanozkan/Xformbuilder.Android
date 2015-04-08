@@ -99,10 +99,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER +" WHERE "+KEY_USERNAME+"='"+userName+"' " ,null);
+        int count = cursor.getCount();
         cursor.close();
         db.close();
 
-        if (cursor!=null){
+        if (count>1){
             return true;
         }else{
             return false;
