@@ -1,6 +1,7 @@
 package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -35,7 +36,7 @@ public class FormActivity extends Activity {
     String jsonFormTitle="",jsonUserName="", jsonMobileHtml="",jsonModifiedDate="";
     int jsonParentId=0,jsonFormId=0 ;
     DatabaseHandler dbHandler;
-
+    final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,11 @@ public class FormActivity extends Activity {
                 String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
                 String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
                 Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
+                bundleForm.putString("FormId",selectFormId);
+                Intent i = new Intent(FormActivity.this,FormResponseActivity.class);
+                i.putExtras(bundleForm);
+                startActivity(i);
+
             }
         });
         try {

@@ -99,13 +99,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         cursor.close();
         return user;
-
     }
 
     public  void DeleteUser(User user) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_USER, KEY_ID + "=?", new String[]{String.valueOf(user.getId())});
-
     }
 
     public boolean DeleteFormTable(){
@@ -160,7 +158,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(user.getUserId())});
     }
 
-
     public List<User> getAllUserList() {
         List<User> userList = new ArrayList<User>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -175,16 +172,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public List<Form> getAllFormListVw(String parentId ) {
-        List<Form> userList = new ArrayList<Form>();
+        List<Form> formList = new ArrayList<Form>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_MODIFIEDDATE}, KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
 
         while (cursor.moveToNext()) {
             Form form = new Form(Integer.parseInt(cursor.getString(0)), cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)),cursor.getString(4),cursor.getString(5),cursor.getString(6));
-            userList.add(form);
+            formList.add(form);
         }
         cursor.close();
-return userList;
+return formList;
     }
     public List<Form> getFormList(int parentId) {
         List<Form> formList = new ArrayList<Form>();
@@ -212,7 +209,7 @@ return userList;
 
     public boolean GetUserByUserId(int userId){
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER +" WHERE "+KEY_USERID+"='"+userId+"' " ,null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER + " WHERE " + KEY_USERID + "='" + userId + "' ", null);
         int count = cursor.getCount();
         cursor.close();
         if (count>=1){
@@ -220,5 +217,26 @@ return userList;
         }else{
             return false;
         }
+    }
+
+    public Form GetFormByFormId(String formId){
+        SQLiteDatabase db = getReadableDatabase();
+        Form form=null;
+        String sql="SELECT * FROM " + TABLE_FORM + " WHERE " + KEY_FORMID + "='" + formId+"'";
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor !=null) {
+            cursor.moveToFirst();
+            form  = new Form(
+                    cursor.getInt(cursor.getColumnIndex(KEY_ID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_FORMTITLE)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_FORMID)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
+                    cursor.getString(cursor.getColumnIndex(KEY_MOBILEHTML)),
+                    cursor.getString(cursor.getColumnIndex(KEY_MODIFIEDDATE)));
+            return form;
+        }
+        cursor.close();
+        return form;
     }
 }
