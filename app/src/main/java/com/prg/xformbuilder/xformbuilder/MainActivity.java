@@ -1,6 +1,8 @@
 package com.prg.xformbuilder.xformbuilder;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +52,8 @@ public class MainActivity extends Activity {
     DatabaseHandler dbHandler;
     boolean InternetConnection = false;
     final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
+ProgressDialog loginDialog ;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +81,10 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
+                    loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_DARK);
+                    loginDialog.setTitle("Login Process");
+                    loginDialog.setMessage("Pleas Wait");
+                    loginDialog.show();
                     if (InternetConnection){
                         //Web Api Cagırıyoruz.
                         new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
@@ -84,6 +92,7 @@ public class MainActivity extends Activity {
                     }else{
                        User  login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
                         if (login!=null){
+                            loginDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
                             bundle.putInt("ParentId", login.getParentId());
                             Intent i = new Intent(MainActivity.this,FormActivity.class);
@@ -91,6 +100,7 @@ public class MainActivity extends Activity {
                             startActivity(i);
                         }
                         else {
+                            loginDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "Sistemde kayıtlı kullanıcı bulunamadı.",Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -174,17 +184,19 @@ public class MainActivity extends Activity {
                     //List<User> userss = dbHandler.getAllUserList();
 
                     bundle.putInt("ParentId", jsonParentId);
+                    loginDialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Xformbuilder hoş geldiniz.",Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
                     i.putExtras(bundle);
                     startActivity(i);
 
                 }else
-                {
+                { loginDialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
                 }
 
             } catch (Exception e) {
+                loginDialog.dismiss();
                 Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
                 Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
             }
