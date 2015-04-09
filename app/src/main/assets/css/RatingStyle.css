@@ -1,0 +1,23 @@
+﻿      .rating {
+            unicode-bidi: bidi-override;
+            direction: rtl;
+            text-align: left;
+            
+        }
+
+            .rating > li {
+                display: inline-block;
+                position: relative;
+                width: 1.1em;
+            }
+             
+                     
+                       .AddStar:before{
+                        content: "\2605";
+                        position: absolute;
+                        left: 0;
+                        color: gold;
+                     }
+                        .AddStar:hover{ 
+                            cursor:pointer; 
+                        }

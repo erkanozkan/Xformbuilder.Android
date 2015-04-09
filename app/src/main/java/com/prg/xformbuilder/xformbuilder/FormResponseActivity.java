@@ -23,7 +23,14 @@ public class FormResponseActivity extends ActionBarActivity {
 
         WebView webview = (WebView) findViewById(R.id.webview);
         webview.getSettings().setJavaScriptEnabled(true);
-        webview.loadData(form.getMobileHtml(),"text/html",null);
+
+
+        StringBuilder html = new StringBuilder();
+        html.append(form.getMobileHtml());
+
+
+       webview.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
+        // webview.loadData(html.toString(),"text/html",null);
     }
 
     @Override

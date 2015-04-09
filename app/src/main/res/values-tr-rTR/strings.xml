@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Xformbuilder</string>
+    <string name="action_settings">Ayarlar</string>
+    <string name="hello_world">Giriş Ekranı</string>
+    <string name="username">Kullanıcı Adı:</string>
+    <string name="password">Şifre:</string>
+    <string name="Login">Giriş</string>
+    <string name="attempts">Attempts Left</string>
+    <string name="title_activity_result">ResultActivity</string>
+    <string name="title_activity_form">Form Listesi</string>
+    <string name="signIn">Giriş</string>
+    <string name="title_activity_form_response">Veri Girişi</string>
+    <string name="placeholder_username">Kullanıcı Adı/email</string>
+    <string name="placeholder_password">Şifre</string>
+
+</resources>
