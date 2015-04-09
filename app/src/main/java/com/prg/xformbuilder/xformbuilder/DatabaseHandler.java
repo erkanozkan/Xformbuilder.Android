@@ -173,10 +173,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         return userList;
     }
-    public List<Form> getAllFormListVw() {
+
+    public List<Form> getAllFormListVw(String parentId ) {
         List<Form> userList = new ArrayList<Form>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_MODIFIEDDATE}, null, null, null, null, null);
+        Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_MODIFIEDDATE}, KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
 
         while (cursor.moveToNext()) {
             Form form = new Form(Integer.parseInt(cursor.getString(0)), cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)),cursor.getString(4),cursor.getString(5),cursor.getString(6));

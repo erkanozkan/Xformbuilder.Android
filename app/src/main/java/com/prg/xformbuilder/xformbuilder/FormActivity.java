@@ -1,42 +1,28 @@
 package com.prg.xformbuilder.xformbuilder;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -51,24 +37,14 @@ public class FormActivity extends Activity {
     DatabaseHandler dbHandler;
 
 
-   /*
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String itemSelected =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
-                String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
-                Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
-            }
-        });
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form);
         dbHandler = new DatabaseHandler(getApplicationContext());
-
+        Bundle bundle=getIntent().getExtras();
+        parentId=bundle.getInt("ParentId");
         try {
-
             //--------------------------------------Internet Connection
             ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
@@ -80,10 +56,8 @@ public class FormActivity extends Activity {
                 InternetConnection = false;
             //--------------------------------------Internet Connection
 
+            //Internet baglantısı var ise web apiden formları cekiyoruz.
             if (InternetConnection){
-
-                Bundle bundle=getIntent().getExtras();
-                parentId=bundle.getInt("ParentId");
                 new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId="+parentId);
                 lv = (ListView) findViewById(R.id.liste);
                 lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -96,12 +70,13 @@ public class FormActivity extends Activity {
                 });
 
             }else{
+              //TODO: Eger internet yoksa veriler veri tabanından çekilecek ve list view ekranına dizilecek.
               //  GetAllFormListByListView();
 
 
             }
         }catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
     }
@@ -171,21 +146,17 @@ public class FormActivity extends Activity {
                         dbHandler.CreateForm(form);
                     }
                     else{
-                        //TODO:tablolar silinemediyse kontrol edilecek.
+                        //TODO:tablolar silinemediyse kontrol edilecek. Login sayfasına geri gönder.
                     }
                 }
                 try{
-
-                  List<Form> formList=  dbHandler.getAllFormListVw();
-
-                  //  List<Form> forms=dbHandler.getFormList(parentId);
+                    List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
                     FormList   formArray[] = new FormList[formList.size()];
                     for (int i=0;i<formList.size();i++){
                         formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.ic_launcher);
                     }
                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                     lv.setAdapter(adaptor);
-
                 }catch (Exception e){
                 }
             } catch (Exception e) {
@@ -194,7 +165,6 @@ public class FormActivity extends Activity {
             }
         }
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
