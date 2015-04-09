@@ -83,12 +83,15 @@ public class MainActivity extends Activity {
                         new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
 
                     }else{
-                        boolean login =false;
-                        //   login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
-                        if (login){
+                        final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
+                        User LoginUser= dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
+                        if (LoginUser!=null){
+                            bundle.putInt("ParentId", LoginUser.getParentId());
                             Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
                             Intent i = new Intent(MainActivity.this,FormActivity.class);
-                            startActivity(i);}
+                            i.putExtras(bundle);
+                            startActivity(i);
+                        }
                         else {
                             Toast.makeText(getApplicationContext(), "Kullanıcı Girişi Başarısız. Lütfen Tekrar Deneyiniz.",Toast.LENGTH_SHORT).show();
                         }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,7 +31,7 @@ public class FormAdaptor extends ArrayAdapter<FormList> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        bankaViewHolder holder = null;
+        formViewHolder holder = null;
 
 
         if(row == null){
@@ -40,29 +41,33 @@ public class FormAdaptor extends ArrayAdapter<FormList> {
 
             row = inflater.inflate(layoutResourceId, parent, false);
 
-            holder = new bankaViewHolder();
+            holder = new formViewHolder();
 
-            holder.img = (ImageView) row.findViewById(R.id.imageView1);
-            holder.baslik = (TextView) row.findViewById(R.id.basligi);
-            holder.detay = (TextView) row.findViewById(R.id.telefon);
+            holder.img = (ImageView) row.findViewById(R.id.formImage);
+            holder.baslik = (TextView) row.findViewById(R.id.formTitle);
+            holder.detay = (TextView) row.findViewById(R.id.username);
+holder.formID = (TextView) row.findViewById(R.id.frmId);
 
             row.setTag(holder);
         }
         else{
-            holder = (bankaViewHolder) row.getTag();
+            holder = (formViewHolder) row.getTag();
         }
 
-        FormList bBilgi = formLists[position];
-        holder.img.setImageResource(bBilgi.getFormImage());
-        holder.baslik.setText(bBilgi.getFormTitle());
-        holder.detay.setText(bBilgi.getUserName());
+        FormList fInfo = formLists[position];
+        holder.img.setImageResource(fInfo.getFormImage());
+        holder.baslik.setText(fInfo.getFormTitle());
+        holder.detay.setText(fInfo.getUserName());
+        holder.formID.setText(String.valueOf(fInfo.getFormId()));
+
         return row;
     }
 
 
-    static class bankaViewHolder{
+    static class formViewHolder{
         ImageView img;
         TextView baslik;
         TextView detay;
+        TextView formID;
     }
 }

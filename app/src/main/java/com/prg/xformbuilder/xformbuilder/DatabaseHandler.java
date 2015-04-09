@@ -115,27 +115,42 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.delete(TABLE_USER, KEY_ID + "=?", new String[]{String.valueOf(user.getId())});
 
     }
+
+    public boolean DeleteFormTable(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DROP TABLE "+TABLE_FORM);
+        return true;
+    }
     public int getUserCount(){
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM" + TABLE_USER,null);
         int count = cursor.getCount();
         cursor.close();
-
         return cursor.getCount();
 
     }
-    public boolean AccountLogin(String userName,String password)
+    public User AccountLogin(String userName,String password)
     {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER +" WHERE "+KEY_USERNAME+"='"+userName+"' " ,null);
-        int count = cursor.getCount();
-        cursor.close();
+        User user=null;
+        String sql="SELECT * FROM " + TABLE_USER + " WHERE " + KEY_USERNAME + "='" + userName + "' AND " + KEY_PASSWORD + "='" + password + "'";
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor !=null) {
+            cursor.moveToFirst();
+            user  = new User(
+                    cursor.getInt(cursor.getColumnIndex(KEY_ID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
+                    cursor.getString(cursor.getColumnIndex(KEY_FIRSTNAME)),
+                    cursor.getString(cursor.getColumnIndex(KEY_LASTNAME)),
+                    cursor.getString(cursor.getColumnIndex(KEY_COMPANY)),
+                    cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)));
 
-        if (count>1){
-            return true;
-        }else{
-            return false;
+            return user;
         }
+        cursor.close();
+        return user;
     }
 
     public void UpdateUser(User user){
@@ -149,10 +164,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PARENTID,user.getParentId());
         values.put(KEY_PASSWORD, user.getPassword());
         values.put(KEY_COMPANY, user.getCompany());
-
         db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(user.getUserId())});
-
-
     }
 
 
@@ -166,7 +178,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             userList.add(user);
         }
         cursor.close();
-
         return userList;
     }
 
@@ -180,7 +191,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             formList.add(form);
         }
         cursor.close();
-
         return formList;
     }
 
@@ -189,8 +199,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER +" WHERE "+KEY_USERID+"='"+userId+"' " ,null);
         int count = cursor.getCount();
         cursor.close();
-
-
         if (count>=1){
             return true;
         }else{

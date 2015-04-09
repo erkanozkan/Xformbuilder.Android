@@ -1,7 +1,10 @@
 package com.prg.xformbuilder.xformbuilder;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -11,9 +14,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -29,51 +36,73 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 
 public class FormActivity extends Activity {
 
     int parentId=0;
+    boolean InternetConnection = false;
 
     String jsonFormTitle="",jsonUserName="", jsonMobileHtml="",jsonModifiedDate="";
     int jsonParentId=0,jsonFormId=0 ;
     DatabaseHandler dbHandler;
-
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form);
         dbHandler = new DatabaseHandler(getApplicationContext());
 
-        ListView lv;
-        lv = (ListView) findViewById(R.id.liste);
+        try {
+
+            //--------------------------------------Internet Connection
+            ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+                //we are connected to a network
+                InternetConnection = true;
+            }
+            else
+                InternetConnection = false;
+            //--------------------------------------Internet Connection
+
+            if (InternetConnection){
+
+                Bundle bundle=getIntent().getExtras();
+                parentId=bundle.getInt("ParentId");
+                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=3358");
+
+              /*  dbHandler = new DatabaseHandler(getApplicationContext());
+                List<Form> forms=dbHandler.getFormList();
+                ListView lv;
+                lv = (ListView) findViewById(R.id.liste);
+                final FormList formArray[] = new FormList[forms.size()];
+
+                for (int i=0;i<forms.size();i++){
+                    formArray[i] = new FormList(forms.get(i).getFormId(), forms.get(i).getFormTitle(), forms.get(i).getUserName(), R.mipmap.ic_launcher);
+                }
+
+                FormAdaptor adaptor = new FormAdaptor(this, R.layout.line_layout, formArray);
+                lv.setAdapter(adaptor);
+                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
+                        String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
+                        Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
+                    }
+                });*/
+
+            }else{
+                GetAllFormListByListView();
 
 
-        FormList bankaDizi[] = new FormList[]{
-                new FormList(1, "Contact", "0 212 212 12 12", R.mipmap.ic_launcher),
-                new FormList(2, "User", " 0212 111 11 11", R.mipmap.ic_launcher),
-                new FormList(3, "Form List", "0 212 222 22 22",R.mipmap.ic_launcher),
-                new FormList(4, "Demos", "0 212 333 33 33", R.mipmap.ic_launcher),
-                new FormList(5, "Demoss", "0212 444 44 44", R.mipmap.ic_launcher),
-        };
-
-
-        FormAdaptor adap = new FormAdaptor(this, R.layout.line_layout, bankaDizi);
-        lv.setAdapter(adap);
-
-
-
-
-        new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=3358");
-        Bundle bundle=getIntent().getExtras();
-        parentId=bundle.getInt("ParentId");
-
+            }
+        }catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
+            Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+        }
     }
     public String GET(String url){
 
@@ -138,13 +167,18 @@ public class FormActivity extends Activity {
                     jsonMobileHtml = obj.getString("MobileHtml");
                     jsonModifiedDate =obj.getString("ModifiedDate");
 
-                //    Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,jsonModifiedDate);
-                 //   dbHandler.CreateForm(form);
+                    boolean deleteForm=true;
+                //    boolean deleteForm=dbHandler.DeleteFormTable();
+                    if (deleteForm){
+                        Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,jsonModifiedDate);
+                        dbHandler.CreateForm(form);
+                        GetAllFormListByListView();
+                    }else{
+                        //TODO:tablolar silinemediyse kontrol edilecek.
+                    }
                 }
-
-
             } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Lütfen daha sonra tekar deneyiniz.",Toast.LENGTH_SHORT).show();
                 Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
             }
         }
@@ -170,5 +204,24 @@ public class FormActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void GetAllFormListByListView(){
+        List<Form> forms=dbHandler.getFormList();
+        ListView lv;
+        lv = (ListView) findViewById(R.id.liste);
+        final FormList formArray[] = new FormList[forms.size()];
+        for (int i=0;i<forms.size();i++){
+            formArray[i] = new FormList(forms.get(i).getFormId(), forms.get(i).getFormTitle(), forms.get(i).getUserName(), R.mipmap.ic_launcher);
+        }
+        FormAdaptor adaptor = new FormAdaptor(this, R.layout.line_layout, formArray);
+        lv.setAdapter(adaptor);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String itemSelected =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
+                String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
+                Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
