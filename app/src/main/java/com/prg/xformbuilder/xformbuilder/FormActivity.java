@@ -44,6 +44,15 @@ public class FormActivity extends Activity {
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");
+        lv = (ListView) findViewById(R.id.liste);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
+                String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
+                Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
+            }
+        });
         try {
             //--------------------------------------Internet Connection
             ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -58,20 +67,24 @@ public class FormActivity extends Activity {
 
             //Internet baglantısı var ise web apiden formları cekiyoruz.
             if (InternetConnection){
-                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId="+parentId);
-                lv = (ListView) findViewById(R.id.liste);
-                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
-                        String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
-                        Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=" + parentId);
+
+
 
             }else{
               //TODO: Eger internet yoksa veriler veri tabanından çekilecek ve list view ekranına dizilecek.
-              //  GetAllFormListByListView();
+                try{
+                    List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
+                    FormList   formArray[] = new FormList[formList.size()];
+                    for (int i=0;i<formList.size();i++){
+                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.ic_launcher);
+                    }
+                    adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
+                    lv.setAdapter(adaptor);
+                }catch (Exception e){
+                    Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
+                    Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+                }
 
 
             }
