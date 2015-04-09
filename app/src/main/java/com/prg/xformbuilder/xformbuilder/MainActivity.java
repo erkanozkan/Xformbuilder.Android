@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
     int jsonParentId=0,jsonUserId=0 ;
     DatabaseHandler dbHandler;
     boolean InternetConnection = false;
-
+    final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,6 @@ public class MainActivity extends Activity {
 
 
         login.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
@@ -83,14 +82,16 @@ public class MainActivity extends Activity {
                         new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
 
                     }else{
-                        boolean login =false;
-                        //   login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
-                        if (login){
+                       User  login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
+                        if (login!=null){
                             Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
+                            bundle.putInt("ParentId", login.getParentId());
                             Intent i = new Intent(MainActivity.this,FormActivity.class);
-                            startActivity(i);}
+                            i.putExtras(bundle);
+                            startActivity(i);
+                        }
                         else {
-                            Toast.makeText(getApplicationContext(), "Kullanıcı Girişi Başarısız. Lütfen Tekrar Deneyiniz.",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Sistemde kayıtlı kullanıcı bulunamadı.",Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -99,7 +100,6 @@ public class MainActivity extends Activity {
                 }
             }
         });
-
     }
     public String GET(String url){
 
@@ -159,11 +159,10 @@ public class MainActivity extends Activity {
                 jsonUserId=jsonObject.getInt("UserId");
                 jsonCompany=jsonObject.getString("Company").toString();
 
-                final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
+             //   final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
 
                 if (jsonUserName.equals(username.getText().toString()))
                 {
-
                     boolean  getUser=dbHandler.GetUserByUserId(jsonUserId);
                     if (getUser){
                         User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
@@ -175,7 +174,7 @@ public class MainActivity extends Activity {
                     //List<User> userss = dbHandler.getAllUserList();
 
                     bundle.putInt("ParentId", jsonParentId);
-                    Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Xformbuilder hoş geldiniz.",Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
                     i.putExtras(bundle);
                     startActivity(i);
