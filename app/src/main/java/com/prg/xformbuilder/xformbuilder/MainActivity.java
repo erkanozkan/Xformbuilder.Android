@@ -83,12 +83,12 @@ public class MainActivity extends Activity {
                         new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
 
                     }else{
-                        boolean login =false;
-                        //   login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
+                        boolean login;
+                        login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
                         if (login){
-                            Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
-                            Intent i = new Intent(MainActivity.this,FormActivity.class);
-                            startActivity(i);}
+                        Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(MainActivity.this,FormActivity.class);
+                        startActivity(i);}
                         else {
                             Toast.makeText(getApplicationContext(), "Kullanıcı Girişi Başarısız. Lütfen Tekrar Deneyiniz.",Toast.LENGTH_SHORT).show();
                         }
@@ -151,7 +151,7 @@ public class MainActivity extends Activity {
         protected void onPostExecute(String result) {
             try {
                 JSONObject jsonObject = new JSONObject(result);
-                jsonUserName= jsonObject.getString("UserName").toString();
+                jsonUserName=jsonObject.getString("UserName").toString();
                 jsonFirstName=jsonObject.getString("FirstName").toString();
                 jsonLastName=jsonObject.getString("LastName").toString();
                 jsonPassword=jsonObject.getString("Password").toString();
@@ -163,23 +163,15 @@ public class MainActivity extends Activity {
 
                 if (jsonUserName.equals(username.getText().toString()))
                 {
-
-                    boolean  getUser=dbHandler.GetUserByUserId(jsonUserId);
-                    if (getUser){
-                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
-                        dbHandler.UpdateUser(user);
-                    }else{
-                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
-                        dbHandler.CreateUser(user);
-                    }
-                    //List<User> userss = dbHandler.getAllUserList();
-
                     bundle.putInt("ParentId", jsonParentId);
                     Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
                     i.putExtras(bundle);
                     startActivity(i);
-
+                /*
+                    User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
+                    dbHandler.CreateUser(user);
+                 */
                 }else
                 {
                     Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.",Toast.LENGTH_SHORT).show();

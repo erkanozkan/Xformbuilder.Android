@@ -9,4 +9,5 @@
     <string name="title_activity_result">ResultActivity</string>
     <string name="title_activity_form">FormActivity</string>
     <string name="signIn">Sign In</string>
+    <string name="title_activity_form_response">FormResponse</string>
 </resources>
