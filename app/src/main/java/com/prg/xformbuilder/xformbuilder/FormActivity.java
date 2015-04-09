@@ -44,10 +44,23 @@ public class FormActivity extends Activity {
 
     int parentId=0;
     boolean InternetConnection = false;
-
+    FormAdaptor adaptor;
+    ListView lv;
     String jsonFormTitle="",jsonUserName="", jsonMobileHtml="",jsonModifiedDate="";
     int jsonParentId=0,jsonFormId=0 ;
     DatabaseHandler dbHandler;
+
+
+   /*
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String itemSelected =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
+                String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
+                Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
+            }
+        });
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,20 +84,8 @@ public class FormActivity extends Activity {
 
                 Bundle bundle=getIntent().getExtras();
                 parentId=bundle.getInt("ParentId");
-                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=3358");
-
-              /*  dbHandler = new DatabaseHandler(getApplicationContext());
-                List<Form> forms=dbHandler.getFormList();
-                ListView lv;
+                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId="+parentId);
                 lv = (ListView) findViewById(R.id.liste);
-                final FormList formArray[] = new FormList[forms.size()];
-
-                for (int i=0;i<forms.size();i++){
-                    formArray[i] = new FormList(forms.get(i).getFormId(), forms.get(i).getFormTitle(), forms.get(i).getUserName(), R.mipmap.ic_launcher);
-                }
-
-                FormAdaptor adaptor = new FormAdaptor(this, R.layout.line_layout, formArray);
-                lv.setAdapter(adaptor);
                 lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -92,10 +93,10 @@ public class FormActivity extends Activity {
                         String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
                         Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
                     }
-                });*/
+                });
 
             }else{
-                GetAllFormListByListView();
+              //  GetAllFormListByListView();
 
 
             }
@@ -129,7 +130,7 @@ public class FormActivity extends Activity {
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
         }
-  
+
         return result;
     }
 
@@ -155,27 +156,37 @@ public class FormActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             try {
-                List<Form> formss=dbHandler.getFormList();
                 JSONArray jsonArray = new JSONArray(result);
+                boolean deleteForm = dbHandler.DeleteFormTable();
                 for(int i=0; i<jsonArray.length(); i++){
                     JSONObject obj = jsonArray.getJSONObject(i);
-
                     jsonFormTitle = obj.getString("FormTitle");
                     jsonFormId = obj.getInt("FormId");
                     jsonParentId = obj.getInt("ParentId");
                     jsonUserName = obj.getString("UserName");
                     jsonMobileHtml = obj.getString("MobileHtml");
                     jsonModifiedDate =obj.getString("ModifiedDate");
-
-                    boolean deleteForm=true;
-                //    boolean deleteForm=dbHandler.DeleteFormTable();
                     if (deleteForm){
                         Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,jsonModifiedDate);
                         dbHandler.CreateForm(form);
-                        GetAllFormListByListView();
-                    }else{
+                    }
+                    else{
                         //TODO:tablolar silinemediyse kontrol edilecek.
                     }
+                }
+                try{
+
+                  List<Form> formList=  dbHandler.getAllFormListVw();
+
+                  //  List<Form> forms=dbHandler.getFormList(parentId);
+                    FormList   formArray[] = new FormList[formList.size()];
+                    for (int i=0;i<formList.size();i++){
+                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.ic_launcher);
+                    }
+                    adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
+                    lv.setAdapter(adaptor);
+
+                }catch (Exception e){
                 }
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Lütfen daha sonra tekar deneyiniz.",Toast.LENGTH_SHORT).show();
@@ -205,23 +216,5 @@ public class FormActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
-    public void GetAllFormListByListView(){
-        List<Form> forms=dbHandler.getFormList();
-        ListView lv;
-        lv = (ListView) findViewById(R.id.liste);
-        final FormList formArray[] = new FormList[forms.size()];
-        for (int i=0;i<forms.size();i++){
-            formArray[i] = new FormList(forms.get(i).getFormId(), forms.get(i).getFormTitle(), forms.get(i).getUserName(), R.mipmap.ic_launcher);
-        }
-        FormAdaptor adaptor = new FormAdaptor(this, R.layout.line_layout, formArray);
-        lv.setAdapter(adaptor);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String itemSelected =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
-                String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
-                Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+
 }

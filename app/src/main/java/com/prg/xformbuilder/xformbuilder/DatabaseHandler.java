@@ -64,9 +64,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void CreateUser (User user){
         SQLiteDatabase db = getWritableDatabase();
-
         ContentValues values = new ContentValues();
-
         values.put(KEY_USERNAME,user.getUserName());
         values.put(KEY_FIRSTNAME,user.getFirstName());
         values.put(KEY_LASTNAME,user.getLastName());
@@ -74,26 +72,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PARENTID,user.getParentId());
         values.put(KEY_PASSWORD,user.getPassword());
         values.put(KEY_COMPANY, user.getCompany());
-
         db.insert(TABLE_USER, null, values);
 
 
     }
     public void CreateForm (Form form){
         SQLiteDatabase db = getWritableDatabase();
-
         ContentValues values = new ContentValues();
-
         values.put(KEY_FORMTITLE, form.getFormTitle());
         values.put(KEY_FORMID,form.getFormId());
         values.put(KEY_PARENTID,form.getParentId());
         values.put(KEY_USERNAME,form.getUserName());
         values.put(KEY_MOBILEHTML,form.getMobileHtml());
-        values.put(KEY_MODIFIEDDATE,form.getModifiedDate());
-
+        values.put(KEY_MODIFIEDDATE, form.getModifiedDate());
         db.insert(TABLE_FORM, null, values);
-
-
     }
 
 
@@ -118,7 +110,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public boolean DeleteFormTable(){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DROP TABLE "+TABLE_FORM);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FORM);
+        onCreate(db);
         return true;
     }
     public int getUserCount(){
@@ -180,14 +173,36 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         return userList;
     }
-
-    public List<Form> getFormList() {
-        List<Form> formList = new ArrayList<Form>();
+    public List<Form> getAllFormListVw() {
+        List<Form> userList = new ArrayList<Form>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FORM, new String[]{"id", "formtitle", "formid","parentid","username","mobilehtml","modifieddate"}, null, null, null, null, null);
+        Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_MODIFIEDDATE}, null, null, null, null, null);
 
         while (cursor.moveToNext()) {
             Form form = new Form(Integer.parseInt(cursor.getString(0)), cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)),cursor.getString(4),cursor.getString(5),cursor.getString(6));
+            userList.add(form);
+        }
+        cursor.close();
+return userList;
+    }
+    public List<Form> getFormList(int parentId) {
+        List<Form> formList = new ArrayList<Form>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String  column[] = new String[]{"id", "userName", "firstName","lastName","company","password","userId","parentId"};
+        //  Cursor cursor = db.query(TABLE_FORM, new String[]{"id", "formtitle", "formid","parentid","username","mobilehtml","modifieddate"},KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
+        String sql="SELECT * FROM " + TABLE_FORM + " WHERE " + KEY_PARENTID + "=?";
+
+        Cursor cursor = db.rawQuery(sql, null);
+        while (cursor.moveToNext()) {
+            Form form = new Form(
+                    cursor.getInt(cursor.getColumnIndex(KEY_ID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_FORMTITLE)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_FORMID)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
+                    cursor.getString(cursor.getColumnIndex(KEY_MOBILEHTML)),
+                    cursor.getString(cursor.getColumnIndex(KEY_MODIFIEDDATE)));
             formList.add(form);
         }
         cursor.close();
