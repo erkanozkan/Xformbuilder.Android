@@ -10,4 +10,6 @@
     <string name="title_activity_form">FormActivity</string>
     <string name="signIn">Sign In</string>
     <string name="title_activity_form_response">FormResponse</string>
+    <string name="placeholder_username">username/email</string>
+    <string name="placeholder_password">password</string>
 </resources>

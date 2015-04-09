@@ -83,7 +83,7 @@ ProgressDialog loginDialog ;
                 if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
                     loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_DARK);
                     loginDialog.setTitle("Login Process");
-                    loginDialog.setMessage("Pleas Wait");
+                    loginDialog.setMessage("Please Wait...");
                     loginDialog.show();
                     if (InternetConnection){
                         //Web Api Cagırıyoruz.

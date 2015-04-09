@@ -37,11 +37,11 @@
                     android:layout_width="fill_parent"
                     android:layout_height="39dp"
                     android:id="@+id/editText_userName"
-                    android:hint="email / username"
                     android:paddingLeft="10dp"
                     android:background="@null"
                     android:layout_marginTop="4dp"
-                    android:text="admin" />
+                    android:text="admin"
+                    android:hint="@string/placeholder_username" />
 
                 <LinearLayout
                     android:orientation="vertical"
@@ -57,7 +57,7 @@
                     android:id="@+id/editText_password"
                     android:paddingLeft="10dp"
                     android:background="@null"
-                    android:hint="password"
+                    android:hint="@string/placeholder_password"
                     android:layout_marginTop="1dp"
                     android:text="admin" />
 
@@ -88,6 +88,7 @@
                         android:layout_height="50dp"
                         android:text="@string/signIn"
                         android:id="@+id/button_login"
+                        android:hint="@string/signIn"
                         android:background="#2395b1"
                         android:textColor="#c5c5c5"
                         android:layout_marginTop="10dp"
