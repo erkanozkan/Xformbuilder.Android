@@ -48,6 +48,7 @@ public class MainActivity extends Activity {
     String jsonUserName="",jsonCompany="", jsonLastName="", jsonFirstName="", jsonPassword="";
     int jsonParentId=0,jsonUserId=0 ;
     DatabaseHandler dbHandler;
+    boolean InternetConnection = false;
 
 
     @Override
@@ -57,10 +58,10 @@ public class MainActivity extends Activity {
         username = (EditText)findViewById(R.id.editText_userName);
         password = (EditText)findViewById(R.id.editText_password);
         dbHandler = new DatabaseHandler(getApplicationContext());
+        login = (Button)findViewById(R.id.button_login);
 
 
-        
-        boolean InternetConnection = false;
+        //--------------------------------------Internet Connection
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
@@ -69,22 +70,29 @@ public class MainActivity extends Activity {
         }
         else
             InternetConnection = false;
+        //--------------------------------------Internet Connection
 
-        login = (Button)findViewById(R.id.button_login);
 
         login.setOnClickListener(new View.OnClickListener() {
-
-         /*   EditText userEditText = (EditText) findViewById(R.id.editText_password);
-            String userName = userEditText.getText().toString();
-
-            EditText passEditText = (EditText) findViewById(R.id.editText_password);
-            String password = passEditText.getText().toString();*/
 
             @Override
             public void onClick(View v) {
                 if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
-                    // call AsynTask to perform network operation on separate thread
-                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
+                    if (InternetConnection){
+                        //Web Api Cagırıyoruz.
+                        new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
+
+                    }else{
+                        boolean login;
+                        login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
+                        if (login){
+                        Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(MainActivity.this,FormActivity.class);
+                        startActivity(i);}
+                        else {
+                            Toast.makeText(getApplicationContext(), "Kullanıcı Girişi Başarısız. Lütfen Tekrar Deneyiniz.",Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
@@ -133,23 +141,12 @@ public class MainActivity extends Activity {
 
     }
 
-    public boolean isConnected(){
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected())
-            return true;
-        else
-            return false;
-
-    }
-
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
 
             return GET(urls[0]);
         }
-        // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
             try {
@@ -162,27 +159,19 @@ public class MainActivity extends Activity {
                 jsonUserId=jsonObject.getInt("UserId");
                 jsonCompany=jsonObject.getString("Company").toString();
 
-                final Bundle bundle = new Bundle();
+                final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
 
                 if (jsonUserName.equals(username.getText().toString()))
                 {
                     bundle.putInt("ParentId", jsonParentId);
-                    List<User> userss = dbHandler.getAllUserList();
-                   // if (dbHandler.AccountLogin("admin","admin")){
-                        Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
-                        Intent i = new Intent(MainActivity.this,FormActivity.class);
-                        i.putExtras(bundle);
-                        startActivity(i);
-                  /*}else {
-                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
-                        dbHandler.CreateUser(user);
-                        Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
-                        Intent i = new Intent(MainActivity.this,FormActivity.class);
-                        i.putExtras(bundle);
-                        startActivity(i);
-                  //  }*/
-
-
+                    Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(MainActivity.this,FormActivity.class);
+                    i.putExtras(bundle);
+                    startActivity(i);
+                /*
+                    User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
+                    dbHandler.CreateUser(user);
+                 */
                 }else
                 {
                     Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
@@ -194,7 +183,6 @@ public class MainActivity extends Activity {
             }
         }
     }
-//deneme
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
