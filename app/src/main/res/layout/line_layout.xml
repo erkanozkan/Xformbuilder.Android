@@ -2,9 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:visibility="visible">
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/formImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -16,21 +17,34 @@
         android:src="@mipmap/ic_launcher" />
 
     <TextView
-        android:id="@+id/basligi"
+        android:id="@+id/formTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/imageView1"
+        android:layout_alignTop="@+id/formImage"
         android:layout_marginLeft="16dp"
-        android:layout_toRightOf="@+id/imageView1"
+        android:layout_toRightOf="@+id/formImage"
         android:text="Large Text"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
-        android:id="@+id/telefon"
+        android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageView1"
-        android:layout_alignLeft="@+id/basligi"
+        android:layout_alignBottom="@+id/formImage"
+        android:layout_alignLeft="@+id/formTitle"
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/frmId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Small Text"
+        android:visibility="invisible"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
+
+
+
 </RelativeLayout>

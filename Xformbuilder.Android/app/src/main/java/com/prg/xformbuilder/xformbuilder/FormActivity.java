@@ -28,17 +28,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
 public class FormActivity extends Activity {
 
-int parentId=0;
+    int parentId=0;
+
+    String jsonFormTitle="",jsonUserName="", jsonMobileHtml="",jsonModifiedDate="";
+    int jsonParentId=0,jsonFormId=0 ;
+    DatabaseHandler dbHandler;
+
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form);
-
+        dbHandler = new DatabaseHandler(getApplicationContext());
 
         ListView lv;
         lv = (ListView) findViewById(R.id.liste);
@@ -54,15 +65,14 @@ int parentId=0;
 
 
         FormAdaptor adap = new FormAdaptor(this, R.layout.line_layout, bankaDizi);
-
         lv.setAdapter(adap);
 
 
 
 
-    //   new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=3358");
-     //   Bundle bundle=getIntent().getExtras();
-     //   parentId=bundle.getInt("ParentId");
+        new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=3358");
+        Bundle bundle=getIntent().getExtras();
+        parentId=bundle.getInt("ParentId");
 
     }
     public String GET(String url){
@@ -105,15 +115,7 @@ int parentId=0;
 
     }
 
-    public boolean isConnected(){
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected())
-            return true;
-        else
-            return false;
 
-    }
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -124,46 +126,23 @@ int parentId=0;
         @Override
         protected void onPostExecute(String result) {
             try {
-
+                List<Form> formss=dbHandler.getFormList();
                 JSONArray jsonArray = new JSONArray(result);
-                String[] Forms;
-
-
-                final String[] array_spinner = new String[jsonArray.length()];
-                final ArrayList<String> list = new ArrayList<String>();
-                for(int i=0;i<jsonArray.length();i++){
-                    JSONObject json_data = jsonArray.getJSONObject(i);
-                    String jj=json_data.getString("FormTitle");
-                    array_spinner[i] = jj;
-                    list.add(jj);
-                }
-                //(A) adımı
-            //    ListView listemiz=(ListView) findViewById(R.id.listView1);
-
-
-            //    ListView listView =(listView)findViewById(R.id.list);
                 for(int i=0; i<jsonArray.length(); i++){
                     JSONObject obj = jsonArray.getJSONObject(i);
 
-                    String name = obj.getString("FormTitle");
-                    String url = obj.getString("FormId");
+                    jsonFormTitle = obj.getString("FormTitle");
+                    jsonFormId = obj.getInt("FormId");
+                    jsonParentId = obj.getInt("ParentId");
+                    jsonUserName = obj.getString("UserName");
+                    jsonMobileHtml = obj.getString("MobileHtml");
+                    jsonModifiedDate =obj.getString("ModifiedDate");
 
-                    System.out.println(name);
-                    System.out.println(url);
+                //    Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,jsonModifiedDate);
+                 //   dbHandler.CreateForm(form);
                 }
-                //   JSONObject jsonObject = new JSONObject(result);
 
-              /*  jsonUserName=jsonObject.getString("UserName").toString();
-                if (jsonUserName.equals(username.getText().toString()))
-                {
-                    Toast.makeText(getApplicationContext(), "Giriş Başarılı",Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(MainActivity.this,FormActivity.class);
-                    startActivity(i);
-                }else
-                {
-                    Toast.makeText(getApplicationContext(), "Giriş Başarısız",Toast.LENGTH_SHORT).show();
-                }
-*/
+
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
                 Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
