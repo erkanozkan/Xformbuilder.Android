@@ -35,7 +35,8 @@
                     android:background="@null"
                     android:layout_marginTop="4dp"
                     android:text="admin"
-                    android:hint="@string/placeholder_username" />
+                    android:hint="@string/placeholder_username"
+                    android:singleLine="true" />
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="fill_parent"
@@ -51,7 +52,8 @@
                     android:background="@null"
                     android:hint="@string/placeholder_password"
                     android:layout_marginTop="1dp"
-                    android:text="admin" />
+                    android:text="admin"
+                    android:singleLine="true" />
             </LinearLayout>
             <LinearLayout
                 android:orientation="vertical"

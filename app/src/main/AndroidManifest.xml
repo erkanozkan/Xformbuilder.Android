@@ -22,8 +22,8 @@
         </activity>
         <activity
             android:name=".FormActivity"
-            android:label="@string/title_activity_form"
-            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" >
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="@string/title_activity_form">
         </activity>
         <activity
             android:name=".FormResponseActivity"
