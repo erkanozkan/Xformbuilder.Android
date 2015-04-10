@@ -3,6 +3,8 @@ package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
@@ -12,12 +14,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
@@ -27,14 +31,13 @@ public class FormResponseActivity extends ActionBarActivity {
     DatabaseHandler dbHandler;
     String formId="";
 
-    private WebView webView;
 
-    final Activity activity = this;
+    WebView web;
+    ProgressBar progressBar;
 
-    public Uri imageUri;
-
-    private static final int FILECHOOSER_RESULTCODE   = 2888;
     private ValueCallback<Uri> mUploadMessage;
+    private final static int FILECHOOSER_RESULTCODE = 1;
+
     private Uri mCapturedImageURI = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,117 +50,62 @@ public class FormResponseActivity extends ActionBarActivity {
       Form form=  dbHandler.GetFormByFormId(formId);
 
 
-        webView = (WebView) findViewById(R.id.webview);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setLoadWithOverviewMode(true);
+        web = (WebView) findViewById(R.id.webview);
+        web.getSettings().setJavaScriptEnabled(true);
+        web.getSettings().setLoadWithOverviewMode(true);
 
         //webView.getSettings().setUseWideViewPort(true);
 
         //Other webview settings
-        webView.setScrollbarFadingEnabled(false);
-        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
-        webView.getSettings().setAllowFileAccess(true);
+        web.setScrollbarFadingEnabled(false);
+        web.getSettings().setPluginState(WebSettings.PluginState.ON);
+        web.getSettings().setAllowFileAccess(true);
 
         StringBuilder html = new StringBuilder();
         html.append(form.getMobileHtml());
 
 
-        webView.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
+        web.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
         // webview.loadData(html.toString(),"text/html",null);
 
-        startWebView();
-    }
 
-    private void startWebView() {
-
-
-
-        //Create new webview Client to show progress dialog
-        //Called When opening a url or click on link
-
-        webView.setWebViewClient(new WebViewClient() {
-            ProgressDialog progressDialog;
-
-
-            // Called when all page resources loaded
-            public void onPageFinished(WebView view, String url) {
-
-                try{
-                    // Close progressDialog
-                    if (progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                        progressDialog = null;
-                    }
-                }catch(Exception exception){
-                    exception.printStackTrace();
-                }
-            }
-
-        });
-
-
-
-        // implement WebChromeClient inner class
-        // we will define openFileChooser for select file from camera
-        webView.setWebChromeClient(new WebChromeClient() {
-
-            // openFileChooser for Android 3.0+
-
-            public void openFileChooser(ValueCallback uploadMsg) {
-
-                Log.i("For Android < 3.0", "called");
+        web.setWebChromeClient(new WebChromeClient()
+        {
+            //The undocumented magic method override
+            //Eclipse will swear at you if you try to put @Override here
+            // For Android 3.0+
+            public void openFileChooser(ValueCallback<Uri> uploadMsg) {
 
                 mUploadMessage = uploadMsg;
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-
-
                 i.addCategory(Intent.CATEGORY_OPENABLE);
-
                 i.setType("*/*");
-                FormResponseActivity.this.startActivityForResult(
-                        Intent.createChooser(i, "File Browser"),
-                        FILECHOOSER_RESULTCODE);
+                FormResponseActivity.this.startActivityForResult(Intent.createChooser(i,"File Chooser"), FILECHOOSER_RESULTCODE);
+
             }
 
             // For Android 3.0+
-            public void openFileChooser(ValueCallback uploadMsg,
-                                        String acceptType) {
-
-                Log.i("For Android 3.0+", "called");
-
+            public void openFileChooser( ValueCallback uploadMsg, String acceptType ) {
                 mUploadMessage = uploadMsg;
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-
                 i.addCategory(Intent.CATEGORY_OPENABLE);
-
                 i.setType("*/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
             }
 
-            public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
-                openFileChooser(uploadMsg);
-
-                Log.i("For Android Jellybeans", "called");
-
+            //For Android 4.1
+            public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture){
                 mUploadMessage = uploadMsg;
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-
                 i.addCategory(Intent.CATEGORY_OPENABLE);
-
                 i.setType("*/*");
-                FormResponseActivity.this.startActivityForResult(
-                        Intent.createChooser(i, "File Browser"),
-                        FILECHOOSER_RESULTCODE);
+                FormResponseActivity.this.startActivityForResult( Intent.createChooser( i, "File Chooser" ), FormResponseActivity.FILECHOOSER_RESULTCODE );
 
             }
 
         });
-
-
-
-
     }
 
     @Override
@@ -166,34 +114,12 @@ public class FormResponseActivity extends ActionBarActivity {
 
         if(requestCode==FILECHOOSER_RESULTCODE)
         {
-
-            if (null == this.mUploadMessage) {
-                return;
-            }
-
-            Uri result=null;
-
-            try{
-                if (resultCode != RESULT_OK) {
-
-                    result = null;
-
-                } else {
-
-                    // retrieve from the private variable if the intent is null
-                    result = intent == null ? mCapturedImageURI : intent.getData();
-                }
-            }
-            catch(Exception e)
-            {
-                Toast.makeText(getApplicationContext(), "activity :"+e, Toast.LENGTH_LONG).show();
-            }
-
+            if (null == mUploadMessage) return;
+            Uri result = intent == null || resultCode != RESULT_OK ? null
+                    : intent.getData();
             mUploadMessage.onReceiveValue(result);
             mUploadMessage = null;
-
         }
-
     }
 
     // Open previous opened link from history on webview when back button pressed
@@ -201,12 +127,7 @@ public class FormResponseActivity extends ActionBarActivity {
     @Override
     // Detect when the back button is pressed
     public void onBackPressed() {
-        if(webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            // Let the system handle the back button
-            super.onBackPressed();
-        }
+
     }
 
     @Override
@@ -230,4 +151,50 @@ public class FormResponseActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public class myWebClient extends WebViewClient
+    {
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            // TODO Auto-generated method stub
+            super.onPageStarted(view, url, favicon);
+        }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            // TODO Auto-generated method stub
+
+            view.loadUrl(url);
+            return true;
+
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            // TODO Auto-generated method stub
+            super.onPageFinished(view, url);
+
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    //flipscreen not loading again
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
+    }
+
+// To handle "Back" key press event for WebView to go back to previous screen.
+/*@Override
+public boolean onKeyDown(int keyCode, KeyEvent event)
+{
+    if ((keyCode == KeyEvent.KEYCODE_BACK) && web.canGoBack()) {
+        web.goBack();
+        return true;
+    }
+    return super.onKeyDown(keyCode, event);
+}*/
 }
+
+
+
