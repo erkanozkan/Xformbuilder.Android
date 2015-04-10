@@ -12,4 +12,6 @@
     <string name="title_activity_form_response">FormResponse</string>
     <string name="placeholder_username">username/email</string>
     <string name="placeholder_password">password</string>
+    <string name="title_activity_advanceview">advanceview</string>
+    <string name="title_activity_webview">webview</string>
 </resources>

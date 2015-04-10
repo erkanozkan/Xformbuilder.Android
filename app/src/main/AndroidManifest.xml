@@ -22,13 +22,14 @@
         </activity>
         <activity
             android:name=".FormActivity"
-            android:theme="@android:style/Theme.DeviceDefault"
-            android:label="@string/title_activity_form">
+            android:label="@string/title_activity_form"
+            android:theme="@android:style/Theme.DeviceDefault" >
         </activity>
         <activity
             android:name=".FormResponseActivity"
             android:label="@string/title_activity_form_response" >
         </activity>
+
     </application>
 
 </manifest>
