@@ -1,5 +1,7 @@
 package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -37,6 +39,7 @@ public class FormActivity extends Activity {
     int jsonParentId=0,jsonFormId=0 ;
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
+    ProgressDialog formdialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,7 @@ public class FormActivity extends Activity {
                 Intent i = new Intent(FormActivity.this,FormResponseActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
+
 
             }
         });
@@ -87,6 +91,7 @@ public class FormActivity extends Activity {
                     }
                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                     lv.setAdapter(adaptor);
+                    formdialog.dismiss();
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
                     Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
