@@ -95,6 +95,7 @@ ProgressDialog loginDialog ;
                             loginDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
                             bundle.putInt("ParentId", login.getParentId());
+                            bundle.putInt("UserId",login.getUserId());
                             Intent i = new Intent(MainActivity.this,FormActivity.class);
                             i.putExtras(bundle);
                             startActivity(i);
@@ -184,6 +185,7 @@ ProgressDialog loginDialog ;
                     //List<User> userss = dbHandler.getAllUserList();
 
                     bundle.putInt("ParentId", jsonParentId);
+                    bundle.putInt("UserId",jsonUserId);
                     loginDialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Xformbuilder hoş geldiniz.",Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);

@@ -23,13 +23,16 @@
         <activity
             android:name=".FormActivity"
             android:label="@string/title_activity_form"
-            android:theme="@android:style/Theme.DeviceDefault" >
+            android:theme="@style/MyTheme" >
         </activity>
         <activity
             android:name=".FormResponseActivity"
             android:label="@string/title_activity_form_response" >
         </activity>
-
+        <activity
+            android:name=".Settings"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>

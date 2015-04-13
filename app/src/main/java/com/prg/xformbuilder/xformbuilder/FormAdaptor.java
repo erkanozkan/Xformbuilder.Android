@@ -11,9 +11,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by Profesor-PC on 7.4.2015.
- */
+
 public class FormAdaptor extends ArrayAdapter<FormList> {
     Context context;
     int layoutResourceId;

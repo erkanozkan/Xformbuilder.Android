@@ -14,4 +14,7 @@
     <string name="placeholder_password">password</string>
     <string name="title_activity_advanceview">advanceview</string>
     <string name="title_activity_webview">webview</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="hello_round">Hello Round World!</string>
+    <string name="hello_square">Hello Square World!</string>
 </resources>

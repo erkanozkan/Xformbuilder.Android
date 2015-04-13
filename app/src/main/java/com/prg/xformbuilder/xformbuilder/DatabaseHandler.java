@@ -89,7 +89,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
 
-    public User getUser( int userId){
+    public User getUser(int userId){
         SQLiteDatabase db =this.getReadableDatabase();
         Cursor cursor=db.query(TABLE_USER,new String[] {KEY_ID,KEY_USERNAME,KEY_FIRSTNAME,KEY_LASTNAME,KEY_USERID,KEY_PARENTID,KEY_PASSWORD,KEY_COMPANY}, KEY_USERID + "=?", new String[] {String.valueOf(userId)},null,null,null,null);
         if (cursor !=null) {
@@ -218,6 +218,31 @@ return formList;
             return false;
         }
     }
+
+
+    public User GetUserByUserIdForSettings(int userId){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER + " WHERE " + KEY_USERID + "='" + userId + "' ", null);
+
+        User user = null;
+if (cursor != null){
+    cursor.moveToFirst();
+    user  = new User(
+            cursor.getInt(cursor.getColumnIndex(KEY_ID)),
+            cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
+            cursor.getString(cursor.getColumnIndex(KEY_FIRSTNAME)),
+            cursor.getString(cursor.getColumnIndex(KEY_LASTNAME)),
+            cursor.getString(cursor.getColumnIndex(KEY_COMPANY)),
+            cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
+            cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
+            cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)));
+
+}
+        cursor.close();
+     return  user;
+    }
+
+
 
     public Form GetFormByFormId(String formId){
         SQLiteDatabase db = getReadableDatabase();
