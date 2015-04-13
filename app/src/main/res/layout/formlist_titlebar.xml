@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="40dp"
+    android:background="#e5e4e2"
+    android:id="@+id/mainlinearcustomtitle_formlist">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:id="@+id/linear_formlist"
+        android:layout_row="0"
+        android:layout_column="0"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/title_activity_form"
+            android:id="@+id/textView_FormList"
+            android:textColor="#ff000000"
+            android:layout_row="0"
+            android:layout_column="8"
+            android:layout_columnSpan="6" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="right"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageButton_sync"
+            android:background="@mipmap/sync_icon"
+            android:layout_row="0"
+            android:layout_column="5"
+            android:layout_marginRight="30dp" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageButton_settings"
+            android:background="@mipmap/formlist_settings"
+            android:layout_row="0"
+            android:layout_column="7"
+            android:layout_marginRight="10dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
