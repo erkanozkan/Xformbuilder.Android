@@ -1,5 +1,7 @@
 package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -34,44 +36,22 @@ import java.util.List;
 public class FormActivity extends Activity {
 
     int parentId=0;
-    int userId =0;
     boolean InternetConnection = false;
     FormAdaptor adaptor;
     ListView lv;
-    ImageButton imgBtn_settings;
     String jsonFormTitle="",jsonUserName="", jsonMobileHtml="",jsonModifiedDate="";
     int jsonParentId=0,jsonFormId=0 ;
     DatabaseHandler dbHandler;
-    final Bundle bundleForm = new Bundle(); //Formlar arası veri transferi için kullanıyoruz
+    final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-         setContentView(R.layout.activity_form);
-         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,R.layout.formlist_titlebar);
-
-
+        setContentView(R.layout.activity_form);
         dbHandler = new DatabaseHandler(getApplicationContext());
-        final Bundle bundle=getIntent().getExtras();
+        Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");
-        userId = bundle.getInt("UserId");
-
         lv = (ListView) findViewById(R.id.liste);
-                    imgBtn_settings = (ImageButton)findViewById(R.id.imageButton_settings);
-
-
-        imgBtn_settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bundle.putInt("FormId",userId);
-                Intent i = new Intent(FormActivity.this,Settings.class);
-                i.putExtras(bundle);
-                startActivity(i);
-            }
-        });
-
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -111,7 +91,7 @@ public class FormActivity extends Activity {
                     for (int i=0;i<formList.size();i++){
                         formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.ic_launcher);
                     }
-                    adaptor = new FormAdaptor(getApplicationContext(),R.layout.line_layout, formArray);
+                    adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                     lv.setAdapter(adaptor);
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
@@ -210,7 +190,12 @@ public class FormActivity extends Activity {
             }
         }
     }
-
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_form, menu);
+        return true;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

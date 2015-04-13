@@ -84,6 +84,7 @@ ProgressDialog loginDialog ;
                     loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_DARK);
                     loginDialog.setTitle("Login Process");
                     loginDialog.setMessage("Please Wait...");
+                    loginDialog.setCanceledOnTouchOutside(false);
                     loginDialog.show();
                     if (InternetConnection){
                         //Web Api Cagırıyoruz.
@@ -193,7 +194,8 @@ ProgressDialog loginDialog ;
                     startActivity(i);
 
                 }else
-                { loginDialog.dismiss();
+                {
+                    loginDialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
                 }
 
