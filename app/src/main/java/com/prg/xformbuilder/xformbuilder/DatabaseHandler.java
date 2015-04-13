@@ -82,6 +82,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 
     }
+
+    public void CreateDraftForm (DraftForm draftForm){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_FORMID,draftForm.getFormId());
+        values.put(KEY_DRAFHTML,draftForm.getDraftHtml());
+        values.put(KEY_DRAFTJSON,draftForm.getDraftJson());
+        values.put(KEY_MOBILEHTML,draftForm.getMobileHtml());
+        db.insert(TABLE_DRAFTFORM, null, values);
+    }
+
     public void CreateForm (Form form){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -187,7 +198,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             formList.add(form);
         }
         cursor.close();
-return formList;
+        return formList;
     }
     public List<Form> getFormList(int parentId) {
         List<Form> formList = new ArrayList<Form>();
@@ -231,25 +242,22 @@ return formList;
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER + " WHERE " + KEY_USERID + "='" + userId + "' ", null);
 
         User user = null;
-if (cursor != null){
-    cursor.moveToFirst();
-    user  = new User(
-            cursor.getInt(cursor.getColumnIndex(KEY_ID)),
-            cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
-            cursor.getString(cursor.getColumnIndex(KEY_FIRSTNAME)),
-            cursor.getString(cursor.getColumnIndex(KEY_LASTNAME)),
-            cursor.getString(cursor.getColumnIndex(KEY_COMPANY)),
-            cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
-            cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
-            cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)));
+        if (cursor != null){
+            cursor.moveToFirst();
+            user  = new User(
+                    cursor.getInt(cursor.getColumnIndex(KEY_ID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
+                    cursor.getString(cursor.getColumnIndex(KEY_FIRSTNAME)),
+                    cursor.getString(cursor.getColumnIndex(KEY_LASTNAME)),
+                    cursor.getString(cursor.getColumnIndex(KEY_COMPANY)),
+                    cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)));
 
-}
+        }
         cursor.close();
-     return  user;
+        return  user;
     }
-
-
-
     public Form GetFormByFormId(String formId){
         SQLiteDatabase db = getReadableDatabase();
         Form form=null;

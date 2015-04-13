@@ -33,6 +33,10 @@
             android:name=".Settings"
             android:label="@string/title_activity_settings" >
         </activity>
+        <activity
+            android:name=".DraftFormActivity"
+            android:label="@string/title_activity_draft_form" >
+        </activity>
     </application>
 
 </manifest>
