@@ -37,8 +37,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_MODIFIEDDATE="modifieddate",
             TABLE_DRAFTFORM="draftform",
             KEY_DRAFHTML="drafthtml",
-            KEY_DRAFTJSON="draftjson";
+            KEY_DRAFTJSON="draftjson",
+            KEY_DATEDRAFT="datedraft";
 
+    Date  dateDraft;
     public DatabaseHandler(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
@@ -56,7 +58,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(sqlForm);
 
         String sqlDraftForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_DRAFTFORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +KEY_FORMID
-                + " TEXT," +KEY_DRAFHTML + " TEXT," +KEY_DRAFTJSON + " TEXT," +KEY_MOBILEHTML + " TEXT)");
+                + " TEXT," +KEY_DRAFHTML + " TEXT," +KEY_DRAFTJSON + " TEXT,"+KEY_DATEDRAFT + " TEXT)" );
         Log.d("DBHelper", "SQL : " + sqlDraftForm);
         db.execSQL(sqlDraftForm);
     }
@@ -89,7 +91,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_FORMID,draftForm.getFormId());
         values.put(KEY_DRAFHTML,draftForm.getDraftHtml());
         values.put(KEY_DRAFTJSON,draftForm.getDraftJson());
-        values.put(KEY_MOBILEHTML,draftForm.getMobileHtml());
+        values.put(KEY_DATEDRAFT,draftForm.getDateDraft());
         db.insert(TABLE_DRAFTFORM, null, values);
     }
 
@@ -247,8 +249,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return false;
         }
     }
-
-
     public User GetUserByUserIdForSettings(int userId){
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER + " WHERE " + KEY_USERID + "='" + userId + "' ", null);
@@ -289,5 +289,29 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         cursor.close();
         return form;
+    }
+
+    public List<DraftForm> getAllDraftFormListVw(String formId ) {
+        List<DraftForm> draftForms = new ArrayList<DraftForm>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_DRAFTFORM, new String[]{KEY_ID, KEY_FORMID, KEY_DRAFHTML,KEY_DRAFTJSON,KEY_DATEDRAFT}, KEY_FORMID + "=?", new String[] {String.valueOf(4430)}, null, null, null, null);
+
+        while (cursor.moveToNext()) {
+            DraftForm form = new DraftForm(
+                    Integer.parseInt(cursor.getString(0)),
+                    Integer.parseInt(cursor.getString(1)),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4));
+            draftForms.add(form);
+        }
+        cursor.close();
+        return draftForms;
+    }
+    public boolean DeleteDraftFormTable(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTFORM);
+        onCreate(db);
+        return true;
     }
 }

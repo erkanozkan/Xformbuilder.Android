@@ -1,37 +1,37 @@
 package com.prg.xformbuilder.xformbuilder;
 
 
-/*
- String sqlDraftForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_DRAFTFORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +KEY_FORMID
-               + " TEXT," +KEY_DRAFHTML + " TEXT," +KEY_DRAFTJSON + " TEXT," +KEY_MOBILEHTML + " TEXT)");
+import java.util.Date;
 
-               */
+
 public class DraftForm {
-    private String _draftHtml, _draftJson, _mobileHtml;
+    private String _draftHtml, _draftJson;
     private int _id, _formId;
+    private String _dateDraft;
 
-    public DraftForm(int id, int formId, String draftHtml, String drafJson, String mobileHtml) {
+    public DraftForm(int id, int formId, String draftHtml, String drafJson, String dateDraft) {
         _id = id;
         _formId = formId;
         _draftHtml = draftHtml;
         _draftJson = drafJson;
-        _mobileHtml = mobileHtml;
+        _dateDraft=dateDraft;
     }
 
     public int getId() {
         return _id;
     }
+
     public int getFormId() {
         return _formId;
     }
+
     public String getDraftHtml() {
         return _draftHtml;
     }
+
     public String getDraftJson() {
         return _draftJson;
     }
-    public String getMobileHtml() {
-        return _mobileHtml;
-    }
+    public String getDateDraft(){return _dateDraft;}
 
 }

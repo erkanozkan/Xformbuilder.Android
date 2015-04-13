@@ -30,6 +30,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 
@@ -60,6 +62,12 @@ public class FormActivity extends Activity {
                 Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", selectFormId);
                 int count=  dbHandler.getFormCount(selectFormId);
+
+           /* //   dbHandler.DeleteDraftFormTable();
+                String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                DraftForm form = new DraftForm(0,4430,"String draft html","json", currentDateTimeString);
+                dbHandler.CreateDraftForm(form);
+*/
                 if (count>=1)
                 {
                     Intent i = new Intent(FormActivity.this,DraftFormActivity.class);
@@ -70,10 +78,9 @@ public class FormActivity extends Activity {
                     i.putExtras(bundleForm);
                     startActivity(i);
                 }
-                /*
-                DraftForm form = new DraftForm(0,4430,"String draft html","json","mobile html");
-                dbHandler.CreateDraftForm(form);
-                */
+
+
+
             }
         });
         try {
