@@ -2,6 +2,7 @@ package com.prg.xformbuilder.xformbuilder;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.ConsoleMessage;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -63,10 +65,35 @@ public class FormResponseActivity extends ActionBarActivity {
 
 
         webView.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
-        // webview.loadData(html.toString(),"text/html",null);
-
+        webView.addJavascriptInterface(new WebViewJavaScriptInterface(this), "app");
         startWebView();
     }
+
+    public class WebViewJavaScriptInterface{
+
+        private Context context;
+
+        /*
+         * Need a reference to the context in order to sent a post message
+         */
+        public WebViewJavaScriptInterface(Context context){
+            this.context = context;
+        }
+
+        /*
+         * This method can be called from Android. @JavascriptInterface
+         * required after SDK version 17.
+         */
+        @JavascriptInterface
+        public void Submit(String html, String json){
+
+
+        }
+    }
+
+
+
+
 
     private void startWebView() {
 
