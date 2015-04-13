@@ -23,6 +23,8 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.util.Date;
 
 
 public class FormResponseActivity extends ActionBarActivity {
@@ -85,9 +87,11 @@ public class FormResponseActivity extends ActionBarActivity {
          * required after SDK version 17.
          */
         @JavascriptInterface
-        public void Submit(String html, String json){
-
-
+        public void FormSubmit(String html, String json){
+               dbHandler.DeleteDraftFormTable();
+                String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString);
+                dbHandler.CreateDraftForm(form);
         }
     }
 

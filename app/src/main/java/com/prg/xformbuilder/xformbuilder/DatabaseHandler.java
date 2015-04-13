@@ -105,7 +105,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_MOBILEHTML,form.getMobileHtml());
         values.put(KEY_MODIFIEDDATE, form.getModifiedDate());
         db.insert(TABLE_FORM, null, values);
-
     }
 
 
