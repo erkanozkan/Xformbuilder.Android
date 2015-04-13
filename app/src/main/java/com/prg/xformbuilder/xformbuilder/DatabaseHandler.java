@@ -50,10 +50,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Log.d("DBHelper", "SQL : " + sqlUser);
         db.execSQL(sqlUser);
 
-        db.execSQL(sqlUser);
         String sqlForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_FORMTITLE + " TEXT,"
                 +KEY_FORMID + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERNAME + " TEXT," +KEY_MOBILEHTML + " TEXT," +KEY_MODIFIEDDATE + " TEXT NULL)");
         Log.d("DBHelper", "SQL : " + sqlForm);
+        db.execSQL(sqlForm);
 
         String sqlDraftForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_DRAFTFORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +KEY_FORMID
                 + " TEXT," +KEY_DRAFHTML + " TEXT," +KEY_DRAFTJSON + " TEXT," +KEY_MOBILEHTML + " TEXT)");
@@ -103,6 +103,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_MOBILEHTML,form.getMobileHtml());
         values.put(KEY_MODIFIEDDATE, form.getModifiedDate());
         db.insert(TABLE_FORM, null, values);
+
     }
 
 
@@ -204,7 +205,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<Form> formList = new ArrayList<Form>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String  column[] = new String[]{"id", "userName", "firstName","lastName","company","password","userId","parentId"};
+      //  String  column[] = new String[]{"id", "userName", "firstName","lastName","company","password","userId","parentId"};
         //  Cursor cursor = db.query(TABLE_FORM, new String[]{"id", "formtitle", "formid","parentid","username","mobilehtml","modifieddate"},KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
         String sql="SELECT * FROM " + TABLE_FORM + " WHERE " + KEY_PARENTID + "=?";
 
