@@ -62,6 +62,7 @@ public class FormResponseActivity extends ActionBarActivity {
         webView.getSettings().setPluginState(WebSettings.PluginState.ON);
         webView.getSettings().setAllowFileAccess(true);
 
+
         StringBuilder html = new StringBuilder();
         html.append(form.getMobileHtml());
 

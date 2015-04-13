@@ -250,9 +250,9 @@ input.radio:focus ~ label:before {
 
 .checktype {
     width: 22px;
-    height: 3%;
+    height: 50px;
     float: left;
-    margin-top: 0;
+    margin-top: -15px;
 }
 
 .itemborderremove {
