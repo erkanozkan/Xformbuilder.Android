@@ -138,6 +138,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return cursor.getCount();
 
     }
+
+    public int getFormCount(String formID){
+        SQLiteDatabase db = getReadableDatabase();
+        String sql="SELECT * FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_FORMID + "='" + formID +"'";
+        Cursor cursor = db.rawQuery(sql, null);
+        int count = cursor.getCount();
+
+        cursor.close();
+        return cursor.getCount();
+
+    }
     public User AccountLogin(String userName,String password)
     {
         SQLiteDatabase db = getReadableDatabase();

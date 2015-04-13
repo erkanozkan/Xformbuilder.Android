@@ -58,11 +58,22 @@ public class FormActivity extends Activity {
                 String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
                 String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
                 Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
-                bundleForm.putString("FormId",selectFormId);
-                Intent i = new Intent(FormActivity.this,FormResponseActivity.class);
-                i.putExtras(bundleForm);
-                startActivity(i);
-
+                bundleForm.putString("FormId", selectFormId);
+                int count=  dbHandler.getFormCount(selectFormId);
+                if (count>=1)
+                {
+                    Intent i = new Intent(FormActivity.this,DraftFormActivity.class);
+                    i.putExtras(bundleForm);
+                    startActivity(i);
+                }else{
+                    Intent i = new Intent(FormActivity.this,FormResponseActivity.class);
+                    i.putExtras(bundleForm);
+                    startActivity(i);
+                }
+                /*
+                DraftForm form = new DraftForm(0,4430,"String draft html","json","mobile html");
+                dbHandler.CreateDraftForm(form);
+                */
             }
         });
         try {
