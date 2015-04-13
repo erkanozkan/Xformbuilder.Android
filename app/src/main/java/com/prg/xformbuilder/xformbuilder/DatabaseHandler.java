@@ -34,8 +34,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_FORMTITLE="formtitle",
             KEY_FORMID="formid",
             KEY_MOBILEHTML="mobilehtml",
-            KEY_MODIFIEDDATE="modifieddate";
-
+            KEY_MODIFIEDDATE="modifieddate",
+            TABLE_DRAFTFORM="draftform",
+            KEY_DRAFHTML="drafthtml",
+            KEY_DRAFTJSON="draftjson";
 
     public DatabaseHandler(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,14 +47,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db){
         String sqlUser= ("CREATE TABLE IF NOT EXISTS  "+TABLE_USER + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USERNAME + " TEXT,"
                 +KEY_FIRSTNAME + " TEXT," +KEY_LASTNAME + " TEXT," +KEY_PASSWORD + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERID + " TEXT,"+KEY_COMPANY + " TEXT)");
-
         Log.d("DBHelper", "SQL : " + sqlUser);
+        db.execSQL(sqlUser);
 
         db.execSQL(sqlUser);
         String sqlForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_FORMTITLE + " TEXT,"
                 +KEY_FORMID + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERNAME + " TEXT," +KEY_MOBILEHTML + " TEXT," +KEY_MODIFIEDDATE + " TEXT NULL)");
         Log.d("DBHelper", "SQL : " + sqlForm);
-        db.execSQL(sqlForm);
+
+        String sqlDraftForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_DRAFTFORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +KEY_FORMID
+                + " TEXT," +KEY_DRAFHTML + " TEXT," +KEY_DRAFTJSON + " TEXT," +KEY_MOBILEHTML + " TEXT)");
+        Log.d("DBHelper", "SQL : " + sqlDraftForm);
+        db.execSQL(sqlDraftForm);
     }
 
     @Override
