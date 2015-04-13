@@ -26,7 +26,7 @@ public class DraftFormActivity extends ActionBarActivity {
         formId=bundle.getString("FormId");
         lv = (ListView) findViewById(R.id.listView_draftForm);
         try{
-            List<DraftForm> draftForms=  dbHandler.getAllDraftFormListVw(String.valueOf("3358"));
+            List<DraftForm> draftForms=  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
             FormList   formArray[] = new FormList[draftForms.size()];
             for (int i=0;i<draftForms.size();i++){
                 formArray[i] = new FormList(draftForms.get(i).getFormId(), draftForms.get(i).getDateDraft(), draftForms.get(i).getDateDraft(), R.mipmap.ic_launcher);
