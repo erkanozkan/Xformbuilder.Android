@@ -55,6 +55,7 @@ public class FormResponseActivity extends ActionBarActivity {
 
         //Other webview settings
         webView.setScrollbarFadingEnabled(false);
+        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
         webView.getSettings().setAllowFileAccess(true);
 
         StringBuilder html = new StringBuilder();
@@ -101,51 +102,56 @@ public class FormResponseActivity extends ActionBarActivity {
         webView.setWebChromeClient(new WebChromeClient() {
 
             // openFileChooser for Android 3.0+
-            public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType){
-                /**updated, out of the IF **/
+
+            public void openFileChooser(ValueCallback uploadMsg) {
+
+                Log.i("For Android < 3.0", "called");
+
                 mUploadMessage = uploadMsg;
-                /**updated, out of the IF **/
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
 
 
+                i.addCategory(Intent.CATEGORY_OPENABLE);
 
-                try{
-                    File imageStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "AndroidExampleFolder");
-                    if (!imageStorageDir.exists()) {
-                        imageStorageDir.mkdirs();
-                    }
-                    File file = new File(imageStorageDir + File.separator + "IMG_" + String.valueOf(System.currentTimeMillis()) + ".jpg");
-                    mCapturedImageURI = Uri.fromFile(file); // save to the private variable
-
-                    final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
-                    // captureIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                    i.addCategory(Intent.CATEGORY_OPENABLE);
-                    i.setType("image/*");
-
-                    Intent chooserIntent = Intent.createChooser(i, "Image Chooser");
-                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[] { captureIntent });
-
-                    startActivityForResult(chooserIntent, FILECHOOSER_RESULTCODE);
-                }
-                catch(Exception e){
-                    Toast.makeText(getBaseContext(), "Camera Exception:" + e, Toast.LENGTH_LONG).show();
-                }
-                //}
+                i.setType("*/*");
+                FormResponseActivity.this.startActivityForResult(
+                        Intent.createChooser(i, "File Browser"),
+                        FILECHOOSER_RESULTCODE);
             }
 
-            // openFileChooser for Android < 3.0
-            public void openFileChooser(ValueCallback<Uri> uploadMsg){
-                openFileChooser(uploadMsg, "");
+            // For Android 3.0+
+            public void openFileChooser(ValueCallback uploadMsg,
+                                        String acceptType) {
+
+                Log.i("For Android 3.0+", "called");
+
+                mUploadMessage = uploadMsg;
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+
+                i.addCategory(Intent.CATEGORY_OPENABLE);
+
+                i.setType("*/*");
+                FormResponseActivity.this.startActivityForResult(
+                        Intent.createChooser(i, "File Browser"),
+                        FILECHOOSER_RESULTCODE);
             }
 
-            //openFileChooser for other Android versions
             public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
-                openFileChooser(uploadMsg, acceptType);
+                openFileChooser(uploadMsg);
+
+                Log.i("For Android Jellybeans", "called");
+
+                mUploadMessage = uploadMsg;
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+
+                i.addCategory(Intent.CATEGORY_OPENABLE);
+
+                i.setType("*/*");
+                FormResponseActivity.this.startActivityForResult(
+                        Intent.createChooser(i, "File Browser"),
+                        FILECHOOSER_RESULTCODE);
+
             }
-
-
 
         });
 
