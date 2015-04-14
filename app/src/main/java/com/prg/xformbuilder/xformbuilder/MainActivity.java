@@ -81,7 +81,7 @@ ProgressDialog loginDialog ;
             @Override
             public void onClick(View v) {
                 if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
-                    loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_DARK);
+                    loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_HOLO_DARK);
                     loginDialog.setTitle("Login Process");
                     loginDialog.setMessage("Please Wait...");
                     loginDialog.setCanceledOnTouchOutside(false);
