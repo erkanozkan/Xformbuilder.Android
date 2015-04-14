@@ -6,15 +6,17 @@ import java.util.Date;
 
 public class DraftForm {
     private String _draftHtml, _draftJson;
-    private int _id, _formId;
+    private int _id, _formId,_userId;
     private String _dateDraft;
 
-    public DraftForm(int id, int formId, String draftHtml, String drafJson, String dateDraft) {
+
+    public DraftForm(int id, int formId, String draftHtml, String drafJson, String dateDraft,int userId) {
         _id = id;
         _formId = formId;
         _draftHtml = draftHtml;
         _draftJson = drafJson;
         _dateDraft=dateDraft;
+        _userId=userId;
     }
 
     public int getId() {
@@ -33,5 +35,6 @@ public class DraftForm {
         return _draftJson;
     }
     public String getDateDraft(){return _dateDraft;}
+    public int getUserId(){return _userId;}
 
 }

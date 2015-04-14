@@ -29,12 +29,14 @@ import java.util.Date;
 
 public class FormResponseActivity extends ActionBarActivity {
     DatabaseHandler dbHandler;
-    String formId="";
-
+    String formId="",draftId="";
+    int userId=0;
+    StringBuilder html = new StringBuilder();
     private WebView webView;
-
+    DraftForm draft;
+    Form form;
     final Activity activity = this;
-
+    String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
     public Uri imageUri;
 
     private static final int FILECHOOSER_RESULTCODE   = 2888;
@@ -47,26 +49,29 @@ public class FormResponseActivity extends ActionBarActivity {
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         formId=bundle.getString("FormId");
+        userId=bundle.getInt("FormUserId");
+        draftId =bundle.getString("DraftId");
 
-      Form form=  dbHandler.GetFormByFormId(formId);
+     //   dbHandler.DeleteDraftFormTable();
+        if(draftId != null){
+            draft = dbHandler.GetDraftByDraftId(draftId);
+            html.append("<html>"+ draft.getDraftHtml()+"</html>");
+        }
 
+    else{
+            form=  dbHandler.GetFormByFormId(formId);
+            html.append(form.getMobileHtml());
+
+        }
 
         webView = (WebView) findViewById(R.id.webview);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setLoadWithOverviewMode(true);
-
         //webView.getSettings().setUseWideViewPort(true);
-
         //Other webview settings
         webView.setScrollbarFadingEnabled(false);
         webView.getSettings().setPluginState(WebSettings.PluginState.ON);
         webView.getSettings().setAllowFileAccess(true);
-
-
-        StringBuilder html = new StringBuilder();
-        html.append(form.getMobileHtml());
-
-
         webView.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
         webView.addJavascriptInterface(new WebViewJavaScriptInterface(this), "app");
         startWebView();
@@ -89,17 +94,19 @@ public class FormResponseActivity extends ActionBarActivity {
          */
         @JavascriptInterface
         public void FormSubmit(String html, String json){
-               dbHandler.DeleteDraftFormTable();
-                String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString);
+              // dbHandler.DeleteDraftFormTable();
+
+            if(draftId != null){
+                DraftForm draftForm = new DraftForm(0,Integer.parseInt(formId),html,json,currentDateTimeString,userId);
+                dbHandler.UpdateDraft(draftForm);
+            }
+            else{
+             //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString,userId);
                 dbHandler.CreateDraftForm(form);
+            }
         }
     }
-
-
-
-
-
     private void startWebView() {
 
 

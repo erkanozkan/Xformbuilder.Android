@@ -5,17 +5,17 @@ package com.prg.xformbuilder.xformbuilder;
  */
 
 public class Form {
-    private String _formTitle,_userName,_mobileHtml,_modifiedDate;
-    private int _parentId,_id,_formId;
+    private String _formTitle,_userName,_mobileHtml;
+    private int _parentId,_id,_formId,_userId;
 
-    public Form (int id, String formTitle, int formId, int parentId,String userName,String mobileHtml,String modifiedDate){
+    public Form (int id, String formTitle, int formId, int parentId,String userName,String mobileHtml,int userId){
         _id=id;
         _formTitle=formTitle;
         _formId=formId;
         _parentId=parentId;
         _userName=userName;
         _mobileHtml=mobileHtml;
-        _modifiedDate=modifiedDate;
+        _userId=userId;
     }
     public int getId() {return _id;}
     public String getFormTitle() {return _formTitle;}
@@ -24,7 +24,7 @@ public class Form {
     public String getUserName(){return _userName;}
 
     public String getMobileHtml(){return _mobileHtml;}
-    public String getModifiedDate() {return _modifiedDate;}
+    public int getUserId() {return _userId;}
 
 
 

@@ -34,16 +34,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_FORMTITLE="formtitle",
             KEY_FORMID="formid",
             KEY_MOBILEHTML="mobilehtml",
-            KEY_MODIFIEDDATE="modifieddate",
             TABLE_DRAFTFORM="draftform",
             KEY_DRAFHTML="drafthtml",
             KEY_DRAFTJSON="draftjson",
             KEY_DATEDRAFT="datedraft";
 
-    Date  dateDraft;
     public DatabaseHandler(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-
     }
     @Override
     public void onCreate(SQLiteDatabase db){
@@ -53,12 +50,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(sqlUser);
 
         String sqlForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_FORMTITLE + " TEXT,"
-                +KEY_FORMID + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERNAME + " TEXT," +KEY_MOBILEHTML + " TEXT," +KEY_MODIFIEDDATE + " TEXT NULL)");
+                +KEY_FORMID + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERNAME + " TEXT," +KEY_MOBILEHTML + " TEXT," +KEY_USERID + " TEXT)");
         Log.d("DBHelper", "SQL : " + sqlForm);
         db.execSQL(sqlForm);
 
         String sqlDraftForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_DRAFTFORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +KEY_FORMID
-                + " TEXT," +KEY_DRAFHTML + " TEXT," +KEY_DRAFTJSON + " TEXT,"+KEY_DATEDRAFT + " TEXT)" );
+                + " TEXT," +KEY_DRAFHTML + " TEXT," +KEY_DRAFTJSON +" TEXT," +KEY_DATEDRAFT+  " TEXT,"+KEY_USERID + " TEXT)" );
         Log.d("DBHelper", "SQL : " + sqlDraftForm);
         db.execSQL(sqlDraftForm);
     }
@@ -81,8 +78,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PASSWORD,user.getPassword());
         values.put(KEY_COMPANY, user.getCompany());
         db.insert(TABLE_USER, null, values);
-
-
     }
 
     public void CreateDraftForm (DraftForm draftForm){
@@ -92,6 +87,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_DRAFHTML,draftForm.getDraftHtml());
         values.put(KEY_DRAFTJSON,draftForm.getDraftJson());
         values.put(KEY_DATEDRAFT,draftForm.getDateDraft());
+        values.put(KEY_USERID,draftForm.getUserId());
         db.insert(TABLE_DRAFTFORM, null, values);
     }
 
@@ -103,7 +99,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PARENTID,form.getParentId());
         values.put(KEY_USERNAME,form.getUserName());
         values.put(KEY_MOBILEHTML,form.getMobileHtml());
-        values.put(KEY_MODIFIEDDATE, form.getModifiedDate());
+        values.put(KEY_USERID, form.getUserId());
         db.insert(TABLE_FORM, null, values);
     }
 
@@ -204,10 +200,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<Form> getAllFormListVw(String parentId ) {
         List<Form> formList = new ArrayList<Form>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_MODIFIEDDATE}, KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_USERID}, KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
 
         while (cursor.moveToNext()) {
-            Form form = new Form(Integer.parseInt(cursor.getString(0)), cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)),cursor.getString(4),cursor.getString(5),cursor.getString(6));
+            Form form = new Form(Integer.parseInt(cursor.getString(0)), cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)),cursor.getString(4),cursor.getString(5),Integer.parseInt(cursor.getString(6)));
             formList.add(form);
         }
         cursor.close();
@@ -216,9 +212,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<Form> getFormList(int parentId) {
         List<Form> formList = new ArrayList<Form>();
         SQLiteDatabase db = this.getReadableDatabase();
-
-      //  String  column[] = new String[]{"id", "userName", "firstName","lastName","company","password","userId","parentId"};
-        //  Cursor cursor = db.query(TABLE_FORM, new String[]{"id", "formtitle", "formid","parentid","username","mobilehtml","modifieddate"},KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
         String sql="SELECT * FROM " + TABLE_FORM + " WHERE " + KEY_PARENTID + "=?";
 
         Cursor cursor = db.rawQuery(sql, null);
@@ -230,7 +223,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
                     cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
                     cursor.getString(cursor.getColumnIndex(KEY_MOBILEHTML)),
-                    cursor.getString(cursor.getColumnIndex(KEY_MODIFIEDDATE)));
+                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)));
             formList.add(form);
         }
         cursor.close();
@@ -283,17 +276,53 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
                     cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
                     cursor.getString(cursor.getColumnIndex(KEY_MOBILEHTML)),
-                    cursor.getString(cursor.getColumnIndex(KEY_MODIFIEDDATE)));
+                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)));
             return form;
         }
         cursor.close();
         return form;
     }
 
+
+    public DraftForm GetDraftByDraftId(String draftId){
+        SQLiteDatabase db = getReadableDatabase();
+        DraftForm  draft=null;
+        String sql="SELECT * FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_ID + "='" + draftId+"'";
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor !=null) {
+            cursor.moveToFirst();
+            draft  = new DraftForm(
+                    cursor.getInt(cursor.getColumnIndex(KEY_ID)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_FORMID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_DRAFHTML)),
+                    cursor.getString(cursor.getColumnIndex(KEY_DRAFTJSON)),
+                    cursor.getString(cursor.getColumnIndex(KEY_DATEDRAFT)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)));
+            return draft;
+        }
+        cursor.close();
+        return draft;
+    }
+
+    public void UpdateDraft(DraftForm draftForm){
+        SQLiteDatabase db= getReadableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_DRAFHTML,draftForm.getDraftHtml());
+        values.put(KEY_DRAFTJSON,draftForm.getDraftJson());
+        values.put(KEY_DATEDRAFT,draftForm.getDateDraft());
+
+        db.update(TABLE_DRAFTFORM, values, KEY_ID + "=?", new String[]{String.valueOf(draftForm.getId())});
+    }
+
+
+
+
+
     public List<DraftForm> getAllDraftFormListVw(String formId ) {
         List<DraftForm> draftForms = new ArrayList<DraftForm>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_DRAFTFORM, new String[]{KEY_ID, KEY_FORMID, KEY_DRAFHTML,KEY_DRAFTJSON,KEY_DATEDRAFT}, KEY_FORMID + "=?", new String[] {String.valueOf(formId)}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_DRAFTFORM, new String[]{KEY_ID, KEY_FORMID, KEY_DRAFHTML,KEY_DRAFTJSON,KEY_DATEDRAFT,KEY_USERID}, KEY_FORMID + "=?", new String[] {String.valueOf(formId)}, null, null, null, null);
 
         while (cursor.moveToNext()) {
             DraftForm form = new DraftForm(
@@ -301,7 +330,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     Integer.parseInt(cursor.getString(1)),
                     cursor.getString(2),
                     cursor.getString(3),
-                    cursor.getString(4));
+                    cursor.getString(4),
+                    Integer.parseInt(cursor.getString(5)));
             draftForms.add(form);
         }
         cursor.close();
