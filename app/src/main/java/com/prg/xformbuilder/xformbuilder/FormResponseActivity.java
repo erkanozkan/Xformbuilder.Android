@@ -30,7 +30,7 @@ import java.util.Date;
 public class FormResponseActivity extends ActionBarActivity {
     DatabaseHandler dbHandler;
     String formId="",draftId="";
-    int userId=0;
+    int userId=0,parentId=0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
     DraftForm draft;
@@ -42,6 +42,7 @@ public class FormResponseActivity extends ActionBarActivity {
     private static final int FILECHOOSER_RESULTCODE   = 2888;
     private ValueCallback<Uri> mUploadMessage;
     private Uri mCapturedImageURI = null;
+    final Bundle bundleFormResponse = new Bundle();//Formlar arasý veri transferi için kullanýyoruz
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,9 +50,9 @@ public class FormResponseActivity extends ActionBarActivity {
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         formId=bundle.getString("FormId");
-        userId=bundle.getInt("FormUserId");
+        userId=bundle.getInt("UserId");
         draftId =bundle.getString("DraftId");
-
+        parentId=bundle.getInt("ParentId");
      //   dbHandler.DeleteDraftFormTable();
         if(draftId != null){
             draft = dbHandler.GetDraftByDraftId(draftId);
@@ -96,14 +97,23 @@ public class FormResponseActivity extends ActionBarActivity {
         public void FormSubmit(String html, String json){
               // dbHandler.DeleteDraftFormTable();
 
+            bundleFormResponse.putString("FormId", formId);
+            bundleFormResponse.putInt("UserId",userId);
+            bundleFormResponse.putInt("ParentId",parentId);
             if(draftId != null){
-                DraftForm draftForm = new DraftForm(0,Integer.parseInt(formId),html,json,currentDateTimeString,userId);
+                DraftForm draftForm = new DraftForm(Integer.parseInt(draftId),Integer.parseInt(formId),html,json,currentDateTimeString,userId);
                 dbHandler.UpdateDraft(draftForm);
+                Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
+                i.putExtras(bundleFormResponse);
+                startActivity(i);
             }
             else{
              //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
                 DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString,userId);
                 dbHandler.CreateDraftForm(form);
+                Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
+                i.putExtras(bundleFormResponse);
+                startActivity(i);
             }
         }
     }

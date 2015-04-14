@@ -56,7 +56,8 @@ public class FormActivity extends Activity {
                 String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
                 Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", selectFormId);
-                bundleForm.putInt("FormUserId",userId);
+                bundleForm.putInt("UserId",userId);
+                bundleForm.putInt("ParentId",parentId);
                 int count=  dbHandler.getFormCount(selectFormId);
 
            /* //   dbHandler.DeleteDraftFormTable();

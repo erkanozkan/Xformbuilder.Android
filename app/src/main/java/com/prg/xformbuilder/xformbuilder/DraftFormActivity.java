@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,8 +19,11 @@ import java.util.List;
 public class DraftFormActivity extends ActionBarActivity {
     DatabaseHandler dbHandler;
     String formId="";
-     DraftAdapter draftAdapter;
+    int parentId=0,userId=0;
+    DraftAdapter draftAdapter;
     ListView lv;
+    Button buttonNewResponse;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,20 +32,38 @@ public class DraftFormActivity extends ActionBarActivity {
         final Bundle bundleForm = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
         Bundle bundle=getIntent().getExtras();
         formId=bundle.getString("FormId");
+        parentId=bundle.getInt("ParentId");
+        userId=bundle.getInt("UserId");
         lv = (ListView) findViewById(R.id.listView_draftForm);
+        buttonNewResponse=(Button) findViewById(R.id.button_NewResponse);
+
+        buttonNewResponse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Form Lükleniyor...", Toast.LENGTH_SHORT).show();
+                bundleForm.putString("FormId", formId);
+                bundleForm.putInt("UserId", userId);
+                bundleForm.putInt("ParentId", parentId);
+
+                Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
+                i.putExtras(bundleForm);
+                startActivity(i);
+            }
+        });
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
                 String selectDraftId =  ((TextView)view .findViewById(R.id.draftId)).getText().toString();
-                Toast.makeText(getApplicationContext(), selectDraftId+" formu a��l�yor...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), " Form  Yükleniyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", selectFormId);
                 bundleForm.putString("DraftId", selectDraftId);
+                bundleForm.putInt("UserId",userId);
+                bundleForm.putInt("ParentId",parentId);
                 Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
-
             }
         });
 

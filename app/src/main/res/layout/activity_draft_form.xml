@@ -11,6 +11,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listView_draftForm"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/button_NewResponse" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Yeni Ekle"
+        android:id="@+id/button_NewResponse"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
 
 </RelativeLayout>
