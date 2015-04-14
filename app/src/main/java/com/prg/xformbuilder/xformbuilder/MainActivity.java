@@ -63,7 +63,6 @@ ProgressDialog loginDialog ;
         password = (EditText)findViewById(R.id.editText_password);
         dbHandler = new DatabaseHandler(getApplicationContext());
         login = (Button)findViewById(R.id.button_login);
-         dbHandler.DeleteDraftFormTable();
 
         //--------------------------------------Internet Connection
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
