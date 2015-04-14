@@ -3,10 +3,9 @@ package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -56,8 +55,6 @@ public class MainActivity extends Activity {
     ProgressDialog loginDialog ;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,36 +79,35 @@ public class MainActivity extends Activity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (username != null && !username.getText().toString().isEmpty() && password != null && !password.getText().toString().isEmpty()) {
-                    loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_HOLO_DARK);
+                if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
+                    loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
                     loginDialog.setTitle("Login Process");
                     loginDialog.setMessage("Please Wait...");
                     loginDialog.setCanceledOnTouchOutside(false);
                     loginDialog.show();
-                    if (InternetConnection) {
+                    if (InternetConnection){
                         //Web Api Cagırıyoruz.
-                        new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName=" + username.getText().toString() + "&password=" + password.getText().toString());
+                        new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
 
-                    } else {
-                        User login = dbHandler.AccountLogin(username.getText().toString(), password.getText().toString());
-                        if (login != null) {
-
-
-
+                    }else{
+                       User  login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
+                        if (login!=null){
                             loginDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
                             bundle.putInt("ParentId", login.getParentId());
-                            bundle.putInt("UserId", login.getUserId());
-                            Intent i = new Intent(MainActivity.this, FormActivity.class);
+                            bundle.putInt("UserId",login.getUserId());
+                            Intent i = new Intent(MainActivity.this,FormActivity.class);
                             i.putExtras(bundle);
                             startActivity(i);
-                        } else {
+                        }
+                        else {
                             loginDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Sistemde kayıtlı kullanıcı bulunamadı.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Sistemde kayıtlı kullanıcı bulunamadı.",Toast.LENGTH_SHORT).show();
                         }
                     }
-                } else {
-                    Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -221,9 +217,6 @@ public class MainActivity extends Activity {
                         dbHandler.CreateUser(user);
                     }
                     //List<User> userss = dbHandler.getAllUserList();
-
-
-
 
                     bundle.putInt("ParentId", jsonParentId);
                     bundle.putInt("UserId",jsonUserId);
