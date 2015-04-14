@@ -2,6 +2,7 @@ package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -37,14 +39,23 @@ public class FormActivity extends Activity {
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
 
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String KEY_USERNAME = "keyUsername";
+    public static final String KEY_PASSWORD= "keyPassword";
+    SharedPreferences sharedpreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_form);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,R.layout.formlist_titlebar);
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
+
+
+
         lv = (ListView) findViewById(R.id.liste);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -53,7 +64,8 @@ public class FormActivity extends Activity {
                 String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
                 Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", selectFormId);
-                bundleForm.putInt("FormUserId",userId);
+                bundleForm.putInt("UserId", userId);
+                bundleForm.putInt("ParentId",parentId);
                 int count=  dbHandler.getFormCount(selectFormId);
 
            /* //   dbHandler.DeleteDraftFormTable();
@@ -66,10 +78,12 @@ public class FormActivity extends Activity {
                     Intent i = new Intent(FormActivity.this,DraftFormActivity.class);
                     i.putExtras(bundleForm);
                     startActivity(i);
+
                 }else{
                     Intent i = new Intent(FormActivity.this,FormResponseActivity.class);
                     i.putExtras(bundleForm);
                     startActivity(i);
+
                 }
             }
         });
@@ -113,6 +127,8 @@ public class FormActivity extends Activity {
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
     }
+
+
     public String GET(String url){
 
         InputStream inputStream = null;

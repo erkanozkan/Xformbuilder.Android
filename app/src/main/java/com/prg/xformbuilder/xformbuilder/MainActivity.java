@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -52,7 +53,7 @@ public class MainActivity extends Activity {
     DatabaseHandler dbHandler;
     boolean InternetConnection = false;
     final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
-ProgressDialog loginDialog ;
+    ProgressDialog loginDialog ;
 
 
     @Override
@@ -80,7 +81,7 @@ ProgressDialog loginDialog ;
             @Override
             public void onClick(View v) {
                 if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
-                    loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_HOLO_DARK);
+                    loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
                     loginDialog.setTitle("Login Process");
                     loginDialog.setMessage("Please Wait...");
                     loginDialog.setCanceledOnTouchOutside(false);
@@ -112,6 +113,40 @@ ProgressDialog loginDialog ;
             }
         });
     }
+
+
+
+    @Override
+    public void onBackPressed() {
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+        alertDialog.setMessage("Uygulama kapatılsın mı?");
+        alertDialog
+                .setCancelable(false)
+                .setPositiveButton("Evet",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+
+                                moveTaskToBack(true);
+                                finish();
+
+                            }
+                        })
+                .setNegativeButton("Hayır",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.cancel();
+
+                            }
+                        });
+
+        AlertDialog alert = alertDialog.create();
+        alert.show();
+
+    }
+
     public String GET(String url){
 
         InputStream inputStream = null;
