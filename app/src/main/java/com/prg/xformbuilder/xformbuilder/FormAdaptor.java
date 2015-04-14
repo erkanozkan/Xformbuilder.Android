@@ -1,11 +1,9 @@
 package com.prg.xformbuilder.xformbuilder;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,7 +42,7 @@ public class FormAdaptor extends ArrayAdapter<FormList> {
             holder.img = (ImageView) row.findViewById(R.id.formImage);
             holder.baslik = (TextView) row.findViewById(R.id.formTitle);
             holder.detay = (TextView) row.findViewById(R.id.username);
-holder.formID = (TextView) row.findViewById(R.id.frmId);
+            holder.formID = (TextView) row.findViewById(R.id.frmId);
 
             row.setTag(holder);
         }

@@ -1,11 +1,7 @@
 package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -14,9 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,19 +24,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.List;
 
 
 public class FormActivity extends Activity {
-
-    int parentId=0;
+    int parentId=0,userId=0;
     boolean InternetConnection = false;
     FormAdaptor adaptor;
     ListView lv;
-    String jsonFormTitle="",jsonUserName="", jsonMobileHtml="",jsonModifiedDate="";
-    int jsonParentId=0,jsonFormId=0 ;
+    String jsonFormTitle="",jsonUserName="", jsonMobileHtml="";
+    int jsonParentId=0,jsonFormId=0 ,jsonUserId=0;
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
 
@@ -53,6 +44,7 @@ public class FormActivity extends Activity {
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");
+        userId=bundle.getInt("UserId");
         lv = (ListView) findViewById(R.id.liste);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -61,6 +53,7 @@ public class FormActivity extends Activity {
                 String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
                 Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", selectFormId);
+                bundleForm.putInt("FormUserId",userId);
                 int count=  dbHandler.getFormCount(selectFormId);
 
            /* //   dbHandler.DeleteDraftFormTable();
@@ -78,9 +71,6 @@ public class FormActivity extends Activity {
                     i.putExtras(bundleForm);
                     startActivity(i);
                 }
-
-
-
             }
         });
         try {
@@ -183,9 +173,9 @@ public class FormActivity extends Activity {
                     jsonParentId = obj.getInt("ParentId");
                     jsonUserName = obj.getString("UserName");
                     jsonMobileHtml = obj.getString("MobileHtml");
-                    jsonModifiedDate =obj.getString("ModifiedDate");
+
                     if (deleteForm){
-                        Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,jsonModifiedDate);
+                        Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,userId);
                         dbHandler.CreateForm(form);
                     }
                     else{

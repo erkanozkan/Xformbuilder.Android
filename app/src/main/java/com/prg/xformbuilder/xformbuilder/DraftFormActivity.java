@@ -1,11 +1,15 @@
 package com.prg.xformbuilder.xformbuilder;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -14,27 +18,43 @@ import java.util.List;
 public class DraftFormActivity extends ActionBarActivity {
     DatabaseHandler dbHandler;
     String formId="";
-    FormAdaptor adaptor;
+     DraftAdapter draftAdapter;
     ListView lv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_draft_form);
         dbHandler = new DatabaseHandler(getApplicationContext());
-        final Bundle bundleForm = new Bundle();//Formlar arasý veri transferi için kullanýyoruz
+        final Bundle bundleForm = new Bundle();//Formlar arasï¿½ veri transferi iï¿½in kullanï¿½yoruz
         Bundle bundle=getIntent().getExtras();
         formId=bundle.getString("FormId");
         lv = (ListView) findViewById(R.id.listView_draftForm);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
+                String selectDraftId =  ((TextView)view .findViewById(R.id.draftId)).getText().toString();
+                Toast.makeText(getApplicationContext(), selectDraftId+" formu aï¿½ï¿½lï¿½yor...", Toast.LENGTH_SHORT).show();
+                bundleForm.putString("FormId", selectFormId);
+                bundleForm.putString("DraftId", selectDraftId);
+                Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
+                i.putExtras(bundleForm);
+                startActivity(i);
+
+            }
+        });
+
         try{
             List<DraftForm> draftForms=  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
-            FormList   formArray[] = new FormList[draftForms.size()];
+            DraftList   draftArray[] = new DraftList[draftForms.size()];
             for (int i=0;i<draftForms.size();i++){
-                formArray[i] = new FormList(draftForms.get(i).getFormId(), draftForms.get(i).getDateDraft(), draftForms.get(i).getDateDraft(), R.mipmap.ic_launcher);
+                draftArray[i] = new DraftList ( R.mipmap.ic_launcher,  draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
             }
-            adaptor = new FormAdaptor(getApplicationContext(), R.layout.draf_line_layout, formArray);
-            lv.setAdapter(adaptor);
+            draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
+            lv.setAdapter(draftAdapter);
         }catch (Exception e){
-            Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluþtu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Verileri ï¿½ekerken hata oluï¿½tu lï¿½tfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
     }

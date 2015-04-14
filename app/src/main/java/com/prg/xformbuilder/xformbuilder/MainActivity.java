@@ -64,7 +64,6 @@ ProgressDialog loginDialog ;
         dbHandler = new DatabaseHandler(getApplicationContext());
         login = (Button)findViewById(R.id.button_login);
 
-
         //--------------------------------------Internet Connection
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
