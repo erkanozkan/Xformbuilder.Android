@@ -20,7 +20,21 @@
         android:text="Yeni Ekle"
         android:id="@+id/button_NewResponse"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="45dp"
+        android:layout_marginStart="45dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cıkıs"
+        android:id="@+id/button_exit"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/listView_draftForm"
+        android:layout_alignEnd="@+id/listView_draftForm"
+        android:layout_marginRight="43dp"
+        android:layout_marginEnd="43dp" />
 
 
 </RelativeLayout>

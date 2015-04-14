@@ -1,6 +1,8 @@
 package com.prg.xformbuilder.xformbuilder;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,7 +24,7 @@ public class DraftFormActivity extends ActionBarActivity {
     int parentId=0,userId=0;
     DraftAdapter draftAdapter;
     ListView lv;
-    Button buttonNewResponse;
+    Button buttonNewResponse,buttonExit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,18 @@ public class DraftFormActivity extends ActionBarActivity {
         userId=bundle.getInt("UserId");
         lv = (ListView) findViewById(R.id.listView_draftForm);
         buttonNewResponse=(Button) findViewById(R.id.button_NewResponse);
+        buttonExit=(Button) findViewById(R.id.button_exit);
+        buttonExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              moveTaskToBack(true);
+              finish();
 
+              Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
+              startActivity(i);
+                finish();
+            }
+        });
         buttonNewResponse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -48,6 +61,7 @@ public class DraftFormActivity extends ActionBarActivity {
                 Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
+                finish();
             }
         });
 
@@ -59,11 +73,12 @@ public class DraftFormActivity extends ActionBarActivity {
                 Toast.makeText(getApplicationContext(), " Form  Yükleniyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", selectFormId);
                 bundleForm.putString("DraftId", selectDraftId);
-                bundleForm.putInt("UserId",userId);
+                bundleForm.putInt("UserId", userId);
                 bundleForm.putInt("ParentId",parentId);
                 Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
+                finish();
             }
         });
 

@@ -106,6 +106,7 @@ public class FormResponseActivity extends ActionBarActivity {
                 Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
                 i.putExtras(bundleFormResponse);
                 startActivity(i);
+                finish();
             }
             else{
              //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
@@ -114,6 +115,7 @@ public class FormResponseActivity extends ActionBarActivity {
                 Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
                 i.putExtras(bundleFormResponse);
                 startActivity(i);
+                finish();
             }
         }
     }
