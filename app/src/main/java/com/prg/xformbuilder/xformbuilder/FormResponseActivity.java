@@ -97,7 +97,7 @@ public class FormResponseActivity extends ActionBarActivity {
               // dbHandler.DeleteDraftFormTable();
 
             if(draftId != null){
-                DraftForm draftForm = new DraftForm(0,Integer.parseInt(formId),html,json,currentDateTimeString,userId);
+                DraftForm draftForm = new DraftForm(Integer.parseInt(draftId),Integer.parseInt(formId),html,json,currentDateTimeString,userId);
                 dbHandler.UpdateDraft(draftForm);
             }
             else{
