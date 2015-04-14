@@ -4,18 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
     android:visibility="visible"
-    android:background="#dbdbdb">
+    android:background="#dbdbdb"
+    android:padding="0dp">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="118dp">
+        android:layout_height="118dp"  
+        android:background="@null">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="118dp"
-            android:background="#ffffff">
+            android:background="@null">
 
             <LinearLayout
                 android:orientation="vertical"
@@ -28,13 +30,14 @@
                     android:layout_height="118dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
-                    android:src="@mipmap/ic_launcher" />
+                    android:src="@mipmap/icon1" />
             </LinearLayout>
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+                android:layout_height="fill_parent"
+                android:background="#ffffff">
 
                 <TextView
                     android:id="@+id/formTitle"
@@ -76,15 +79,7 @@
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-          ></LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="91dp">
+            android:background="@mipmap/list_item_shadow"></LinearLayout>
 
     </LinearLayout>
 
