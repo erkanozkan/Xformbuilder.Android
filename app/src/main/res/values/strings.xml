@@ -10,8 +10,8 @@
     <string name="title_activity_form">Form List</string>
     <string name="signIn">Sign In</string>
     <string name="title_activity_form_response">FormResponse</string>
-    <string name="placeholder_username">username/email</string>
-    <string name="placeholder_password">password</string>
+    <string name="placeholder_username">Username/Email</string>
+    <string name="placeholder_password">Password</string>
     <string name="title_activity_advanceview">advanceview</string>
     <string name="title_activity_webview">webview</string>
     <string name="title_activity_settings">SettingsActivity</string>

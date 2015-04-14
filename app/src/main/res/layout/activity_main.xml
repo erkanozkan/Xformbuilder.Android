@@ -18,9 +18,9 @@
             android:id="@+id/logoLinear">
             <ImageView
                 android:layout_width="fill_parent"
-                android:layout_height="140dp"
+                android:layout_height="155dp"
                 android:id="@+id/imageView"
-                android:src="@mipmap/xformbuilderiheader" />
+                android:src="@mipmap/xformbuilder" />
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
@@ -29,7 +29,7 @@
                 android:layout_marginTop="25dp">
                 <EditText
                     android:layout_width="fill_parent"
-                    android:layout_height="39dp"
+                    android:layout_height="43dp"
                     android:id="@+id/editText_userName"
                     android:paddingLeft="10dp"
                     android:background="@null"
@@ -49,7 +49,7 @@
 
                 <EditText
                     android:layout_width="fill_parent"
-                    android:layout_height="39dp"
+                    android:layout_height="43dp"
                     android:inputType="textPassword"
                     android:ems="10"
                     android:id="@+id/editText_password"
