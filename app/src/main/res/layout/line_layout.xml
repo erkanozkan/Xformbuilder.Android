@@ -10,8 +10,8 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="118dp"
-        android:background="@null">
+        android:layout_height="129dp"
+        android:background="@mipmap/formlist_item_bg">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -74,12 +74,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@mipmap/list_item_shadow"></LinearLayout>
 
     </LinearLayout>
 
