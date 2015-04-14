@@ -4,47 +4,40 @@
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
     android:visibility="visible"
-    android:background="#dbdbdb">
+    android:background="#dbdbdb"
+    android:padding="0dp">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="80dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/list_item_border"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_height="118dp"
+        android:background="@null">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="118dp"
+            android:background="@null">
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="5dp"
-                android:paddingLeft="7dp">
+                android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/formImage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
+                    android:layout_width="116dp"
+                    android:layout_height="118dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
-                    android:maxHeight="100dp"
-                    android:maxWidth="100dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:minHeight="70dp"
-                    android:minWidth="70dp" />
+                    android:src="@mipmap/icon1" />
             </LinearLayout>
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+                android:layout_height="fill_parent"
+                android:background="#ffffff">
 
                 <TextView
                     android:id="@+id/formTitle"
@@ -81,6 +74,12 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@mipmap/list_item_shadow"></LinearLayout>
 
     </LinearLayout>
 

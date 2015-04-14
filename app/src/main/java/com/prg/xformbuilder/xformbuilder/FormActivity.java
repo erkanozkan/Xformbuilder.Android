@@ -107,7 +107,7 @@ public class FormActivity extends Activity {
                     List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
                     FormList   formArray[] = new FormList[formList.size()];
                     for (int i=0;i<formList.size();i++){
-                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.ic_launcher);
+                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
                     }
                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                     lv.setAdapter(adaptor);
@@ -196,7 +196,7 @@ public class FormActivity extends Activity {
                     List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
                     FormList   formArray[] = new FormList[formList.size()];
                     for (int i=0;i<formList.size();i++){
-                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.ic_launcher);
+                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon2);
                     }
                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                     lv.setAdapter(adaptor);
