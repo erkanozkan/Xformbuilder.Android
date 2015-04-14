@@ -16,7 +16,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="118dp"
+            android:layout_height="117dp"
             android:background="@null">
 
             <LinearLayout
@@ -27,7 +27,7 @@
                 <ImageView
                     android:id="@+id/formImage"
                     android:layout_width="116dp"
-                    android:layout_height="118dp"
+                    android:layout_height="117dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
                     android:src="@mipmap/icon1" />

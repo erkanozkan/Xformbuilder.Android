@@ -41,9 +41,9 @@ public class FormActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_form);
-        //getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,R.layout.formlist_titlebar);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,R.layout.formlist_titlebar);
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");

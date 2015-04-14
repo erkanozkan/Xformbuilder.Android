@@ -12,6 +12,4 @@
         android:dividerHeight="0dp"
         android:background="#ffffff"
         android:cacheColorHint="@color/abc_secondary_text_material_dark" />
-
-
 </RelativeLayout>
