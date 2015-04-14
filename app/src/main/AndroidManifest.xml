@@ -22,12 +22,13 @@
         </activity>
         <activity
             android:name=".FormActivity"
-            android:label="@string/title_activity_form"
-            android:theme="@style/MyTheme" >
+            android:label="@string/title_activity_form" >
         </activity>
         <activity
             android:name=".FormResponseActivity"
-            android:label="@string/title_activity_form_response" >
+            android:label="@string/title_activity_form_response"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
             android:name=".Settings"

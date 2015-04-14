@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
     android:visibility="visible"
-    android:background="#dbdbdb"
+    android:background="#ffffff"
     android:padding="0dp">
 
     <LinearLayout
