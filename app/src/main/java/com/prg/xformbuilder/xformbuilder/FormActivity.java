@@ -1,18 +1,24 @@
 package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,35 +33,104 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.logging.Handler;
 
 
 public class FormActivity extends Activity {
     int parentId=0,userId=0;
     boolean InternetConnection = false;
     FormAdaptor adaptor;
+    ImageButton ButtonLogout,ButtonSync,ButtonSettings;
     ListView lv;
     String jsonFormTitle="",jsonUserName="", jsonMobileHtml="";
     int jsonParentId=0,jsonFormId=0 ,jsonUserId=0;
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
-
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    public static final String KEY_USERNAME = "keyUsername";
-    public static final String KEY_PASSWORD= "keyPassword";
-    SharedPreferences sharedpreferences;
+    ProgressDialog progressDialogFormList ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_form);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,R.layout.formlist_titlebar);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.formlist_titlebar);
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
+        progressDialogFormList = new ProgressDialog(FormActivity.this, AlertDialog.THEME_HOLO_LIGHT);
+        progressDialogFormList.setTitle("Senkronize işlemleri");
+        progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
+        progressDialogFormList.setCanceledOnTouchOutside(false);
+        progressDialogFormList.show();
+        //------------------------------------Session Kontrol
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String sessionUserName=preferences.getString("UserName", "NULL");
+        String sessionPassword=preferences.getString("Password", "NULL");
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
+            Intent i = new Intent(FormActivity.this,MainActivity.class);
+            startActivity(i);
+        }
+        //------------------------------------Session Kontrol
+        ButtonLogout=(ImageButton) findViewById(R.id.imageButton_logout);
+        ButtonLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormActivity.this);
+                alertDialog.setMessage("Oturum kapatılsın mı ?");
+                alertDialog
+                        .setCancelable(false)
+                        .setPositiveButton("Evet",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        //----------------------------------------Session Kontrol
+                                        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+                                        SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+                                        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                        editor = preferences.edit();
+                                        editor.remove("UserName");
+                                        editor.remove("Password");
+                                        editor.remove("UserId");
+                                        editor.remove("ParentId");
+                                        editor.commit();
+                                        //----------------------------------------Session Kontrol
+                                        Intent i = new Intent(FormActivity.this,MainActivity.class);
+                                        startActivity(i);
+                                    }
+                                })
+                        .setNegativeButton("Hayır",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        dialog.cancel();
+                                    }
+                                });
 
-
-
+                AlertDialog alert = alertDialog.create();
+                alert.show();
+            }
+        });
+        ButtonSync=(ImageButton)findViewById(R.id.imageButton_sync);
+        ButtonSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (InternetConnection){
+                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=" + parentId);
+                    progressDialogFormList.show();
+                }else{
+                    Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        ButtonSettings=(ImageButton)findViewById(R.id.imageButton_settings);
+        ButtonSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            //    Intent i = new Intent(FormActivity.this,Se.class);
+             //   startActivity(i);
+            }
+        });
         lv = (ListView) findViewById(R.id.liste);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -102,9 +177,6 @@ public class FormActivity extends Activity {
             //Internet baglantısı var ise web apiden formları cekiyoruz.
             if (InternetConnection){
                 new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=" + parentId);
-
-
-
             }else{
               //TODO: Eger internet yoksa veriler veri tabanından çekilecek ve list view ekranına dizilecek.
                 try{
@@ -113,21 +185,19 @@ public class FormActivity extends Activity {
                     for (int i=0;i<formList.size();i++){
                         formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
                     }
+                    progressDialogFormList.dismiss();
                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                     lv.setAdapter(adaptor);
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
                     Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
                 }
-
-
             }
         }catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
     }
-
 
     public String GET(String url){
 
@@ -180,6 +250,7 @@ public class FormActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             try {
+
                 JSONArray jsonArray = new JSONArray(result);
                 boolean deleteForm = dbHandler.DeleteFormTable();
                 for(int i=0; i<jsonArray.length(); i++){
@@ -189,7 +260,6 @@ public class FormActivity extends Activity {
                     jsonParentId = obj.getInt("ParentId");
                     jsonUserName = obj.getString("UserName");
                     jsonMobileHtml = obj.getString("MobileHtml");
-
                     if (deleteForm){
                         Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,userId);
                         dbHandler.CreateForm(form);
@@ -201,7 +271,7 @@ public class FormActivity extends Activity {
                 try{
                     List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
                     FormList   formArray[] = new FormList[formList.size()];
-                    for (int i=0;i<formList.size();i++){
+                        for (int i=0;i<formList.size();i++){
                         if(i<5){
                             switch (i){
                                 case 0:
@@ -224,8 +294,8 @@ public class FormActivity extends Activity {
                         else{
                             formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
                         }
-
                     }
+                    progressDialogFormList.dismiss();
                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                     lv.setAdapter(adaptor);
                 }catch (Exception e){
@@ -257,5 +327,25 @@ public class FormActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        //----------------------------------------Session Kontrol
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // editor = preferences.edit();
+
+        String sessionUserName=preferences.getString("UserName", "NULL");
+        String sessionPassword=preferences.getString("Password", "NULL");
+
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
+            Intent i = new Intent(FormActivity.this,MainActivity.class);
+            startActivity(i);
+        }
+//----------------------------------------Session Kontrol
+    }
+
 
 }

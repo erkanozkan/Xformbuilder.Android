@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -42,10 +44,26 @@ public class FormResponseActivity extends ActionBarActivity {
     private static final int FILECHOOSER_RESULTCODE   = 2888;
     private ValueCallback<Uri> mUploadMessage;
     private Uri mCapturedImageURI = null;
-    final Bundle bundleFormResponse = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
+    final Bundle bundleFormResponse = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//----------------------------------------Session Kontrol
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // editor = preferences.edit();
+
+        String sessionUserName=preferences.getString("UserName", "NULL");
+        String sessionPassword=preferences.getString("Password", "NULL");
+
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
+            Intent i = new Intent(FormResponseActivity.this,MainActivity.class);
+            startActivity(i);
+        }
+//----------------------------------------Session Kontrol
+
         setContentView(R.layout.activity_form_response);
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
@@ -280,5 +298,24 @@ public class FormResponseActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        //----------------------------------------Session Kontrol
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // editor = preferences.edit();
+
+        String sessionUserName=preferences.getString("UserName", "NULL");
+        String sessionPassword=preferences.getString("Password", "NULL");
+
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
+            Intent i = new Intent(FormResponseActivity.this,MainActivity.class);
+            startActivity(i);
+        }
+        //----------------------------------------Session Kontrol
     }
 }
