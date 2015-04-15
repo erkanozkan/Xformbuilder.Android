@@ -1,6 +1,7 @@
 package com.prg.xformbuilder.xformbuilder;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ public class FormResponseActivity extends ActionBarActivity {
     final Activity activity = this;
     String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
     public Uri imageUri;
+    ProgressDialog progressDialogResponce;
 
     private static final int FILECHOOSER_RESULTCODE   = 2888;
     private ValueCallback<Uri> mUploadMessage;
@@ -99,7 +101,6 @@ public class FormResponseActivity extends ActionBarActivity {
     public class WebViewJavaScriptInterface{
 
         private Context context;
-
         /*
          * Need a reference to the context in order to sent a post message
          */
@@ -113,27 +114,33 @@ public class FormResponseActivity extends ActionBarActivity {
          */
         @JavascriptInterface
         public void FormSubmit(String html, String json){
+            progressDialogResponce = new ProgressDialog(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
+            progressDialogResponce.setTitle("Form Cevaplama İşlemi");
+            progressDialogResponce.setMessage("Form cevaplanıyor...");
+            progressDialogResponce.setCanceledOnTouchOutside(false);
+            progressDialogResponce.show();
               // dbHandler.DeleteDraftFormTable();
-
             bundleFormResponse.putString("FormId", formId);
             bundleFormResponse.putInt("UserId",userId);
             bundleFormResponse.putInt("ParentId",parentId);
             if(draftId != null){
                 DraftForm draftForm = new DraftForm(Integer.parseInt(draftId),Integer.parseInt(formId),html,json,currentDateTimeString,userId);
                 dbHandler.UpdateDraft(draftForm);
-                Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
+                Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
                 i.putExtras(bundleFormResponse);
                 startActivity(i);
                 finish();
+                progressDialogResponce.dismiss();
             }
             else{
              //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
                 DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString,userId);
                 dbHandler.CreateDraftForm(form);
-                Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
+                Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
                 i.putExtras(bundleFormResponse);
                 startActivity(i);
                 finish();
+                progressDialogResponce.dismiss();
             }
         }
     }
