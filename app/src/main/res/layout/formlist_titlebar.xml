@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/imageButton_sync"
-                android:background="@mipmap/appbar_sync"
+                android:background="@drawable/appbar_button_async"
                 android:layout_row="0"
                 android:layout_column="5"
                 android:contentDescription="sync"
@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/imageButton_settings"
-                android:background="@mipmap/appbar_settigns"
+                android:background="@drawable/appbar_button_settings"
                 android:layout_row="0"
                 android:layout_column="7"
                 android:contentDescription="settings"
@@ -71,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/imageButton_logout"
-                android:background="@mipmap/appbar_logout"
+                android:background="@drawable/appbar_button_logout"
                 android:contentDescription="logout"
                 android:clickable="true" />
         </LinearLayout>
