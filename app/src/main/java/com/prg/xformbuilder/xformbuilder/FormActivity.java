@@ -150,6 +150,7 @@ public class FormActivity extends Activity{
                  bundleForm.putString("FormId", selectFormId);
                 bundleForm.putInt("UserId", userId);
                 bundleForm.putInt("ParentId",parentId);
+                bundleForm.putString("FormTitle",selectFormTitle);
                 int count=  dbHandler.getFormCount(selectFormId);
 
            /* //   dbHandler.DeleteDraftFormTable();

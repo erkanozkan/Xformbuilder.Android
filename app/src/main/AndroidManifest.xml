@@ -29,7 +29,8 @@
             android:name=".FormResponseActivity"
             android:label="@string/title_activity_form_response"
             android:configChanges="orientation|keyboardHidden"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/MyTheme">
         </activity>
         <activity
             android:name=".Settings"
