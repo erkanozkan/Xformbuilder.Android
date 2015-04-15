@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -124,7 +126,7 @@ public class FormActivity extends Activity{
             @Override
             public void onClick(View v) {
                 if (InternetConnection){
-                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=" + parentId);
+                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
                     progressDialogFormList.show();
                 }else{
                     Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
@@ -179,7 +181,9 @@ public class FormActivity extends Activity{
                     mPullToRefreshView.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            playAlertTone(getApplicationContext());
                             GetFormList();
+
                             mPullToRefreshView.setRefreshing(false);
                         }
                     }, REFRESH_DELAY);
@@ -211,6 +215,28 @@ public class FormActivity extends Activity{
         }
     }
 
+    public  void playAlertTone(final Context context){
+
+
+        try {
+            AssetFileDescriptor afd = getAssets().openFd("pullbeep.m4a");
+            MediaPlayer mMediaplayer = new MediaPlayer();
+            mMediaplayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            afd.close();
+            mMediaplayer.prepare();
+            mMediaplayer.start();
+            mMediaplayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                public void onCompletion(MediaPlayer mMediaPlayer) {
+                    mMediaPlayer.stop();
+                    mMediaPlayer.release();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void GetFormList() {
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
@@ -224,7 +250,7 @@ public class FormActivity extends Activity{
 
         //Internet baglantısı var ise web apiden formları cekiyoruz.
         if (InternetConnection){
-            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=" + parentId);
+            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
         }else{
             //TODO: Eger internet yoksa veriler veri tabanından çekilecek ve list view ekranına dizilecek.
             try{
