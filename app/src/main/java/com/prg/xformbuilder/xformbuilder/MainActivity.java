@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
                        User  login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
                         if (login!=null){
                             loginDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
                             bundle.putInt("ParentId", login.getParentId());
                             bundle.putInt("UserId",login.getUserId());
 
@@ -231,7 +231,7 @@ public class MainActivity extends Activity {
                     bundle.putInt("ParentId", jsonParentId);
                     bundle.putInt("UserId",jsonUserId);
                     loginDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Xformbuilder hoş geldiniz.",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "Xformbuilder hoş geldiniz.",Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
                     i.putExtras(bundle);
                     startActivity(i);

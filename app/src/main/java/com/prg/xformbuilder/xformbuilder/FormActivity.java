@@ -137,7 +137,7 @@ public class FormActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
                 String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
-                Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", selectFormId);
                 bundleForm.putInt("UserId", userId);
                 bundleForm.putInt("ParentId",parentId);
