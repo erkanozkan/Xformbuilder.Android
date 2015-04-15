@@ -37,7 +37,9 @@
         </activity>
         <activity
             android:name=".DraftFormActivity"
-            android:label="@string/title_activity_draft_form" >
+            android:label="@string/title_activity_draft_form"
+            android:theme="@style/MyTheme"
+            >
         </activity>
     </application>
 

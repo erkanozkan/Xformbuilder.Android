@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="70dp"
     android:background="#000000"
-    android:id="@+id/mainlinearcustomtitle_formlist"
+    android:id="@+id/draftlistlinear"
     android:gravity="right"
     android:alpha="0.65">
 
@@ -14,10 +14,26 @@
         android:layout_height="fill_parent"
         android:layout_gravity="center_vertical"
         android:gravity="left"
-        android:layout_marginLeft="10dp">
+        android:id="@+id/LinearLayout_BackFormList"
+        style="@drawable/appbar_button_back"
+        android:paddingRight="2dp">
 
         <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/imageButton"
+                android:background="@mipmap/appbar_back" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:gravity="center_vertical">
@@ -26,8 +42,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Form Draft"
-                android:id="@+id/textView2"
+                android:text="Draft Listesi"
+                android:id="@+id/textView_DraftList"
                 android:textColor="#ffffff" />
         </LinearLayout>
     </LinearLayout>
@@ -52,7 +68,7 @@
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/imageButton_logout"
+                    android:id="@+id/buttonNewResponse"
                     android:background="@drawable/appbar_button_add"
                     android:contentDescription="logout"
                     android:clickable="true" />

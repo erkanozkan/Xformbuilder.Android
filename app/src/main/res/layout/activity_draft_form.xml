@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.prg.xformbuilder.xformbuilder.DraftFormActivity">
+    tools:context="com.prg.xformbuilder.xformbuilder.DraftFormActivity"
+    android:background="#ffffff">
 
 
     <ListView
@@ -9,5 +10,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/listView_draftForm"
         android:layout_centerHorizontal="true"
+        android:divider="@null"
+        android:dividerHeight="0dp"
          />
 </RelativeLayout>

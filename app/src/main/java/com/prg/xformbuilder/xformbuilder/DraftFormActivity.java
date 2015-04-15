@@ -1,5 +1,6 @@
 package com.prg.xformbuilder.xformbuilder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,8 +11,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,25 +22,25 @@ import android.widget.Toast;
 import java.util.List;
 
 
-public class DraftFormActivity extends ActionBarActivity {
+public class DraftFormActivity extends Activity {
     DatabaseHandler dbHandler;
     String formId="";
     int parentId=0,userId=0;
     DraftAdapter draftAdapter;
     ListView lv;
-    Button buttonNewResponse,buttonExit;
+    ImageButton buttonNewResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_draft_form);
-
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.draftlist_titlebar);
         //----------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
         preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         // editor = preferences.edit();
-
         String sessionUserName=preferences.getString("UserName", "NULL");
         String sessionPassword=preferences.getString("Password", "NULL");
 
@@ -53,7 +56,7 @@ public class DraftFormActivity extends ActionBarActivity {
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
         lv = (ListView) findViewById(R.id.listView_draftForm);
-        //buttonNewResponse=(Button) findViewById(R.id.button_NewResponse);
+        buttonNewResponse=(ImageButton) findViewById(R.id.buttonNewResponse);
         //buttonExit=(Button) findViewById(R.id.button_exit);
         /*buttonExit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,10 +80,10 @@ public class DraftFormActivity extends ActionBarActivity {
 
             }
         });*/
-       /* buttonNewResponse.setOnClickListener(new View.OnClickListener() {
+       buttonNewResponse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Form Lükleniyor...", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Form yükleniyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", formId);
                 bundleForm.putInt("UserId", userId);
                 bundleForm.putInt("ParentId", parentId);
@@ -90,7 +93,7 @@ public class DraftFormActivity extends ActionBarActivity {
                 startActivity(i);
                 finish();
             }
-        });*/
+        });
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
