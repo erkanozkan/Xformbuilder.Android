@@ -6,10 +6,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,11 +42,17 @@ public class MainActivity extends Activity {
     final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
     ProgressDialog loginDialog ;
 
+    SharedPreferences preferences; //preferences için bir nesne tanımlıyorum.
+    SharedPreferences.Editor editor; //preferences içerisine bilgi girmek için tanımlama
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        editor = preferences.edit();
+
         username = (EditText)findViewById(R.id.editText_userName);
         password = (EditText)findViewById(R.id.editText_password);
         dbHandler = new DatabaseHandler(getApplicationContext());
@@ -82,6 +90,14 @@ public class MainActivity extends Activity {
                             Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
                             bundle.putInt("ParentId", login.getParentId());
                             bundle.putInt("UserId",login.getUserId());
+
+
+                            editor.putString("UserName",username.getText().toString());    //bilgileri ekle ve kaydet
+                            editor.putString("Password", password.getText().toString());
+                            editor.putInt("UserId",login.getUserId());
+                            editor.putInt("ParentId",login.getParentId());
+                            editor.commit();
+
                             Intent i = new Intent(MainActivity.this,FormActivity.class);
                             i.putExtras(bundle);
                             startActivity(i);
@@ -122,6 +138,7 @@ public class MainActivity extends Activity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
+
                                 dialog.cancel();
 
                             }
@@ -195,6 +212,12 @@ public class MainActivity extends Activity {
 
                 if (jsonUserName.equals(username.getText().toString()))
                 {
+                    editor.putString("UserName", jsonUserName);
+                    editor.putString("Password", jsonPassword);
+                    editor.putInt("UserId",jsonUserId);
+                    editor.putInt("ParentId",jsonParentId);
+                    editor.commit();
+
                     boolean  getUser=dbHandler.GetUserByUserId(jsonUserId);
                     if (getUser){
                         User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));

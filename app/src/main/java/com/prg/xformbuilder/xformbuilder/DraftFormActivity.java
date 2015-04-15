@@ -3,6 +3,7 @@ package com.prg.xformbuilder.xformbuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +31,21 @@ public class DraftFormActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_draft_form);
+
+        //----------------------------------------Session Kontrol
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // editor = preferences.edit();
+
+        String sessionUserName=preferences.getString("UserName", "NULL");
+        String sessionPassword=preferences.getString("Password", "NULL");
+
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
+            Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
+            startActivity(i);
+        }
+//----------------------------------------Session Kontrol
         dbHandler = new DatabaseHandler(getApplicationContext());
         final Bundle bundleForm = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
         Bundle bundle=getIntent().getExtras();
@@ -42,12 +58,23 @@ public class DraftFormActivity extends ActionBarActivity {
         buttonExit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              moveTaskToBack(true);
-              finish();
+
+
+                //----------------------------------------Session Kontrol
+                SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+                SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+                preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                editor = preferences.edit();
+                editor.remove("UserName");
+                editor.remove("Password");
+                editor.remove("UserId");
+                editor.remove("ParentId");
+                editor.commit();
+                //----------------------------------------Session Kontrol
 
               Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
               startActivity(i);
-                finish();
+
             }
         });
         buttonNewResponse.setOnClickListener(new View.OnClickListener() {
@@ -94,6 +121,25 @@ public class DraftFormActivity extends ActionBarActivity {
             Toast.makeText(getApplicationContext(), "Verileri �ekerken hata olu�tu l�tfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        //----------------------------------------Session Kontrol
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // editor = preferences.edit();
+
+        String sessionUserName=preferences.getString("UserName", "NULL");
+        String sessionPassword=preferences.getString("Password", "NULL");
+
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
+            Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
+            startActivity(i);
+        }
+//----------------------------------------Session Kontrol
     }
 
     @Override
