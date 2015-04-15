@@ -15,6 +15,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +25,7 @@ import java.util.List;
 
 public class DraftFormActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId="";
+    String formId="",formTitle="";
     int parentId=0,userId=0;
     DraftAdapter draftAdapter;
     ListView lv;
@@ -53,10 +54,29 @@ public class DraftFormActivity extends Activity {
         final Bundle bundleForm = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
         Bundle bundle=getIntent().getExtras();
         formId=bundle.getString("FormId");
+        formTitle=bundle.getString("FormTitle");
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
         lv = (ListView) findViewById(R.id.listView_draftForm);
         buttonNewResponse=(ImageButton) findViewById(R.id.buttonNewResponse);
+
+        LinearLayout backFormList = (LinearLayout)findViewById(R.id.LinearLayout_BackFormList);
+
+        backFormList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bundleForm.putString("FormId", formId);
+                bundleForm.putInt("UserId", userId);
+                bundleForm.putInt("ParentId", parentId);
+                bundleForm.putString("FormTitle", formTitle);
+                Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
+                i.putExtras(bundleForm);
+                startActivity(i);
+                finish();
+            }
+        });
+
+
         //buttonExit=(Button) findViewById(R.id.button_exit);
         /*buttonExit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,7 +107,7 @@ public class DraftFormActivity extends Activity {
                 bundleForm.putString("FormId", formId);
                 bundleForm.putInt("UserId", userId);
                 bundleForm.putInt("ParentId", parentId);
-
+                bundleForm.putString("FormTitle", formTitle);
                 Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
@@ -105,6 +125,7 @@ public class DraftFormActivity extends Activity {
                 bundleForm.putString("DraftId", selectDraftId);
                 bundleForm.putInt("UserId", userId);
                 bundleForm.putInt("ParentId",parentId);
+                bundleForm.putString("FormTitle", formTitle);
                 Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);

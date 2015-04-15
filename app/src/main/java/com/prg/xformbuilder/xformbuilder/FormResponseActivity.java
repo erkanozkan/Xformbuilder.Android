@@ -16,6 +16,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -23,6 +25,8 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -30,9 +34,9 @@ import java.text.DateFormat;
 import java.util.Date;
 
 
-public class FormResponseActivity extends ActionBarActivity {
+public class FormResponseActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId="",draftId="";
+    String formId="",draftId="",formTitle="";
     int userId=0,parentId=0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
@@ -42,7 +46,7 @@ public class FormResponseActivity extends ActionBarActivity {
     String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
     public Uri imageUri;
     ProgressDialog progressDialogResponce;
-
+   ImageButton btnBackResponse;
     private static final int FILECHOOSER_RESULTCODE   = 2888;
     private ValueCallback<Uri> mUploadMessage;
     private Uri mCapturedImageURI = null;
@@ -65,26 +69,27 @@ public class FormResponseActivity extends ActionBarActivity {
             startActivity(i);
         }
 //----------------------------------------Session Kontrol
-
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_form_response);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         formId=bundle.getString("FormId");
         userId=bundle.getInt("UserId");
         draftId =bundle.getString("DraftId");
+        formTitle =bundle.getString("FormTitle");
         parentId=bundle.getInt("ParentId");
-     //   dbHandler.DeleteDraftFormTable();
+        TextView frmname = (TextView)findViewById(R.id.textView_FormName);
+        //   dbHandler.DeleteDraftFormTable();
         if(draftId != null){
             draft = dbHandler.GetDraftByDraftId(draftId);
             html.append("<html>"+ draft.getDraftHtml()+"</html>");
         }
-
     else{
             form=  dbHandler.GetFormByFormId(formId);
             html.append(form.getMobileHtml());
-
         }
-
+        frmname.setText(formTitle);
         webView = (WebView) findViewById(R.id.webview);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setLoadWithOverviewMode(true);
@@ -96,6 +101,32 @@ public class FormResponseActivity extends ActionBarActivity {
         webView.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
         webView.addJavascriptInterface(new WebViewJavaScriptInterface(this), "app");
         startWebView();
+
+        btnBackResponse= (ImageButton)findViewById(R.id.imageButton_Back);
+        btnBackResponse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bundleFormResponse.putInt("UserId",userId);
+                bundleFormResponse.putInt("ParentId",parentId);
+                bundleFormResponse.putString("FormTitle",formTitle);
+                bundleFormResponse.putString("DraftId",draftId);
+                bundleFormResponse.putString("FormId",formId);
+
+                if(draftId != null){
+                    Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
+                    finish();
+                }
+                else{
+                    Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
+                    finish();
+                }
+            }
+        });
+
     }
 
     public class WebViewJavaScriptInterface{
