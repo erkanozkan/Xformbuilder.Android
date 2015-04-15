@@ -105,7 +105,7 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-        alertDialog.setMessage("Uygulama kapatılsın mı?");
+        alertDialog.setMessage("Xformbuilder kapatılsın mı?");
         alertDialog
                 .setCancelable(false)
                 .setPositiveButton("Evet",
