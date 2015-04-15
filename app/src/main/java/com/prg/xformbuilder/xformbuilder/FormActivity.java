@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,22 +40,31 @@ public class FormActivity extends Activity {
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
 
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    public static final String KEY_USERNAME = "keyUsername";
-    public static final String KEY_PASSWORD= "keyPassword";
-    SharedPreferences sharedpreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_form);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,R.layout.formlist_titlebar);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.formlist_titlebar);
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
 
 
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+       // editor = preferences.edit();
+
+        String sessionUserName=preferences.getString("UserName", "NULL");
+        String sessionPassword=preferences.getString("Password", "NULL");
+
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
+            Intent i = new Intent(FormActivity.this,MainActivity.class);
+            startActivity(i);
+        }
 
         lv = (ListView) findViewById(R.id.liste);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -256,6 +266,25 @@ public class FormActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        //----------------------------------------Session Kontrol
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // editor = preferences.edit();
+
+        String sessionUserName=preferences.getString("UserName", "NULL");
+        String sessionPassword=preferences.getString("Password", "NULL");
+
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
+            Intent i = new Intent(FormActivity.this,MainActivity.class);
+            startActivity(i);
+        }
+//----------------------------------------Session Kontrol
     }
 
 }
