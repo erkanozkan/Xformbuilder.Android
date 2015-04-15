@@ -1,9 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipe_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context="com.prg.xformbuilder.xformbuilder.FormActivity"
-    android:background="#ffffff">
+    android:background="#ffffff">"
+
+    <com.yalantis.phoenix.PullToRefreshView
+        android:id="@+id/pull_to_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <ListView
         android:id="@+id/liste"
         android:layout_width="match_parent"
@@ -12,4 +18,7 @@
         android:dividerHeight="0dp"
         android:background="#ffffff"
         android:cacheColorHint="@color/abc_secondary_text_material_dark" />
+    </com.yalantis.phoenix.PullToRefreshView>
 </RelativeLayout>
+
+

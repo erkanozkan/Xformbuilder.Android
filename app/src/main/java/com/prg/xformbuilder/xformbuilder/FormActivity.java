@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,9 +35,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.logging.Handler;
+import com.yalantis.phoenix.PullToRefreshView;
 
+public class FormActivity extends Activity{
 
-public class FormActivity extends Activity {
     int parentId=0,userId=0;
     boolean InternetConnection = false;
     FormAdaptor adaptor;
@@ -47,6 +49,11 @@ public class FormActivity extends Activity {
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
     ProgressDialog progressDialogFormList ;
+
+
+    public static final int REFRESH_DELAY = 2000;
+    private PullToRefreshView mPullToRefreshView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +69,7 @@ public class FormActivity extends Activity {
         progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
         progressDialogFormList.setCanceledOnTouchOutside(false);
         progressDialogFormList.show();
+
         //------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -137,8 +145,7 @@ public class FormActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
                 String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
-                //Toast.makeText(getApplicationContext(), selectFormTitle+" formu açılıyor...", Toast.LENGTH_SHORT).show();
-                bundleForm.putString("FormId", selectFormId);
+                 bundleForm.putString("FormId", selectFormId);
                 bundleForm.putInt("UserId", userId);
                 bundleForm.putInt("ParentId",parentId);
                 int count=  dbHandler.getFormCount(selectFormId);
@@ -163,41 +170,79 @@ public class FormActivity extends Activity {
             }
         });
         try {
-            //--------------------------------------Internet Connection
-            ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-            if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-                //we are connected to a network
-                InternetConnection = true;
-            }
-            else
-                InternetConnection = false;
-            //--------------------------------------Internet Connection
+           GetFormList();
 
-            //Internet baglantısı var ise web apiden formları cekiyoruz.
-            if (InternetConnection){
-                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=" + parentId);
-            }else{
-              //TODO: Eger internet yoksa veriler veri tabanından çekilecek ve list view ekranına dizilecek.
-                try{
-                    List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
-                    FormList   formArray[] = new FormList[formList.size()];
-                    for (int i=0;i<formList.size();i++){
-                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
-                    }
-                    progressDialogFormList.dismiss();
-                    adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
-                    lv.setAdapter(adaptor);
-                }catch (Exception e){
-                    Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
-                    Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+            mPullToRefreshView = (PullToRefreshView) findViewById(R.id.pull_to_refresh);
+            mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    mPullToRefreshView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            GetFormList();
+                            mPullToRefreshView.setRefreshing(false);
+                        }
+                    }, REFRESH_DELAY);
                 }
-            }
+            });
+
+           /* final SwipeRefreshLayout swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_container);
+
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
+            {
+                @Override
+                public void onRefresh()
+                {
+                    GetFormList();
+
+                    swipeRefreshLayout.setRefreshing(false);
+
+                }
+            });
+
+            /swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                    android.R.color.holo_green_light, android.R.color.holo_orange_light,
+                    android.R.color.holo_red_light); */
+
+
         }catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
     }
+
+    private void GetFormList() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //we are connected to a network
+            InternetConnection = true;
+        }
+        else
+            InternetConnection = false;
+        //--------------------------------------Internet Connection
+
+        //Internet baglantısı var ise web apiden formları cekiyoruz.
+        if (InternetConnection){
+            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?parentId=" + parentId);
+        }else{
+            //TODO: Eger internet yoksa veriler veri tabanından çekilecek ve list view ekranına dizilecek.
+            try{
+                List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
+                FormList   formArray[] = new FormList[formList.size()];
+                for (int i=0;i<formList.size();i++){
+                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+                }
+                progressDialogFormList.dismiss();
+                adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
+                lv.setAdapter(adaptor);
+            }catch (Exception e){
+                Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
+                Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+            }
+        }
+    }
+
 
     public String GET(String url){
 
