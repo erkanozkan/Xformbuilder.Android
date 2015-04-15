@@ -38,8 +38,9 @@ public class DraftAdapter extends ArrayAdapter<DraftList> {
 
             holder = new draftViewHolder();
 
-            holder.img = (ImageView) row.findViewById(R.id.DraftImage);
-            holder.date = (TextView) row.findViewById(R.id.draftDate);
+
+            holder.draftImage = (ImageView) row.findViewById(R.id.formDraftImage);
+             holder.date = (TextView) row.findViewById(R.id.draftDate);
             holder.formId = (TextView) row.findViewById(R.id.frmId);
             holder.draftId = (TextView) row.findViewById(R.id.draftId);
 
@@ -50,7 +51,7 @@ public class DraftAdapter extends ArrayAdapter<DraftList> {
         }
 
         DraftList fInfo = draftLists[position];
-        holder.img.setImageResource(fInfo.getDraftImage());
+        holder.draftImage = (ImageView) row.findViewById(R.id.formDraftImage);
         holder.date.setText(fInfo.getDraftDate());
         holder.formId.setText(fInfo.getFormId());
         holder.draftId.setText(String.valueOf(fInfo.getDraftId()));
@@ -60,7 +61,8 @@ public class DraftAdapter extends ArrayAdapter<DraftList> {
 
 
     static class draftViewHolder{
-        ImageView img;
+
+        ImageView  draftImage;
         TextView date;
         TextView formId;
         TextView draftId;

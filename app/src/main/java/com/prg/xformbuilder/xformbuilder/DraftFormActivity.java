@@ -53,9 +53,9 @@ public class DraftFormActivity extends ActionBarActivity {
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
         lv = (ListView) findViewById(R.id.listView_draftForm);
-        buttonNewResponse=(Button) findViewById(R.id.button_NewResponse);
-        buttonExit=(Button) findViewById(R.id.button_exit);
-        buttonExit.setOnClickListener(new View.OnClickListener() {
+        //buttonNewResponse=(Button) findViewById(R.id.button_NewResponse);
+        //buttonExit=(Button) findViewById(R.id.button_exit);
+        /*buttonExit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -76,8 +76,8 @@ public class DraftFormActivity extends ActionBarActivity {
               startActivity(i);
 
             }
-        });
-        buttonNewResponse.setOnClickListener(new View.OnClickListener() {
+        });*/
+       /* buttonNewResponse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Form Lükleniyor...", Toast.LENGTH_SHORT).show();
@@ -90,14 +90,14 @@ public class DraftFormActivity extends ActionBarActivity {
                 startActivity(i);
                 finish();
             }
-        });
+        });*/
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
                 String selectDraftId =  ((TextView)view .findViewById(R.id.draftId)).getText().toString();
-                Toast.makeText(getApplicationContext(), " Form  Yükleniyor...", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), " Form  Yükleniyor...", Toast.LENGTH_SHORT).show();
                 bundleForm.putString("FormId", selectFormId);
                 bundleForm.putString("DraftId", selectDraftId);
                 bundleForm.putInt("UserId", userId);
@@ -113,7 +113,7 @@ public class DraftFormActivity extends ActionBarActivity {
             List<DraftForm> draftForms=  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
             DraftList   draftArray[] = new DraftList[draftForms.size()];
             for (int i=0;i<draftForms.size();i++){
-                draftArray[i] = new DraftList ( R.mipmap.ic_launcher,  draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
+         draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
             }
             draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
             lv.setAdapter(draftAdapter);
