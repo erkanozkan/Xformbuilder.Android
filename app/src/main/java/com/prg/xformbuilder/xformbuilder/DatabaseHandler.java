@@ -375,6 +375,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         db.update(TABLE_DRAFTFORM, values, KEY_ID + "=?", new String[]{String.valueOf(draftForm.getId())});
     }
+
+
+
+
+
+
+
+
+
+
     public List<DraftForm> getAllDraftFormListVw(String formId ) {
         List<DraftForm> draftForms = new ArrayList<DraftForm>();
         SQLiteDatabase db = this.getReadableDatabase();
