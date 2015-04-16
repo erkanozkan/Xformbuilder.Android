@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="ABOUT"
-                android:id="@+id/textView"
+                android:id="@+id/textView_about123"
                 android:textColor="#000000" />
         </LinearLayout>
 
@@ -45,6 +45,7 @@
             android:layout_width="fill_parent"
             android:layout_height="60dp"
             android:gravity="center_vertical"
+            android:id="@+id/LinearLayout_about"
             android:background="@drawable/settings_buttons"
             android:clickable="true">
 
@@ -53,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="About Xformbuilder"
-                android:id="@+id/textView3"
+
                 android:textColor="#000000"
                 android:layout_marginLeft="10dp" />
 
@@ -94,6 +95,7 @@
             android:layout_width="fill_parent"
             android:layout_height="60dp"
             android:gravity="center_vertical"
+            android:id="@+id/LinearLayout_Faq"
             android:background="@drawable/settings_buttons"
             android:clickable="true">
 
@@ -102,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="FAQ"
-                android:id="@+id/textView5"
+
                 android:textColor="#000000"
                 android:layout_marginLeft="10dp" />
         </LinearLayout>
@@ -118,6 +120,7 @@
             android:layout_width="fill_parent"
             android:layout_height="60dp"
             android:gravity="center_vertical"
+            android:id="@+id/LinearLayout_Contact"
             android:background="@drawable/settings_buttons"
             android:clickable="true">
 
@@ -126,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Contact Pragmalinq"
-                android:id="@+id/textView6"
+
                 android:textColor="#000000"
                 android:layout_marginLeft="10dp" />
         </LinearLayout>
@@ -159,6 +162,7 @@
             android:layout_width="fill_parent"
             android:layout_height="60dp"
             android:gravity="center_vertical"
+            android:id="@+id/LinearLayout_CleanDatabase"
             android:background="@drawable/settings_buttons"
             android:clickable="true">
 
@@ -167,7 +171,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Clean Local Database"
-                android:id="@+id/textView8"
+
                 android:textColor="#000000"
                 android:layout_marginLeft="10dp" />
 

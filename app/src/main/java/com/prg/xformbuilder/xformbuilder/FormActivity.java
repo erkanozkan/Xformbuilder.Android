@@ -136,12 +136,13 @@ public class FormActivity extends Activity{
                 }
             }
         });
+
         ButtonSettings=(ImageButton)findViewById(R.id.imageButton_settings);
         ButtonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            //    Intent i = new Intent(FormActivity.this,Se.class);
-             //   startActivity(i);
+                Intent i = new Intent(FormActivity.this,Settings.class);
+                startActivity(i);
             }
         });
         lv = (ListView) findViewById(R.id.liste);
