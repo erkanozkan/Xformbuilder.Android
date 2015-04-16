@@ -164,7 +164,7 @@ public class FormResponseActivity extends Activity {
          * required after SDK version 17.
          */
         @JavascriptInterface
-        public void FormSubmit(String html, String json){
+        public void FormSubmit(String html, String json,String field1_title ,String field1_value ,String field2_title ,String field2_value  ,String field3_title  ,String field3_value){
             progressDialogResponce = new ProgressDialog(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
             progressDialogResponce.setTitle("Form Cevaplama İşlemi");
             progressDialogResponce.setMessage("Form cevaplanıyor...");
@@ -175,7 +175,7 @@ public class FormResponseActivity extends Activity {
             bundleFormResponse.putInt("UserId",userId);
             bundleFormResponse.putInt("ParentId",parentId);
             if(draftId != null){
-                DraftForm draftForm = new DraftForm(Integer.parseInt(draftId),Integer.parseInt(formId),html,json,currentDateTimeString,userId);
+                DraftForm draftForm = new DraftForm(Integer.parseInt(draftId),Integer.parseInt(formId),html,json,currentDateTimeString,userId,field1_title,field1_value,field2_title,field2_value,field3_title,field3_value);
                 dbHandler.UpdateDraft(draftForm);
                 Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
                 i.putExtras(bundleFormResponse);
@@ -185,7 +185,7 @@ public class FormResponseActivity extends Activity {
             }
             else{
              //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString,userId);
+                DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString,userId,field1_title,field1_value,field2_title,field2_value,field3_title,field3_value);
                 dbHandler.CreateDraftForm(form);
                 Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
                 i.putExtras(bundleFormResponse);
