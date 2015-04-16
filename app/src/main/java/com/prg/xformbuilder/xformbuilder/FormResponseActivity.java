@@ -164,7 +164,7 @@ public class FormResponseActivity extends Activity {
          * required after SDK version 17.
          */
         @JavascriptInterface
-        public void FormSubmit(String html, String json,String field1_title ,String field1_value ,String field2_title ,String field2_value  ,String field3_title  ,String field3_value){
+        public void FormSubmit(String html, String json,String isUploadable,String field1_title ,String field1_value ,String field2_title ,String field2_value  ,String field3_title  ,String field3_value){
             progressDialogResponce = new ProgressDialog(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
             progressDialogResponce.setTitle("Form Cevaplama İşlemi");
             progressDialogResponce.setMessage("Form cevaplanıyor...");
