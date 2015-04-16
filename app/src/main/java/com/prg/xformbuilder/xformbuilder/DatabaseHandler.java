@@ -400,6 +400,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         return draftForms;
     }
+    //Draft Form Database Siler
     public boolean DeleteDraftFormTable(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTFORM);
@@ -407,6 +408,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return true;
     }
 
+    //Tum Database Siler
     public boolean ClearLocalDatabase(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTFORM);
