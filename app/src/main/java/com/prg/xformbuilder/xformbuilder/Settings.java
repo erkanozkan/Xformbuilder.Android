@@ -1,9 +1,11 @@
 package com.prg.xformbuilder.xformbuilder;
 
+import android.app.Activity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -11,7 +13,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 
-public class Settings extends ActionBarActivity {
+public class Settings extends Activity {
 
     DatabaseHandler dbHandler;
     ListView lv;
@@ -20,27 +22,28 @@ public class Settings extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_settings);
-
-        dbHandler = new DatabaseHandler(getApplicationContext());
-        Bundle bundle=getIntent().getExtras();
-        parentId=bundle.getInt("ParentId");
-        userId = bundle.getInt("UserId");
-        lv = (ListView) findViewById(R.id.listView_settings);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
+        //dbHandler = new DatabaseHandler(getApplicationContext());
+       // Bundle bundle=getIntent().getExtras();
+       // parentId=bundle.getInt("ParentId");
+       // userId = bundle.getInt("UserId");
+        //lv = (ListView) findViewById(R.id.listView_settings);
 /*
         User user = dbHandler.GetUserByUserIdForSettings(userId);
         String[] rowItem = {user.getUserName().toString(),user.getPassword().toString()};
         ListAdapter listAdapter  = new ArrayAdapter<String>(this,android.R.layout.simple_expandable_list_item_1,rowItem);
         lv.setAdapter(listAdapter);
 */
-        SettingsAdaptorSection adapter = new SettingsAdaptorSection(this, generateData());
-        lv.setAdapter(adapter);
+     //   SettingsAdaptorSection adapter = new SettingsAdaptorSection(this, generateData());
+       // lv.setAdapter(adapter);
 
 
     }
 
 
-    private ArrayList<SettingsModel> generateData(){
+   /* private ArrayList<SettingsModel> generateData(){
         ArrayList<SettingsModel> models = new ArrayList<SettingsModel>();
         models.add(new SettingsModel("CONNECTİVİTY"));
         models.add(new SettingsModel("Username"));
@@ -55,7 +58,7 @@ public class Settings extends ActionBarActivity {
         models.add(new SettingsModel("ADVANCED"));
         models.add(new SettingsModel("Advanced Settings"));
         return models;
-    }
+    }*/
 
 
     @Override
