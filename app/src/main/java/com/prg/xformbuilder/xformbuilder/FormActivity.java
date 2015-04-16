@@ -14,7 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v4.widget.SwipeRefreshLayout;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +37,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.logging.Handler;
+
+import com.markupartist.android.widget.PullToRefreshListView;
+import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.yalantis.phoenix.PullToRefreshView;
 
 public class FormActivity extends Activity{
@@ -54,7 +57,7 @@ public class FormActivity extends Activity{
 
 
     public static final int REFRESH_DELAY = 2000;
-    private PullToRefreshView mPullToRefreshView;
+    private PullToRefreshListView mPullToRefreshView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,8 +177,18 @@ public class FormActivity extends Activity{
         });
         try {
            GetFormList();
+            mPullToRefreshView = (PullToRefreshListView) findViewById(R.id.liste);
+            mPullToRefreshView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    // Do work to refresh the list here.
+                    playAlertTone(getApplicationContext());
+                    GetFormList();
+                    mPullToRefreshView.onRefreshComplete();
+                }
+            });
 
-            mPullToRefreshView = (PullToRefreshView) findViewById(R.id.pull_to_refresh);
+          /*  mPullToRefreshView = (PullToRefreshView) findViewById(R.id.pull_to_refresh);
             mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
@@ -189,7 +202,7 @@ public class FormActivity extends Activity{
                         }
                     }, REFRESH_DELAY);
                 }
-            });
+            }); */
 
            /* final SwipeRefreshLayout swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_container);
 
