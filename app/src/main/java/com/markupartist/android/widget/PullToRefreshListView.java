@@ -105,6 +105,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
         mRefreshView.setOnClickListener(new OnClickRefreshListener());
         mRefreshOriginalTopPadding = mRefreshView.getPaddingTop();
 
+
         mRefreshState = TAP_TO_REFRESH;
 
         addHeaderView(mRefreshView);

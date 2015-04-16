@@ -30,7 +30,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_activity_form_response"
             android:theme="@style/MyTheme"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
             android:name=".SettingsActivity"
