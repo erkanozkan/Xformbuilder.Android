@@ -194,10 +194,9 @@ public class FormActivity extends Activity{
             mPullToRefreshView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    // Do work to refresh the list here.
-                    playAlertTone(getApplicationContext());
-                    GetFormList();
-                    mPullToRefreshView.onRefreshComplete();
+                        new GetDataAsync().execute();
+
+                   // mPullToRefreshView.onRefreshComplete();
                 }
             });
 
@@ -242,30 +241,25 @@ public class FormActivity extends Activity{
         }
     }
 
-    public  void playAlertTone(final Context context){
-
-
-        try {
-            AssetFileDescriptor afd = getAssets().openFd("pullbeep.m4a");
-            MediaPlayer mMediaplayer = new MediaPlayer();
-            mMediaplayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            afd.close();
-            mMediaplayer.prepare();
-            mMediaplayer.start();
-            mMediaplayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                public void onCompletion(MediaPlayer mMediaPlayer) {
-                    mMediaPlayer.stop();
-                    mMediaPlayer.release();
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
+    private class GetDataAsync extends AsyncTask<String,String,String> {
+        protected String doInBackground(String... strings) {
+            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
+            return null;
         }
-
+        @Override
+        protected void onPreExecute() {
+           MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
+            mp.start();
+        }
+        @Override
+        protected void onPostExecute(String s) {
+            mPullToRefreshView.onRefreshComplete();
+            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound2);
+            mp.start();
+        }
     }
 
     private void GetFormList() {
-
 
         //Internet baglantısı var ise web apiden formları cekiyoruz.
         if (InternetConnection){
