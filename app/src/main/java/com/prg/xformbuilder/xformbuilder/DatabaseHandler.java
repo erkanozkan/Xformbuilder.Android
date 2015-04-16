@@ -43,6 +43,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_FIELD1_VALUE ="field1value",
             KEY_FIELD2_VALUE ="field2value",
             KEY_FIELD3_VALUE ="field3value",
+            KEY_SYNC="sync",
             KEY_DATEDRAFT="datedraft";
 
 
@@ -54,13 +55,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db){
-        String sqlUser= ("CREATE TABLE IF NOT EXISTS  "+TABLE_USER + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USERNAME + " TEXT,"
-                +KEY_FIRSTNAME + " TEXT," +KEY_LASTNAME + " TEXT," +KEY_PASSWORD + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERID + " TEXT,"+KEY_COMPANY + " TEXT)");
+        String sqlUser= ("CREATE TABLE IF NOT EXISTS  "+TABLE_USER + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_USERNAME + " TEXT,"
+                +KEY_FIRSTNAME + " TEXT,"
+                +KEY_LASTNAME + " TEXT,"
+                +KEY_PASSWORD + " TEXT,"
+                +KEY_PARENTID + " TEXT,"
+                +KEY_USERID + " TEXT,"
+                +KEY_COMPANY + " TEXT)");
         Log.d("DBHelper", "SQL : " + sqlUser);
         db.execSQL(sqlUser);
 
-        String sqlForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_FORMTITLE + " TEXT,"
-                +KEY_FORMID + " TEXT," +KEY_PARENTID + " TEXT," +KEY_USERNAME + " TEXT," +KEY_MOBILEHTML + " TEXT," +KEY_USERID + " TEXT)");
+        String sqlForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_FORMTITLE + " TEXT,"
+                +KEY_FORMID + " TEXT,"
+                +KEY_PARENTID + " TEXT,"
+                +KEY_USERNAME + " TEXT,"
+                +KEY_MOBILEHTML + " TEXT,"
+                +KEY_USERID + " TEXT)");
         Log.d("DBHelper", "SQL : " + sqlForm);
         db.execSQL(sqlForm);
 
@@ -132,7 +144,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (cursor !=null) {
             cursor.moveToFirst();
         }
-        User user = new User(Integer.parseInt(cursor.getString(0)), cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5),Integer.parseInt(cursor.getString(6)),Integer.parseInt(cursor.getString(7)));
+        User user = new User(Integer.parseInt(cursor.getString(0)),
+                cursor.getString(1),
+                cursor.getString(2),
+                cursor.getString(3),
+                cursor.getString(4),
+                cursor.getString(5),
+                Integer.parseInt(cursor.getString(6)),
+                Integer.parseInt(cursor.getString(7)));
 
         cursor.close();
         return user;
@@ -212,7 +231,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_USER, new String[]{"id", "userName", "firstName","lastName","company","password","userId","parentId"}, null, null, null, null, null);
 
         while (cursor.moveToNext()) {
-            User user = new User(Integer.parseInt(cursor.getString(0)), cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5),Integer.parseInt(cursor.getString(6)),Integer.parseInt(cursor.getString(7)));
+            User user = new User(Integer.parseInt(cursor.getString(0)),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getString(5),
+                    Integer.parseInt(cursor.getString(6)),
+                    Integer.parseInt(cursor.getString(7)));
             userList.add(user);
         }
         cursor.close();
@@ -225,7 +251,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_USERID}, KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
 
         while (cursor.moveToNext()) {
-            Form form = new Form(Integer.parseInt(cursor.getString(0)), cursor.getString(1),Integer.parseInt(cursor.getString(2)),Integer.parseInt(cursor.getString(3)),cursor.getString(4),cursor.getString(5),Integer.parseInt(cursor.getString(6)));
+            Form form = new Form(Integer.parseInt(cursor.getString(0)),
+                    cursor.getString(1),
+                    Integer.parseInt(cursor.getString(2)),
+                    Integer.parseInt(cursor.getString(3)),
+                    cursor.getString(4),
+                    cursor.getString(5),
+                    Integer.parseInt(cursor.getString(6)));
             formList.add(form);
         }
         cursor.close();
@@ -343,16 +375,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         db.update(TABLE_DRAFTFORM, values, KEY_ID + "=?", new String[]{String.valueOf(draftForm.getId())});
     }
-
-
-
-
-
-
-
-
-
-
     public List<DraftForm> getAllDraftFormListVw(String formId ) {
         List<DraftForm> draftForms = new ArrayList<DraftForm>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -372,7 +394,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(9),
                     cursor.getString(10),
                     cursor.getString(11)
-
             );
             draftForms.add(form);
         }
