@@ -19,6 +19,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity
             android:name=".FormActivity"
@@ -27,10 +28,10 @@
         </activity>
         <activity
             android:name=".FormResponseActivity"
-            android:label="@string/title_activity_form_response"
             android:configChanges="orientation|keyboardHidden"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/MyTheme">
+            android:label="@string/title_activity_form_response"
+            android:theme="@style/MyTheme"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
             android:name=".Settings"
@@ -39,8 +40,12 @@
         <activity
             android:name=".DraftFormActivity"
             android:label="@string/title_activity_draft_form"
-            android:theme="@style/MyTheme"
-            >
+            android:theme="@style/MyTheme" >
+        </activity>
+        <activity
+            android:name=".UploadActivity"
+            android:label="@string/title_activity_upload" >
+
         </activity>
     </application>
 
