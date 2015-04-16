@@ -343,4 +343,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
         return true;
     }
+
+    public boolean ClearLocalDatabase(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTFORM);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FORM);
+        onCreate(db);
+        return true;
+    }
 }
