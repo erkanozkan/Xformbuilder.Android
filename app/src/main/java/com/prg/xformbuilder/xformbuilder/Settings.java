@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -29,14 +30,30 @@ public class Settings extends Activity {
     int parentId = 0;
     int userId = 0;
     LinearLayout AboutButton,FaqButton,ContactButton,ClearDatabase;
+    CheckBox checkBoxSync;
+    User GetUserSync;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_settings);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
-        dbHandler = new DatabaseHandler(getApplicationContext());
+        Bundle bundle=getIntent().getExtras();
+        userId=bundle.getInt("UserId");
+        ContactButton=(LinearLayout)findViewById(R.id.LinearLayout_Contact);
+        FaqButton=(LinearLayout)findViewById(R.id.LinearLayout_Faq);
         AboutButton=(LinearLayout)findViewById(R.id.LinearLayout_about);
+        ClearDatabase=(LinearLayout)findViewById(R.id.LinearLayout_CleanDatabase);
+        checkBoxSync=(CheckBox)findViewById(R.id.checkBox_sync);
+        dbHandler = new DatabaseHandler(getApplicationContext());
+
+        GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+        if (GetUserSync.getSync().equals("true")){
+            checkBoxSync.setChecked(true);
+        }else{
+            checkBoxSync.setChecked(false);
+        }
+
         AboutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -44,8 +61,6 @@ public class Settings extends Activity {
                 startActivity(browserIntent);
             }
         });
-
-        FaqButton=(LinearLayout)findViewById(R.id.LinearLayout_Faq);
         FaqButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,7 +68,6 @@ public class Settings extends Activity {
                 startActivity(browserIntent);
             }
         });
-        ContactButton=(LinearLayout)findViewById(R.id.LinearLayout_Contact);
         ContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,7 +75,7 @@ public class Settings extends Activity {
                 startActivity(browserIntent);
             }
         });
-        ClearDatabase=(LinearLayout)findViewById(R.id.LinearLayout_CleanDatabase);
+
         ClearDatabase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,6 +115,17 @@ public class Settings extends Activity {
 
                 AlertDialog alert = alertDialog.create();
                 alert.show();
+            }
+        });
+        checkBoxSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkBoxSync.isChecked()) {
+                   dbHandler.SettingSyncUpdate("true",userId);
+                }else {
+                    dbHandler.SettingSyncUpdate("false",userId);
+                }
+
             }
         });
 

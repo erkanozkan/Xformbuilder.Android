@@ -49,7 +49,7 @@ public class DraftFormActivity extends Activity {
             Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
             startActivity(i);
         }
-//----------------------------------------Session Kontrol
+        //----------------------------------------Session Kontrol
         dbHandler = new DatabaseHandler(getApplicationContext());
         final Bundle bundleForm = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
         Bundle bundle=getIntent().getExtras();

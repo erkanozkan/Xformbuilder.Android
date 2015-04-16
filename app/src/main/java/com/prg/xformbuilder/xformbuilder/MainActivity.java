@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
         username = (EditText)findViewById(R.id.editText_userName);
         password = (EditText)findViewById(R.id.editText_password);
         dbHandler = new DatabaseHandler(getApplicationContext());
+       // dbHandler.ClearLocalDatabase();
         login = (Button)findViewById(R.id.button_login);
 
         //--------------------------------------Internet Connection
@@ -114,9 +115,6 @@ public class MainActivity extends Activity {
             }
         });
     }
-
-
-
     @Override
     public void onBackPressed() {
 
@@ -208,8 +206,6 @@ public class MainActivity extends Activity {
                 jsonUserId=jsonObject.getInt("UserId");
                 jsonCompany=jsonObject.getString("Company").toString();
 
-             //   final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
-
                 if (jsonUserName.equals(username.getText().toString()))
                 {
                     editor.putString("UserName", jsonUserName);
@@ -220,28 +216,29 @@ public class MainActivity extends Activity {
 
                     boolean  getUser=dbHandler.GetUserByUserId(jsonUserId);
                     if (getUser){
-                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
+                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId),"true");
                         dbHandler.UpdateUser(user);
                     }else{
-                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId));
+                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId),"true");
                         dbHandler.CreateUser(user);
                     }
-                    //List<User> userss = dbHandler.getAllUserList();
+                    editor.putString("UserName",username.getText().toString());    //bilgileri ekle ve kaydet
+                    editor.putString("Password", password.getText().toString());
+                    editor.putInt("UserId",jsonUserId);
+                    editor.putInt("ParentId",jsonParentId);
+                    editor.commit();
 
                     bundle.putInt("ParentId", jsonParentId);
                     bundle.putInt("UserId",jsonUserId);
                     loginDialog.dismiss();
-                    //Toast.makeText(getApplicationContext(), "Xformbuilder hoş geldiniz.",Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
                     i.putExtras(bundle);
                     startActivity(i);
-
                 }else
                 {
                     loginDialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
                 }
-
             } catch (Exception e) {
                 loginDialog.dismiss();
                 Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();

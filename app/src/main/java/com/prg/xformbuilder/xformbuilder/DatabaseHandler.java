@@ -62,6 +62,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 +KEY_PASSWORD + " TEXT,"
                 +KEY_PARENTID + " TEXT,"
                 +KEY_USERID + " TEXT,"
+                +KEY_SYNC + " TEXT,"
                 +KEY_COMPANY + " TEXT)");
         Log.d("DBHelper", "SQL : " + sqlUser);
         db.execSQL(sqlUser);
@@ -109,6 +110,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PARENTID,user.getParentId());
         values.put(KEY_PASSWORD,user.getPassword());
         values.put(KEY_COMPANY, user.getCompany());
+        values.put(KEY_SYNC,user.getSync());
         db.insert(TABLE_USER, null, values);
     }
 
@@ -140,7 +142,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public User getUser(int userId){
         SQLiteDatabase db =this.getReadableDatabase();
-        Cursor cursor=db.query(TABLE_USER,new String[] {KEY_ID,KEY_USERNAME,KEY_FIRSTNAME,KEY_LASTNAME,KEY_USERID,KEY_PARENTID,KEY_PASSWORD,KEY_COMPANY}, KEY_USERID + "=?", new String[] {String.valueOf(userId)},null,null,null,null);
+        Cursor cursor=db.query(TABLE_USER,new String[] {KEY_ID,KEY_USERNAME,KEY_FIRSTNAME,KEY_LASTNAME,KEY_USERID,KEY_PARENTID,KEY_PASSWORD,KEY_COMPANY,KEY_SYNC}, KEY_USERID + "=?", new String[] {String.valueOf(userId)},null,null,null,null);
         if (cursor !=null) {
             cursor.moveToFirst();
         }
@@ -151,7 +153,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 cursor.getString(4),
                 cursor.getString(5),
                 Integer.parseInt(cursor.getString(6)),
-                Integer.parseInt(cursor.getString(7)));
+                Integer.parseInt(cursor.getString(7)),
+                cursor.getString(8));
 
         cursor.close();
         return user;
@@ -203,7 +206,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(KEY_COMPANY)),
                     cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
                     cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
-                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)));
+                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_SYNC)));
 
             return user;
         }
@@ -224,6 +228,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_COMPANY, user.getCompany());
         db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(user.getUserId())});
     }
+    public void SettingSyncUpdate(String sync,int userId){
+        SQLiteDatabase db= getReadableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_SYNC,sync);
+        db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(userId)});
+    }
 
     public List<User> getAllUserList() {
         List<User> userList = new ArrayList<User>();
@@ -238,7 +248,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(4),
                     cursor.getString(5),
                     Integer.parseInt(cursor.getString(6)),
-                    Integer.parseInt(cursor.getString(7)));
+                    Integer.parseInt(cursor.getString(7)),
+                    cursor.getString(8));
             userList.add(user);
         }
         cursor.close();
@@ -310,7 +321,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(KEY_COMPANY)),
                     cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
                     cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
-                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)));
+                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_SYNC)));
 
         }
         cursor.close();

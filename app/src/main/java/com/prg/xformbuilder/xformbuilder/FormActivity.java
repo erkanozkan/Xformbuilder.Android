@@ -52,9 +52,9 @@ public class FormActivity extends Activity{
     String jsonFormTitle="",jsonUserName="", jsonMobileHtml="";
     int jsonParentId=0,jsonFormId=0 ,jsonUserId=0;
     DatabaseHandler dbHandler;
-    final Bundle bundleForm = new Bundle();//Formlar arası veri transferi için kullanıyoruz
+    final Bundle bundleForm = new Bundle();
     ProgressDialog progressDialogFormList ;
-
+    User GetUserSync;
 
     public static final int REFRESH_DELAY = 2000;
     private PullToRefreshListView mPullToRefreshView;
@@ -73,7 +73,22 @@ public class FormActivity extends Activity{
         progressDialogFormList.setTitle("Senkronize işlemleri");
         progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
         progressDialogFormList.setCanceledOnTouchOutside(false);
-        progressDialogFormList.show();
+
+        //--------------------------------------Internet Connection
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            InternetConnection = true;
+        }
+        else
+            InternetConnection = false;
+        //--------------------------------------Internet Connection
+        GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+        if (GetUserSync.getSync().equals("true") && InternetConnection){
+            progressDialogFormList.show();
+        }
+
+
 
         //------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
@@ -141,7 +156,9 @@ public class FormActivity extends Activity{
         ButtonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                bundleForm.putInt("UserId", userId);
                 Intent i = new Intent(FormActivity.this,Settings.class);
+                i.putExtras(bundleForm);
                 startActivity(i);
             }
         });
@@ -157,11 +174,6 @@ public class FormActivity extends Activity{
                 bundleForm.putString("FormTitle",selectFormTitle);
                 int count=  dbHandler.getFormCount(selectFormId);
 
-           /* //   dbHandler.DeleteDraftFormTable();
-                String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                DraftForm form = new DraftForm(0,4430,"String draft html","json", currentDateTimeString);
-                dbHandler.CreateDraftForm(form);
-*/
                 if (count>=1)
                 {
                     Intent i = new Intent(FormActivity.this,DraftFormActivity.class);
@@ -253,28 +265,37 @@ public class FormActivity extends Activity{
     }
 
     private void GetFormList() {
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-            //we are connected to a network
-            InternetConnection = true;
-        }
-        else
-            InternetConnection = false;
-        //--------------------------------------Internet Connection
+
 
         //Internet baglantısı var ise web apiden formları cekiyoruz.
         if (InternetConnection){
-            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
+
+             if (GetUserSync.getSync().equals("true")){
+                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
+            }else{
+                 try{
+                     List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
+                     FormList   formArray[] = new FormList[formList.size()];
+                     for (int i=0;i<formList.size();i++){
+                         formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+                     }
+                    // progressDialogFormList.dismiss();
+                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
+                     lv.setAdapter(adaptor);
+                 }catch (Exception e){
+                     Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
+                     Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+                 }
+             }
+
         }else{
-            //TODO: Eger internet yoksa veriler veri tabanından çekilecek ve list view ekranına dizilecek.
             try{
                 List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
                 FormList   formArray[] = new FormList[formList.size()];
                 for (int i=0;i<formList.size();i++){
                     formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
                 }
-                progressDialogFormList.dismiss();
+               // progressDialogFormList.dismiss();
                 adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                 lv.setAdapter(adaptor);
             }catch (Exception e){
