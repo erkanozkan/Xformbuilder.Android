@@ -102,6 +102,25 @@ public class FormResponseActivity extends Activity {
         webView.addJavascriptInterface(new WebViewJavaScriptInterface(this), "app");
         startWebView();
 
+        webView.setWebViewClient(new WebViewClient(){
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url){
+
+                if (url.startsWith("https://") || url.startsWith("http://")) {
+                    view.getContext().startActivity(
+                            new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    return true;
+                }
+                else
+                {
+                    view.loadUrl(url);
+                     webView.setVisibility(View.GONE);
+                    return true;
+                }
+            }
+        });
+
         btnBackResponse= (ImageButton)findViewById(R.id.imageButton_Back);
         btnBackResponse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,6 +147,7 @@ public class FormResponseActivity extends Activity {
         });
 
     }
+
 
     public class WebViewJavaScriptInterface{
 
