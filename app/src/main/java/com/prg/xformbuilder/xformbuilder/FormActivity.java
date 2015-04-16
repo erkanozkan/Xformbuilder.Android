@@ -26,15 +26,22 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Handler;
 
@@ -56,6 +63,9 @@ public class FormActivity extends Activity{
     ProgressDialog progressDialogFormList ;
     User GetUserSync;
 
+    String PutJsonCode;
+    int PutUserId,PutFormId,PutParentId,draftId;
+
     public static final int REFRESH_DELAY = 2000;
     private PullToRefreshListView mPullToRefreshView;
 
@@ -73,6 +83,12 @@ public class FormActivity extends Activity{
         progressDialogFormList.setTitle("Senkronize işlemleri");
         progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
         progressDialogFormList.setCanceledOnTouchOutside(false);
+
+
+      //  String HostUrl = "http://developer.xformbuilder.com/api/Form?appKey=1&appSecret=1&formId=4431";
+
+      //  new PutHttpAsyncTask().execute(HostUrl);
+
 
         //--------------------------------------Internet Connection
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -448,5 +464,106 @@ public class FormActivity extends Activity{
 //----------------------------------------Session Kontrol
     }
 
+
+    public String PUT(String url){
+
+        InputStream inputStream = null;
+        String result = "";
+        try {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPut httpPost = new HttpPut(url);
+
+         /*   List<Form> formListPut=dbHandler.getAllFormListVw(String.valueOf(parentId));
+            FormList   formArray[] = new FormList[formListPut.size()];
+            int pFormId=0,pDraftId=0;
+            for (int i=0;i<formListPut.size();i++){
+                pFormId= formListPut.get(i).getFormId();
+                List<DraftForm> draftFormsPut =dbHandler.getAllDraftFormListVw(String.valueOf(pFormId));
+                for (int k=0;k<draftFormsPut.size();i++){
+                    draftId=draftFormsPut.get(k).getId();
+
+                }
+            }
+*/
+
+
+            DraftForm draftForm=dbHandler.GetDraftByDraftId(String.valueOf("1"));
+            PutJsonCode=draftForm.getDraftJson();
+            PutFormId=draftForm.getFormId();
+            PutUserId=draftForm.getUserId();
+
+            List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
+            nameValuePair.add(new BasicNameValuePair("JsonCode", PutJsonCode));
+            nameValuePair.add(new BasicNameValuePair("FormId", String.valueOf(PutFormId)));
+            nameValuePair.add(new BasicNameValuePair("ParentId", String.valueOf(PutUserId)));
+            nameValuePair.add(new BasicNameValuePair("UserId", String.valueOf(PutParentId)));
+
+            //Encoding POST data
+            try {
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
+
+            } catch (UnsupportedEncodingException e)
+            {
+                e.printStackTrace();
+            }
+            try {
+                HttpResponse response = httpclient.execute(httpPost);
+                inputStream = response.getEntity().getContent();
+                // write response to log
+                Log.d("Http Post Response:", response.toString());
+            } catch (ClientProtocolException e) {
+                // Log exception
+                e.printStackTrace();
+            } catch (IOException e) {
+                // Log exception
+                e.printStackTrace();
+            }
+
+
+
+            // convert inputstream to string
+            if(inputStream != null) {
+                result = PutConvertInputStreamToString(inputStream);
+            }
+            else
+                result = "Did not work!";
+
+        } catch (Exception e) {
+            Log.d("InputStream", e.getLocalizedMessage());
+        }
+        return result;
+    }
+
+    private static String PutConvertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+        String line = "";
+        String result = "";
+        while((line = bufferedReader.readLine()) != null)
+            result += line ;
+        inputStream.close();
+        return result;
+
+    }
+
+    private class PutHttpAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+
+            return PUT(urls[0]);
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            try {
+                JSONObject jsonObject = new JSONObject(result);
+
+
+
+            } catch (Exception e) {
+
+                Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
+                Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+            }
+        }
+    }
 
 }

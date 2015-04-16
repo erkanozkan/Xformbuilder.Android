@@ -22,10 +22,11 @@
                 android:layout_weight="1"
                 android:maxWidth = "30dp"
                 android:text="Soru1"
-                android:paddingTop="10dp"
-                android:paddingBottom="12dp"
-                android:paddingLeft="3dp"
-                android:id="@+id/title1" />
+                android:paddingLeft="5dp"
+                android:id="@+id/title1"
+                android:textColor="#000000"
+                android:gravity="center_vertical"
+                android:singleLine="true" />
 
             <TextView
                 android:background="@drawable/draftheader_rightborder_colorfull"
@@ -33,11 +34,12 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="Soru2"
-                android:paddingLeft="3dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="12dp"
+                android:paddingLeft="5dp"
                 android:maxWidth="30dp"
-                android:id="@+id/title2" />
+                android:id="@+id/title2"
+                android:textColor="#000000"
+                android:gravity="center_vertical"
+                android:singleLine="true" />
 
             <TextView
                 android:background="#dbdbdb"
@@ -46,11 +48,12 @@
                 android:layout_weight="1"
                 android:maxWidth = "30dp"
                 android:maxHeight="2dp"
-                android:paddingLeft="3dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="12dp"
+                android:paddingLeft="5dp"
                 android:text="Soru3"
-                android:id="@+id/title3" />
+                android:id="@+id/title3"
+                android:textColor="#000000"
+                android:gravity="center_vertical"
+                android:singleLine="true" />
 
         </LinearLayout>
 

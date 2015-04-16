@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Xformbuilder</string>
+    <string name="app_name">XForm</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Login Screen</string>
     <string name="username">Username:</string>
