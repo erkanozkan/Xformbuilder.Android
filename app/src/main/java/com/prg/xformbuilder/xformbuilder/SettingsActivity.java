@@ -7,23 +7,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import java.util.ArrayList;
 
 
-public class Settings extends Activity {
+public class SettingsActivity extends Activity {
 
     DatabaseHandler dbHandler;
     ListView lv;
@@ -80,7 +74,7 @@ public class Settings extends Activity {
             @Override
             public void onClick(View v) {
 
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(Settings.this);
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(SettingsActivity.this);
                 alertDialog.setMessage("Tüm verilerinizi silmek istediğinize emin misiniz ?");
                 alertDialog
                         .setCancelable(false)
@@ -100,7 +94,7 @@ public class Settings extends Activity {
                                         editor.remove("ParentId");
                                         editor.commit();
                                         //----------------------------------------Session Kontrol
-                                        Intent i = new Intent(Settings.this,MainActivity.class);
+                                        Intent i = new Intent(SettingsActivity.this,MainActivity.class);
                                         startActivity(i);
                                         finish();
                                     }

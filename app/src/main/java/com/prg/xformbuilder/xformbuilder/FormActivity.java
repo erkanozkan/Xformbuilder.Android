@@ -157,7 +157,7 @@ public class FormActivity extends Activity{
             @Override
             public void onClick(View v) {
                 bundleForm.putInt("UserId", userId);
-                Intent i = new Intent(FormActivity.this,Settings.class);
+                Intent i = new Intent(FormActivity.this,SettingsActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
             }
