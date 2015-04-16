@@ -50,9 +50,6 @@ public class UploadActivity extends ActionBarActivity {
 
     String PutJsonCode;
     int PutUserId,PutFormId,PutParentId,draftId;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,17 +65,12 @@ public class UploadActivity extends ActionBarActivity {
         else
             InternetConnection = false;
         //--------------------------------------Internet Connection
-
-
         if (InternetConnection) {
             String HostUrl = "http://developer.xformbuilder.com/api/Form?appKey=1&appSecret=1&formId=4431";
 
-            new HttpAsyncTask().execute( HostUrl);
+            new PutHttpAsyncTask().execute( HostUrl);
         }
     }
-
-
-
     public String PUT(String url){
 
         InputStream inputStream = null;
@@ -123,7 +115,7 @@ public class UploadActivity extends ActionBarActivity {
 
             // convert inputstream to string
             if(inputStream != null) {
-                result = PUTconvertInputStreamToString(inputStream);
+                result = PutConvertInputStreamToString(inputStream);
             }
             else
                 result = "Did not work!";
@@ -134,7 +126,7 @@ public class UploadActivity extends ActionBarActivity {
         return result;
     }
 
-    private static String PUTconvertInputStreamToString(InputStream inputStream) throws IOException {
+    private static String PutConvertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
         String line = "";
         String result = "";
@@ -145,7 +137,7 @@ public class UploadActivity extends ActionBarActivity {
 
     }
 
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+    private class PutHttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
 
