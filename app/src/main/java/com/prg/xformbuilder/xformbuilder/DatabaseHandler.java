@@ -173,6 +173,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
         return true;
     }
+    public boolean DeleteFormTableAndFormDraft(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FORM);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTFORM);
+        onCreate(db);
+        return true;
+    }
     public int getUserCount(){
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM" + TABLE_USER,null);

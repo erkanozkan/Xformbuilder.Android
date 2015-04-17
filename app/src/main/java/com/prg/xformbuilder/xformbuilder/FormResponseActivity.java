@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -197,8 +198,6 @@ public class FormResponseActivity extends Activity {
     }
     private void startWebView() {
 
-
-
         //Create new webview Client to show progress dialog
         //Called When opening a url or click on link
 
@@ -281,10 +280,6 @@ public class FormResponseActivity extends Activity {
             }
 
         });
-
-
-
-
     }
 
     @Override
@@ -326,14 +321,48 @@ public class FormResponseActivity extends Activity {
     // Open previous opened link from history on webview when back button pressed
 
     @Override
-    // Detect when the back button is pressed
     public void onBackPressed() {
-        if(webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            // Let the system handle the back button
-            super.onBackPressed();
-        }
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this);
+        alertDialog.setMessage("Değişiklikleri kaydetmeden çıkmak istediğinize emin misiniz ?");
+        alertDialog
+                .setCancelable(false)
+                .setPositiveButton("Evet",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                bundleFormResponse.putInt("UserId",userId);
+                                bundleFormResponse.putInt("ParentId",parentId);
+                                bundleFormResponse.putString("FormTitle",formTitle);
+                                bundleFormResponse.putString("DraftId",draftId);
+                                bundleFormResponse.putString("FormId",formId);
+
+                                if(draftId != null){
+                                    Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
+                                    i.putExtras(bundleFormResponse);
+                                    startActivity(i);
+                                    finish();
+                                }
+                                else{
+                                    Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
+                                    i.putExtras(bundleFormResponse);
+                                    startActivity(i);
+                                    finish();
+                                }
+                            }
+                        })
+                .setNegativeButton("Hayır",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+
+                                dialog.cancel();
+
+                            }
+                        });
+
+        AlertDialog alert = alertDialog.create();
+        alert.show();
+
     }
 
     @Override
@@ -376,4 +405,6 @@ public class FormResponseActivity extends Activity {
         }
         //----------------------------------------Session Kontrol
     }
+
+
 }

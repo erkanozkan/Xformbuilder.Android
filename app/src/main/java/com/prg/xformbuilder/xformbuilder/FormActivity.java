@@ -415,9 +415,22 @@ public class FormActivity extends Activity{
             HttpClient httpclient = new DefaultHttpClient();
             HttpPut httpPost = new HttpPut(url);
 
+            List<Form> formListPut=dbHandler.getAllFormListVw(String.valueOf(parentId));
+            FormList   formArray[] = new FormList[formListPut.size()];
+            int pFormId=0,pDraftId=0;
+            for (int i=0;i<formListPut.size();i++){
+                pFormId= formListPut.get(i).getFormId();
+                List<DraftForm> draftFormsPut =dbHandler.getAllDraftFormListVw(String.valueOf(pFormId));
+                for (int k=0;k<draftFormsPut.size();k++){
+                    draftId=draftFormsPut.get(k).getId();
+                    // String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId=3366&formId=4446";
 
+                    //  new PutHttpAsyncTask().execute(HostUrl);
 
-            DraftForm draftForm=dbHandler.GetDraftByDraftId(String.valueOf("1"));
+                }
+            }
+
+            DraftForm draftForm=dbHandler.GetDraftByDraftId(String.valueOf(draftId));
             PutJsonCode=draftForm.getDraftJson();
             PutFormId=draftForm.getFormId();
             PutUserId=draftForm.getUserId();
@@ -487,5 +500,4 @@ public class FormActivity extends Activity{
             }
         }
     }
-
 }
