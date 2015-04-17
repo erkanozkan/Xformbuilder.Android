@@ -65,9 +65,6 @@ public class FormActivity extends Activity{
     final Bundle bundleForm = new Bundle();
     ProgressDialog progressDialogFormList ;
     User GetUserSync;
-    byte[] FormImageByte;
-    ImageView imageViewForm;
-
     public static final int REFRESH_DELAY = 2000;
     private PullToRefreshListView mPullToRefreshView;
 
@@ -88,7 +85,7 @@ public class FormActivity extends Activity{
         progressDialogFormList.setCanceledOnTouchOutside(false);
         //--------------------------Progress Dialog Bitis
 
-        imageViewForm=(ImageView)findViewById(R.id.imageView_formImageDeneme);
+
         lv = (ListView) findViewById(R.id.liste);
         ButtonLogout=(ImageButton) findViewById(R.id.imageButton_logout);
         ButtonSync=(ImageButton)findViewById(R.id.imageButton_sync);
