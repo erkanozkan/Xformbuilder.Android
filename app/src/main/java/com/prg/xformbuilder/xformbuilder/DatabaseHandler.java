@@ -44,6 +44,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_FIELD2_VALUE ="field2value",
             KEY_FIELD3_VALUE ="field3value",
             KEY_SYNC="sync",
+            KEY_FORMIMAGE="formimage",
             KEY_DATEDRAFT="datedraft";
 
 
@@ -73,7 +74,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 +KEY_PARENTID + " TEXT,"
                 +KEY_USERNAME + " TEXT,"
                 +KEY_MOBILEHTML + " TEXT,"
-                +KEY_USERID + " TEXT)");
+                +KEY_USERID + " TEXT,"
+                +KEY_FORMIMAGE + " TEXT)");
         Log.d("DBHelper", "SQL : " + sqlForm);
         db.execSQL(sqlForm);
 
@@ -123,7 +125,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_DATEDRAFT,draftForm.getDateDraft());
         values.put(KEY_USERID,draftForm.getUserId());
 
-
         db.insert(TABLE_DRAFTFORM, null, values);
     }
 
@@ -136,6 +137,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_USERNAME,form.getUserName());
         values.put(KEY_MOBILEHTML,form.getMobileHtml());
         values.put(KEY_USERID, form.getUserId());
+        values.put(KEY_FORMIMAGE,form.getFormImage());
         db.insert(TABLE_FORM, null, values);
     }
 
@@ -259,7 +261,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<Form> getAllFormListVw(String parentId ) {
         List<Form> formList = new ArrayList<Form>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_USERID}, KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_USERID,KEY_FORMIMAGE}, KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
 
         while (cursor.moveToNext()) {
             Form form = new Form(Integer.parseInt(cursor.getString(0)),
@@ -268,7 +270,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     Integer.parseInt(cursor.getString(3)),
                     cursor.getString(4),
                     cursor.getString(5),
-                    Integer.parseInt(cursor.getString(6)));
+                    Integer.parseInt(cursor.getString(6)),
+                    cursor.getString(7));
             formList.add(form);
         }
         cursor.close();
@@ -288,7 +291,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
                     cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
                     cursor.getString(cursor.getColumnIndex(KEY_MOBILEHTML)),
-                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)));
+                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_FORMIMAGE)));
             formList.add(form);
         }
         cursor.close();
@@ -342,7 +346,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
                     cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
                     cursor.getString(cursor.getColumnIndex(KEY_MOBILEHTML)),
-                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)));
+                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_FORMIMAGE)));
             return form;
         }
         cursor.close();

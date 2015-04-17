@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -22,6 +24,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Handler;
@@ -51,20 +55,18 @@ import com.yalantis.phoenix.PullToRefreshView;
 
 public class FormActivity extends Activity{
 
-    int parentId=0,userId=0;
+    int parentId=0,userId=0, jsonParentId=0,jsonFormId=0 ,jsonUserId=0,PutUserId,PutFormId,PutParentId,draftId;
     boolean InternetConnection = false;
     FormAdaptor adaptor;
     ImageButton ButtonLogout,ButtonSync,ButtonSettings;
     ListView lv;
-    String jsonFormTitle="",jsonUserName="", jsonMobileHtml="";
-    int jsonParentId=0,jsonFormId=0 ,jsonUserId=0;
+    String jsonFormTitle="",jsonUserName="", jsonMobileHtml="",jsonImage="",PutJsonCode;
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();
     ProgressDialog progressDialogFormList ;
     User GetUserSync;
-
-    String PutJsonCode;
-    int PutUserId,PutFormId,PutParentId,draftId;
+    byte[] FormImageByte;
+    ImageView imageViewForm;
 
     public static final int REFRESH_DELAY = 2000;
     private PullToRefreshListView mPullToRefreshView;
@@ -79,18 +81,20 @@ public class FormActivity extends Activity{
         Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
+        //-------------------------Progress Dialog Baslangıc
         progressDialogFormList = new ProgressDialog(FormActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         progressDialogFormList.setTitle("Senkronize işlemleri");
         progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
         progressDialogFormList.setCanceledOnTouchOutside(false);
+        //--------------------------Progress Dialog Bitis
 
+        imageViewForm=(ImageView)findViewById(R.id.imageView_formImageDeneme);
+        lv = (ListView) findViewById(R.id.liste);
+        ButtonLogout=(ImageButton) findViewById(R.id.imageButton_logout);
+        ButtonSync=(ImageButton)findViewById(R.id.imageButton_sync);
+        ButtonSettings=(ImageButton)findViewById(R.id.imageButton_settings);
 
-      //  String HostUrl = "http://developer.xformbuilder.com/api/Form?appKey=1&appSecret=1&formId=4431";
-
-      //  new PutHttpAsyncTask().execute(HostUrl);
-
-
-        //--------------------------------------Internet Connection
+        //--------------------------------------Internet Connection baslangıc
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
@@ -98,14 +102,12 @@ public class FormActivity extends Activity{
         }
         else
             InternetConnection = false;
-        //--------------------------------------Internet Connection
+        //--------------------------------------Internet Connection bitis
+
         GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
         if (GetUserSync.getSync().equals("true") && InternetConnection){
             progressDialogFormList.show();
         }
-
-
-
         //------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -116,7 +118,25 @@ public class FormActivity extends Activity{
             startActivity(i);
         }
         //------------------------------------Session Kontrol
-        ButtonLogout=(ImageButton) findViewById(R.id.imageButton_logout);
+
+
+       /* //----------------------------------Verilerin Upload işlemi baslangıc
+        List<Form> formListPut=dbHandler.getAllFormListVw(String.valueOf(parentId));
+        FormList   formArray[] = new FormList[formListPut.size()];
+        int pFormId=0,pDraftId=0;
+        for (int i=0;i<formListPut.size();i++){
+            pFormId= formListPut.get(i).getFormId();
+            List<DraftForm> draftFormsPut =dbHandler.getAllDraftFormListVw(String.valueOf(pFormId));
+            for (int k=0;k<draftFormsPut.size();k++){
+                draftId=draftFormsPut.get(k).getId();
+                // String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId=3366&formId=4446";
+
+                //  new PutHttpAsyncTask().execute(HostUrl);
+
+            }
+        }
+        //----------------------------------Verilerin Upload işlemi bitis*/
+
         ButtonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,7 +175,7 @@ public class FormActivity extends Activity{
                 alert.show();
             }
         });
-        ButtonSync=(ImageButton)findViewById(R.id.imageButton_sync);
+
         ButtonSync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,8 +187,6 @@ public class FormActivity extends Activity{
                 }
             }
         });
-
-        ButtonSettings=(ImageButton)findViewById(R.id.imageButton_settings);
         ButtonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,85 +196,44 @@ public class FormActivity extends Activity{
                 startActivity(i);
             }
         });
-        lv = (ListView) findViewById(R.id.liste);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
                 String selectFormTitle =  ((TextView)view .findViewById(R.id.formTitle)).getText().toString();
-                 bundleForm.putString("FormId", selectFormId);
+                bundleForm.putString("FormId", selectFormId);
                 bundleForm.putInt("UserId", userId);
                 bundleForm.putInt("ParentId",parentId);
                 bundleForm.putString("FormTitle",selectFormTitle);
                 int count=  dbHandler.getFormCount(selectFormId);
-
                 if (count>=1)
                 {
                     Intent i = new Intent(FormActivity.this,DraftFormActivity.class);
                     i.putExtras(bundleForm);
                     startActivity(i);
-
                 }else{
                     Intent i = new Intent(FormActivity.this,FormResponseActivity.class);
                     i.putExtras(bundleForm);
                     startActivity(i);
-
                 }
             }
         });
         try {
-           GetFormList();
+            GetFormList();
             mPullToRefreshView = (PullToRefreshListView) findViewById(R.id.liste);
             mPullToRefreshView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                        new GetDataAsync().execute();
+                    new GetDataAsync().execute();
 
-                   // mPullToRefreshView.onRefreshComplete();
+                    // mPullToRefreshView.onRefreshComplete();
                 }
             });
-
-          /*  mPullToRefreshView = (PullToRefreshView) findViewById(R.id.pull_to_refresh);
-            mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    mPullToRefreshView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            playAlertTone(getApplicationContext());
-                            GetFormList();
-
-                            mPullToRefreshView.setRefreshing(false);
-                        }
-                    }, REFRESH_DELAY);
-                }
-            }); */
-
-           /* final SwipeRefreshLayout swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_container);
-
-            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
-            {
-                @Override
-                public void onRefresh()
-                {
-                    GetFormList();
-
-                    swipeRefreshLayout.setRefreshing(false);
-
-                }
-            });
-
-            /swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
-                    android.R.color.holo_green_light, android.R.color.holo_orange_light,
-                    android.R.color.holo_red_light); */
-
-
         }catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
     }
-
     private class GetDataAsync extends AsyncTask<String,String,String> {
         protected String doInBackground(String... strings) {
             new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
@@ -264,7 +241,7 @@ public class FormActivity extends Activity{
         }
         @Override
         protected void onPreExecute() {
-           MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
+            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
             mp.start();
         }
         @Override
@@ -274,30 +251,26 @@ public class FormActivity extends Activity{
             mp.start();
         }
     }
-
     private void GetFormList() {
-
         //Internet baglantısı var ise web apiden formları cekiyoruz.
         if (InternetConnection){
 
-             if (GetUserSync.getSync().equals("true")){
+            if (GetUserSync.getSync().equals("true")){
                 new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
             }else{
-                 try{
-                     List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
-                     FormList   formArray[] = new FormList[formList.size()];
-                     for (int i=0;i<formList.size();i++){
-                         formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
-                     }
-                    // progressDialogFormList.dismiss();
-                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
-                     lv.setAdapter(adaptor);
-                 }catch (Exception e){
-                     Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
-                     Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
-                 }
-             }
-
+                try{
+                    List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
+                    FormList   formArray[] = new FormList[formList.size()];
+                    for (int i=0;i<formList.size();i++){
+                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+                    }
+                    adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
+                    lv.setAdapter(adaptor);
+                }catch (Exception e){
+                    Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
+                    Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+                }
+            }
         }else{
             try{
                 List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
@@ -305,7 +278,7 @@ public class FormActivity extends Activity{
                 for (int i=0;i<formList.size();i++){
                     formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
                 }
-               // progressDialogFormList.dismiss();
+                // progressDialogFormList.dismiss();
                 adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                 lv.setAdapter(adaptor);
             }catch (Exception e){
@@ -314,23 +287,16 @@ public class FormActivity extends Activity{
             }
         }
     }
-
-
     public String GET(String url){
-
         InputStream inputStream = null;
         String result = "";
         try {
-
             // create HttpClient
             HttpClient httpclient = new DefaultHttpClient();
-
             // make GET request to the given URL
             HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
-
             // receive response as inputStream
             inputStream = httpResponse.getEntity().getContent();
-
             // convert inputstream to string
             if(inputStream != null) {
                 result = convertInputStreamToString(inputStream);
@@ -341,10 +307,8 @@ public class FormActivity extends Activity{
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
         }
-
         return result;
     }
-
     private static String convertInputStreamToString(InputStream inputStream) throws IOException{
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
         String line = "";
@@ -355,15 +319,11 @@ public class FormActivity extends Activity{
         return result;
 
     }
-
-
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
-
             return GET(urls[0]);
         }
-        // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
             try {
@@ -377,8 +337,15 @@ public class FormActivity extends Activity{
                     jsonParentId = obj.getInt("ParentId");
                     jsonUserName = obj.getString("UserName");
                     jsonMobileHtml = obj.getString("MobileHtml");
+                    jsonImage=obj.getString("FormImage");
+
+                   /* if (jsonImage.equals("null")){
+                        FormImageByte = jsonImage.getBytes();
+                      //  Bitmap bmp = BitmapFactory.decodeByteArray(FormImageByte, 0, FormImageByte.length);
+                       // imageview.setImageBitmap(bmp);
+                    }*/
                     if (deleteForm){
-                        Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,userId);
+                        Form form = new Form(0,jsonFormTitle,jsonFormId,jsonParentId,jsonUserName,jsonMobileHtml,userId,jsonImage);
                         dbHandler.CreateForm(form);
                     }
                     else{
@@ -388,29 +355,13 @@ public class FormActivity extends Activity{
                 try{
                     List<Form> formList=  dbHandler.getAllFormListVw(String.valueOf(parentId));
                     FormList   formArray[] = new FormList[formList.size()];
-                        for (int i=0;i<formList.size();i++){
-                        if(i<5){
-                            switch (i){
-                                case 0:
-                                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
-                                    break;
-                                case 1:
-                                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon2);
-                                    break;
-                                case 2:
-                                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon3);
-                                    break;
-                                case 3:
-                                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon4);
-                                    break;
-                                case 4:
-                                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon5);
-                                    break;
-                            }
-                        }
-                        else{
-                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
-                        }
+                    for (int i=0;i<formList.size();i++){
+                       /*
+                        FormImageByte = formList.get(i).getFormImage().getBytes(Charset.forName("UTF-8"));
+                        Bitmap bmp = BitmapFactory.decodeByteArray(FormImageByte, 0, FormImageByte.length);
+                        imageViewForm.setImageBitmap(bmp);*/
+
+                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
                     }
                     progressDialogFormList.dismiss();
                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
@@ -429,7 +380,6 @@ public class FormActivity extends Activity{
         getMenuInflater().inflate(R.menu.menu_form, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -441,10 +391,8 @@ public class FormActivity extends Activity{
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
-
     @Override
     protected void onPostResume() {
         super.onPostResume();
@@ -461,30 +409,15 @@ public class FormActivity extends Activity{
             Intent i = new Intent(FormActivity.this,MainActivity.class);
             startActivity(i);
         }
-//----------------------------------------Session Kontrol
+        //----------------------------------------Session Kontrol
     }
-
-
     public String PUT(String url){
-
         InputStream inputStream = null;
         String result = "";
         try {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPut httpPost = new HttpPut(url);
 
-         /*   List<Form> formListPut=dbHandler.getAllFormListVw(String.valueOf(parentId));
-            FormList   formArray[] = new FormList[formListPut.size()];
-            int pFormId=0,pDraftId=0;
-            for (int i=0;i<formListPut.size();i++){
-                pFormId= formListPut.get(i).getFormId();
-                List<DraftForm> draftFormsPut =dbHandler.getAllDraftFormListVw(String.valueOf(pFormId));
-                for (int k=0;k<draftFormsPut.size();i++){
-                    draftId=draftFormsPut.get(k).getId();
-
-                }
-            }
-*/
 
 
             DraftForm draftForm=dbHandler.GetDraftByDraftId(String.valueOf("1"));
@@ -518,9 +451,6 @@ public class FormActivity extends Activity{
                 // Log exception
                 e.printStackTrace();
             }
-
-
-
             // convert inputstream to string
             if(inputStream != null) {
                 result = PutConvertInputStreamToString(inputStream);
@@ -533,7 +463,6 @@ public class FormActivity extends Activity{
         }
         return result;
     }
-
     private static String PutConvertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
         String line = "";
@@ -544,7 +473,6 @@ public class FormActivity extends Activity{
         return result;
 
     }
-
     private class PutHttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -556,10 +484,7 @@ public class FormActivity extends Activity{
             try {
                 JSONObject jsonObject = new JSONObject(result);
 
-
-
             } catch (Exception e) {
-
                 Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
                 Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
             }

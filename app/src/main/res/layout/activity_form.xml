@@ -1,6 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/swipe_container"
+    android:id="@+id/m"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context="com.prg.xformbuilder.xformbuilder.FormActivity"
@@ -15,6 +15,15 @@
         android:dividerHeight="0dp"
         android:background="#ffffff"
         android:cacheColorHint="@color/abc_secondary_text_material_dark" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView_formImageDeneme"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="148dp" />
 
 </RelativeLayout>
 
