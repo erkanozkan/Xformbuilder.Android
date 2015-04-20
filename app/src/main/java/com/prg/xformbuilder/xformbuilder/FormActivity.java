@@ -28,13 +28,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -46,6 +51,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Handler;
 
@@ -67,6 +73,7 @@ public class FormActivity extends Activity{
     User GetUserSync;
     public static final int REFRESH_DELAY = 2000;
     private PullToRefreshListView mPullToRefreshView;
+    PutDraftForm putDraftForm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +85,8 @@ public class FormActivity extends Activity{
         Bundle bundle=getIntent().getExtras();
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
+
+
         //-------------------------Progress Dialog Baslangıc
         progressDialogFormList = new ProgressDialog(FormActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         progressDialogFormList.setTitle("Senkronize işlemleri");
@@ -115,6 +124,25 @@ public class FormActivity extends Activity{
             startActivity(i);
         }
         //------------------------------------Session Kontrol
+
+        if (InternetConnection){
+            List<Form> formListPut=dbHandler.getAllFormListVw(String.valueOf(parentId));
+        //    FormList   formArray[] = new FormList[formListPut.size()];
+            int pFormId=0;
+            for (int i=0;i<formListPut.size();i++){
+                pFormId= formListPut.get(i).getFormId();
+
+                int count =dbHandler.getFormCount(String.valueOf(pFormId));
+                if (count>=1){
+                    List<DraftForm> draftFormsPut =dbHandler.getAllDraftFormListVw(String.valueOf(pFormId));
+                    for (int k=0;k<draftFormsPut.size();k++){
+                        draftId=draftFormsPut.get(k).getId();
+                        String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId="+userId+"&formId="+pFormId;
+                         new PutHttpAsyncTask().execute(HostUrl);
+                    }
+                }
+            }
+        }
 
 
        /* //----------------------------------Verilerin Upload işlemi baslangıc
@@ -408,38 +436,19 @@ public class FormActivity extends Activity{
         }
         //----------------------------------------Session Kontrol
     }
-    public String PUT(String url){
+
+    public String PUT(String url,PutDraftForm putDraftForm){
         InputStream inputStream = null;
         String result = "";
         try {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPut httpPost = new HttpPut(url);
 
-            List<Form> formListPut=dbHandler.getAllFormListVw(String.valueOf(parentId));
-            FormList   formArray[] = new FormList[formListPut.size()];
-            int pFormId=0,pDraftId=0;
-            for (int i=0;i<formListPut.size();i++){
-                pFormId= formListPut.get(i).getFormId();
-                List<DraftForm> draftFormsPut =dbHandler.getAllDraftFormListVw(String.valueOf(pFormId));
-                for (int k=0;k<draftFormsPut.size();k++){
-                    draftId=draftFormsPut.get(k).getId();
-                    // String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId=3366&formId=4446";
-
-                    //  new PutHttpAsyncTask().execute(HostUrl);
-
-                }
-            }
-
-            DraftForm draftForm=dbHandler.GetDraftByDraftId(String.valueOf(draftId));
-            PutJsonCode=draftForm.getDraftJson();
-            PutFormId=draftForm.getFormId();
-            PutUserId=draftForm.getUserId();
-
             List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
-            nameValuePair.add(new BasicNameValuePair("JsonCode", PutJsonCode));
-            nameValuePair.add(new BasicNameValuePair("FormId", String.valueOf(PutFormId)));
-            nameValuePair.add(new BasicNameValuePair("ParentId", String.valueOf(PutUserId)));
-            nameValuePair.add(new BasicNameValuePair("UserId", String.valueOf(PutParentId)));
+            nameValuePair.add(new BasicNameValuePair("JsonCode", putDraftForm.getDraftJson()));
+            nameValuePair.add(new BasicNameValuePair("FormId", String.valueOf(putDraftForm.getFormId())));
+            nameValuePair.add(new BasicNameValuePair("UserId",String.valueOf(putDraftForm.getUserId())));
+            nameValuePair.add(new BasicNameValuePair("DraftId", String.valueOf(putDraftForm.getId())));
 
             //Encoding POST data
             try {
@@ -484,20 +493,32 @@ public class FormActivity extends Activity{
 
     }
     private class PutHttpAsyncTask extends AsyncTask<String, Void, String> {
+
         @Override
         protected String doInBackground(String... urls) {
 
-            return PUT(urls[0]);
+            DraftForm draftForm=dbHandler.GetDraftByDraftId(String.valueOf(draftId));
+            PutJsonCode=draftForm.getDraftJson();
+            PutFormId=draftForm.getFormId();
+            PutUserId=draftForm.getUserId();
+            putDraftForm=new PutDraftForm(draftId,PutFormId,PutJsonCode,PutUserId);
+
+            return PUT(urls[0],putDraftForm);
         }
         @Override
         protected void onPostExecute(String result) {
             try {
-                JSONObject jsonObject = new JSONObject(result);
+                Toast.makeText(getApplicationContext(), "Form Kaydedildi.",Toast.LENGTH_SHORT).show();
+
 
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
                 Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
             }
         }
+
+
+
     }
+
 }
