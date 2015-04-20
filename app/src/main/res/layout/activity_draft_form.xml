@@ -10,68 +10,14 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="40dp">
-
-            <TextView
-                android:background="@drawable/draftheader_rightborder_colorfull"
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:maxWidth = "30dp"
-                android:text="Soru1"
-                android:paddingLeft="5dp"
-                android:id="@+id/title1"
-                android:textColor="#000000"
-                android:gravity="center_vertical"
-                android:singleLine="true" />
-
-            <TextView
-                android:background="@drawable/draftheader_rightborder_colorfull"
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Soru2"
-                android:paddingLeft="5dp"
-                android:maxWidth="30dp"
-                android:id="@+id/title2"
-                android:textColor="#000000"
-                android:gravity="center_vertical"
-                android:singleLine="true" />
-
-            <TextView
-                android:background="#dbdbdb"
-                android:layout_width="0dip"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:maxWidth = "30dp"
-                android:maxHeight="2dp"
-                android:paddingLeft="5dp"
-                android:text="Soru3"
-                android:id="@+id/title3"
-                android:textColor="#000000"
-                android:gravity="center_vertical"
-                android:singleLine="true" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-            <ListView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/listView_draftForm"
-                android:layout_centerHorizontal="true"
-                android:divider="@null"
-                android:dividerHeight="0dp"
-                />
-        </LinearLayout>
-
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listView_draftForm"
+            android:layout_centerHorizontal="true"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            />
     </LinearLayout>
 
 </RelativeLayout>

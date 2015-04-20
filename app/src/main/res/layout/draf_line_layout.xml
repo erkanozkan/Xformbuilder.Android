@@ -6,52 +6,7 @@
     android:visibility="visible"
     android:background="#ffffff"
     android:padding="0dp">
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="40dp">
 
-        <TextView
-            android:background="@drawable/draftheader_rightborder"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:maxWidth = "30dp"
-            android:text="Soru1"
-            android:paddingLeft="5dp"
-            android:id="@+id/response1"
-            android:textColor="#000000"
-            android:singleLine="true"
-            android:gravity="center_vertical" />
-
-        <TextView
-            android:background="@drawable/draftheader_rightborder"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Soru2"
-            android:paddingLeft="5dp"
-            android:maxWidth="30dp"
-            android:id="@+id/response2"
-            android:textColor="#000000"
-            android:singleLine="true"
-            android:gravity="center_vertical" />
-
-        <TextView
-            android:background="#ffffff"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:maxWidth = "30dp"
-            android:maxHeight="2dp"
-            android:paddingLeft="5dp"
-            android:text="Soru3"
-            android:id="@+id/response3"
-            android:textColor="#000000"
-            android:singleLine="true"
-            android:gravity="center_vertical" />
-
-    </LinearLayout>
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
