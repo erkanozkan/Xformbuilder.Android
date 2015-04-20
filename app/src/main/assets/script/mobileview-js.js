@@ -113,11 +113,11 @@ $(document).ready(function () {
         });
         
         if ($('form').validate().errorList.length == 0 && $('form').valid()) {
-            Submit(1);
+            Submit(1); // form doğru dolduruldu ise
 
         }
         else {
-            Submit(0); 
+            Submit(0); // form eksik dolduruldu ise
         } 
 
         return false;
