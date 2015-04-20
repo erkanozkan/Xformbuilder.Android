@@ -439,7 +439,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public List<DraftForm> getAllDraftFormListVw(String formId ) {
         List<DraftForm> draftForms = new ArrayList<DraftForm>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_DRAFTFORM, new String[]{KEY_ID, KEY_FORMID, KEY_DRAFHTML,KEY_DRAFTJSON,KEY_DATEDRAFT,KEY_USERID,KEY_FIELD1_TITLE,KEY_FIELD2_TITLE,KEY_FIELD3_TITLE,KEY_FIELD1_VALUE,KEY_FIELD2_VALUE,KEY_FIELD3_VALUE}, KEY_FORMID + "=?", new String[] {String.valueOf(formId)}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_DRAFTFORM, new String[]{KEY_ID
+                , KEY_FORMID
+                , KEY_DRAFHTML
+                ,KEY_DRAFTJSON
+                ,KEY_DATEDRAFT
+                ,KEY_USERID
+                ,KEY_FIELD1_TITLE
+                ,KEY_FIELD2_TITLE
+                ,KEY_FIELD3_TITLE
+                ,KEY_FIELD1_VALUE
+                ,KEY_FIELD2_VALUE
+                ,KEY_FIELD3_VALUE
+                ,KEY_ISUPLOADABLE}, KEY_FORMID + "=?", new String[] {String.valueOf(formId)}, null, null, null, null);
 
         while (cursor.moveToNext()) {
             DraftForm form = new DraftForm(
@@ -456,6 +468,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(10),
                     cursor.getString(11),
                     cursor.getString(12)
+
             );
             draftForms.add(form);
         }
@@ -477,6 +490,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FORM);
         onCreate(db);
+        return true;
+    }
+
+    //Draft Form Database Siler
+    public boolean DeleteDraftFormByDraftId(int draftId){
+
+        SQLiteDatabase db = getWritableDatabase();
+        String sql="DELETE FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_ID + "='" + draftId+"'";
+        Cursor cursor = db.rawQuery(sql, null);
         return true;
     }
 }

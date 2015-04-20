@@ -187,12 +187,12 @@ public void AlertMessagge(String messagge){
          */
         @JavascriptInterface
         public void FormSubmit(String html, String json,String isUploadable,String field1_title ,String field1_value ,String field2_title ,String field2_value  ,String field3_title  ,String field3_value){
-            progressDialogResponce = new ProgressDialog(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
+           /* progressDialogResponce = new ProgressDialog(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
 
             progressDialogResponce.setTitle("Form Cevaplama İşlemi");
             progressDialogResponce.setMessage("Form cevaplanıyor...");
             progressDialogResponce.setCanceledOnTouchOutside(false);
-            progressDialogResponce.show();
+            progressDialogResponce.show();*/
               // dbHandler.DeleteDraftFormTable();
             bundleFormResponse.putString("FormId", formId);
             bundleFormResponse.putInt("UserId",userId);
@@ -208,21 +208,18 @@ public void AlertMessagge(String messagge){
                 else{
                     AlertMessagge("Doldurulması gereken alanlar var.");
                 }
-               /* Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
-                i.putExtras(bundleFormResponse);
-                startActivity(i);
-                finish();
-                progressDialogResponce.dismiss();*/
+
             }
             else{
+                if (isUploadable.equals("1")){
+                    AlertMessagge("");
+                }
+                else{
+                    AlertMessagge("Doldurulması gereken alanlar var.");
+                }
              //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
                 DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString,userId,field1_title,field1_value,field2_title,field2_value,field3_title,field3_value,isUploadable);
                 dbHandler.CreateDraftForm(form);
-             /*  Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
-                i.putExtras(bundleFormResponse);
-                startActivity(i);
-                finish();
-                progressDialogResponce.dismiss();*/
             }
         }
     }

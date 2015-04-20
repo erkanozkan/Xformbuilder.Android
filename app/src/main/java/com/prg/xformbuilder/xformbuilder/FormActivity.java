@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -86,8 +87,7 @@ public class FormActivity extends Activity{
         parentId=bundle.getInt("ParentId");
         userId=bundle.getInt("UserId");
 
-
-        //-------------------------Progress Dialog Baslangıc
+         //-------------------------Progress Dialog Baslangıc
         progressDialogFormList = new ProgressDialog(FormActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         progressDialogFormList.setTitle("Senkronize işlemleri");
         progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
@@ -485,7 +485,7 @@ public class FormActivity extends Activity{
     private static String PutConvertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
         String line = "";
-        String result = "";
+        String result ="";
         while((line = bufferedReader.readLine()) != null)
             result += line ;
         inputStream.close();
@@ -507,8 +507,22 @@ public class FormActivity extends Activity{
         }
         @Override
         protected void onPostExecute(String result) {
+            int jFormId=0,jDraftId=0;
+            boolean jSave=false;
             try {
-                Toast.makeText(getApplicationContext(), "Form Kaydedildi.",Toast.LENGTH_SHORT).show();
+                JSONObject jsonObj = new JSONObject(result);
+                jFormId=jsonObj.getInt("FormId");
+                jDraftId=jsonObj.getInt("DraftId");
+                jSave=jsonObj.getBoolean("Save");
+                if (jSave) {
+                   boolean success= dbHandler.DeleteDraftFormByDraftId(jDraftId);
+                    if (success)
+                    {
+                        Toast.makeText(getApplicationContext(), "Form Kaydedildi.", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Silinemedii...", Toast.LENGTH_SHORT).show();
+                    }
+                }
 
 
             } catch (Exception e) {

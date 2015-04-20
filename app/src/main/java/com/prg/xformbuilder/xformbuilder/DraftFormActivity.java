@@ -40,9 +40,7 @@ public class DraftFormActivity extends Activity {
         setContentView(R.layout.activity_draft_form);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.draftlist_titlebar);
 
-        title1 = (TextView)findViewById(R.id.title1);
-        title2 = (TextView)findViewById(R.id.title2);
-        title3 = (TextView)findViewById(R.id.title3);
+
 
         //----------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
