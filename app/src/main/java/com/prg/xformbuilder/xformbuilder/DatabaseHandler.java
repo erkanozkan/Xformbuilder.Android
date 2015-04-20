@@ -43,6 +43,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_FIELD1_VALUE ="field1value",
             KEY_FIELD2_VALUE ="field2value",
             KEY_FIELD3_VALUE ="field3value",
+            KEY_ISUPLOADABLE="isuploadable",
             KEY_SYNC="sync",
             KEY_FORMIMAGE="formimage",
             KEY_DATEDRAFT="datedraft";
@@ -90,6 +91,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 +KEY_FIELD1_VALUE+  " TEXT,"
                 +KEY_FIELD2_VALUE+  " TEXT,"
                 +KEY_FIELD3_VALUE+  " TEXT,"
+                +KEY_ISUPLOADABLE+  " TEXT,"
                 +KEY_USERID + " TEXT)" );
         Log.d("DBHelper", "SQL : " + sqlDraftForm);
         db.execSQL(sqlDraftForm);
@@ -123,6 +125,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_DRAFHTML,draftForm.getDraftHtml());
         values.put(KEY_DRAFTJSON,draftForm.getDraftJson());
         values.put(KEY_DATEDRAFT,draftForm.getDateDraft());
+        values.put(KEY_FIELD1_TITLE,draftForm.getField1Title());
+        values.put(KEY_FIELD2_TITLE,draftForm.getField2Title());
+        values.put(KEY_FIELD3_TITLE,draftForm.getField3Title());
+        values.put(KEY_FIELD1_VALUE,draftForm.getField1Value());
+        values.put(KEY_FIELD2_VALUE,draftForm.getField2Value());
+        values.put(KEY_FIELD3_VALUE,draftForm.getField3Value());
+        values.put(KEY_ISUPLOADABLE,draftForm.getIsUploadable());
+
         values.put(KEY_USERID,draftForm.getUserId());
 
         db.insert(TABLE_DRAFTFORM, null, values);
@@ -165,6 +175,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public  void DeleteUser(User user) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_USER, KEY_ID + "=?", new String[]{String.valueOf(user.getId())});
+    }
+
+
+    public String GetLastDraftId(String formId){
+        SQLiteDatabase db = getReadableDatabase();
+        String sql = "SELECT * FROM "+TABLE_DRAFTFORM+ " ORDER BY "+KEY_ID+" DESC LIMIT 1";
+       Cursor cursor = db.rawQuery(sql,null);
+        return cursor.getString(0);
     }
 
     public boolean DeleteFormTable(){
@@ -381,7 +399,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(KEY_FIELD3_TITLE)),
                     cursor.getString(cursor.getColumnIndex(KEY_FIELD1_VALUE)),
                     cursor.getString(cursor.getColumnIndex(KEY_FIELD2_VALUE)),
-                    cursor.getString(cursor.getColumnIndex(KEY_FIELD3_VALUE))
+                    cursor.getString(cursor.getColumnIndex(KEY_FIELD3_VALUE)),
+                    cursor.getString(cursor.getColumnIndex(KEY_ISUPLOADABLE))
             );
             return draft;
         }
@@ -396,6 +415,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_DRAFHTML,draftForm.getDraftHtml());
         values.put(KEY_DRAFTJSON,draftForm.getDraftJson());
         values.put(KEY_DATEDRAFT,draftForm.getDateDraft());
+        values.put(KEY_FIELD1_TITLE,draftForm.getField1Title());
+        values.put(KEY_FIELD2_TITLE,draftForm.getField2Title());
+        values.put(KEY_FIELD3_TITLE,draftForm.getField3Title());
+        values.put(KEY_FIELD1_VALUE,draftForm.getField1Value());
+        values.put(KEY_FIELD2_VALUE,draftForm.getField2Value());
+        values.put(KEY_FIELD3_VALUE,draftForm.getField3Value());
+        values.put(KEY_ISUPLOADABLE,draftForm.getIsUploadable());
+
 
         db.update(TABLE_DRAFTFORM, values, KEY_ID + "=?", new String[]{String.valueOf(draftForm.getId())});
     }
@@ -427,7 +454,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(8),
                     cursor.getString(9),
                     cursor.getString(10),
-                    cursor.getString(11)
+                    cursor.getString(11),
+                    cursor.getString(12)
             );
             draftForms.add(form);
         }

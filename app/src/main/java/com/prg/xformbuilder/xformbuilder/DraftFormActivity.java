@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 
@@ -30,13 +32,18 @@ public class DraftFormActivity extends Activity {
     DraftAdapter draftAdapter;
     ListView lv;
     ImageButton buttonNewResponse;
-
+    TextView title1,title2,title3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_draft_form);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.draftlist_titlebar);
+
+        title1 = (TextView)findViewById(R.id.title1);
+        title2 = (TextView)findViewById(R.id.title2);
+        title3 = (TextView)findViewById(R.id.title3);
+
         //----------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
@@ -137,10 +144,16 @@ public class DraftFormActivity extends Activity {
             List<DraftForm> draftForms=  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
             DraftList   draftArray[] = new DraftList[draftForms.size()];
             for (int i=0;i<draftForms.size();i++){
-         draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
+              draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
             }
             draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
+            title1.setText(draftForms.get(0).getField1Title());
+            title2.setText(draftForms.get(0).getField2Title());
+            title3.setText(draftForms.get(0).getField3Title());
+
             lv.setAdapter(draftAdapter);
+
+
         }catch (Exception e){
             Toast.makeText(getApplicationContext(), "Verileri �ekerken hata olu�tu l�tfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
