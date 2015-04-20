@@ -180,9 +180,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public String GetLastDraftId(String formId){
         SQLiteDatabase db = getReadableDatabase();
-        String sql = "SELECT * FROM "+TABLE_DRAFTFORM+ " ORDER BY "+KEY_ID+" DESC LIMIT 1";
+        String id=null;
+        String sql = "SELECT "+KEY_ID+" FROM "+TABLE_DRAFTFORM+ " WHERE "+KEY_FORMID+"='"+formId+"' ORDER BY "+KEY_ID+" DESC LIMIT 1";
        Cursor cursor = db.rawQuery(sql,null);
-        return cursor.getString(0);
+        if (cursor != null){
+            cursor.moveToFirst();
+            id = String.valueOf(cursor.getInt(cursor.getColumnIndex(KEY_ID)));
+        }
+        return id;
     }
 
     public boolean DeleteFormTable(){
@@ -209,14 +214,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public int getFormCount(String formID){
         SQLiteDatabase db = getReadableDatabase();
-        String sql="SELECT * FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_FORMID + "='" + formID +"'";
+        String sql="SELECT * FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_FORMID + "='" + formID+"'";
         Cursor cursor = db.rawQuery(sql, null);
         int count = cursor.getCount();
-
         cursor.close();
-        return cursor.getCount();
+        return count;
 
     }
+
+    public int getFormDraftCount(String formID){
+        SQLiteDatabase db = getReadableDatabase();
+        String sql="SELECT * FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_FORMID + "='" + formID +"' AND isuploadable='1'";
+        Cursor cursor = db.rawQuery(sql, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
+    }
+
     public User AccountLogin(String userName,String password)
     {
         SQLiteDatabase db = getReadableDatabase();
@@ -255,12 +269,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_COMPANY, user.getCompany());
         db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(user.getUserId())});
     }
+
     public void SettingSyncUpdate(String sync,int userId){
         SQLiteDatabase db= getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_SYNC,sync);
         db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(userId)});
     }
+
+
 
     public List<User> getAllUserList() {
         List<User> userList = new ArrayList<User>();
@@ -475,6 +492,50 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         return draftForms;
     }
+
+    public List<DraftForm> getAllIsUploadDraftFormListByFormId(String formId ) {
+        List<DraftForm> draftForms = new ArrayList<DraftForm>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_DRAFTFORM, new String[]{KEY_ID
+                , KEY_FORMID
+                , KEY_DRAFHTML
+                ,KEY_DRAFTJSON
+                ,KEY_DATEDRAFT
+                ,KEY_USERID
+                ,KEY_FIELD1_TITLE
+                ,KEY_FIELD2_TITLE
+                ,KEY_FIELD3_TITLE
+                ,KEY_FIELD1_VALUE
+                ,KEY_FIELD2_VALUE
+                ,KEY_FIELD3_VALUE
+                ,KEY_ISUPLOADABLE}, KEY_FORMID + "=? AND "+KEY_ISUPLOADABLE+"=?" , new String[] {String.valueOf(formId),"1"},null, null, null, null);
+
+        while (cursor.moveToNext()) {
+            DraftForm form = new DraftForm(
+                    Integer.parseInt(cursor.getString(0)),
+                    Integer.parseInt(cursor.getString(1)),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    Integer.parseInt(cursor.getString(5)),
+                    cursor.getString(6),
+                    cursor.getString(7),
+                    cursor.getString(8),
+                    cursor.getString(9),
+                    cursor.getString(10),
+                    cursor.getString(11),
+                    cursor.getString(12)
+
+            );
+            draftForms.add(form);
+        }
+        cursor.close();
+        return draftForms;
+    }
+
+
+
+
     //Draft Form Database Siler
     public boolean DeleteDraftFormTable(){
         SQLiteDatabase db = getWritableDatabase();
@@ -495,10 +556,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     //Draft Form Database Siler
     public boolean DeleteDraftFormByDraftId(int draftId){
+ try    {
+
 
         SQLiteDatabase db = getWritableDatabase();
-        String sql="DELETE FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_ID + "='" + draftId+"'";
-        Cursor cursor = db.rawQuery(sql, null);
+        String sql="DELETE FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_ID + "=" + draftId;
+        db.execSQL(sql);
         return true;
+ }
+         catch ( Exception e) {
+        return false;
+         }
     }
 }

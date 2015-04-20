@@ -142,9 +142,6 @@ public class DraftFormActivity extends Activity {
               draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
             }
             draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
-            title1.setText(draftForms.get(0).getField1Title());
-            title2.setText(draftForms.get(0).getField2Title());
-            title3.setText(draftForms.get(0).getField3Title());
 
             lv.setAdapter(draftAdapter);
 

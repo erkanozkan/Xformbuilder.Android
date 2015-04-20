@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
         username = (EditText)findViewById(R.id.editText_userName);
         password = (EditText)findViewById(R.id.editText_password);
         dbHandler = new DatabaseHandler(getApplicationContext());
-    //    dbHandler.ClearLocalDatabase();
+       // dbHandler.ClearLocalDatabase();
         login = (Button)findViewById(R.id.button_login);
 
         //--------------------------------------Internet Connection

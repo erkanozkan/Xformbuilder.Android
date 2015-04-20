@@ -15,6 +15,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import android.util.JsonReader;
@@ -125,20 +126,20 @@ public class FormActivity extends Activity{
         }
         //------------------------------------Session Kontrol
 
-        if (InternetConnection){
+        if (InternetConnection && GetUserSync.getSync().equals("true")){
             List<Form> formListPut=dbHandler.getAllFormListVw(String.valueOf(parentId));
-        //    FormList   formArray[] = new FormList[formListPut.size()];
             int pFormId=0;
             for (int i=0;i<formListPut.size();i++){
                 pFormId= formListPut.get(i).getFormId();
 
-                int count =dbHandler.getFormCount(String.valueOf(pFormId));
-                if (count>=1){
-                    List<DraftForm> draftFormsPut =dbHandler.getAllDraftFormListVw(String.valueOf(pFormId));
+                int count = dbHandler.getFormDraftCount(String.valueOf(pFormId));
+                if (count >=1 ){
+                    List<DraftForm> draftFormsPut =dbHandler.getAllIsUploadDraftFormListByFormId(String.valueOf(pFormId));
                     for (int k=0;k<draftFormsPut.size();k++){
                         draftId=draftFormsPut.get(k).getId();
+                        //SystemClock.sleep(3000);
                         String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId="+userId+"&formId="+pFormId;
-                         new PutHttpAsyncTask().execute(HostUrl);
+                         new PutHttpAsyncTask().execute(HostUrl,String.valueOf(draftId));
                     }
                 }
             }
@@ -492,16 +493,21 @@ public class FormActivity extends Activity{
         return result;
 
     }
+
     private class PutHttpAsyncTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... urls) {
+            try{
+                DraftForm draftForm=dbHandler.GetDraftByDraftId(urls[1]);
+                PutJsonCode=draftForm.getDraftJson();
+                PutFormId=draftForm.getFormId();
+                PutUserId=draftForm.getUserId();
+                putDraftForm=new PutDraftForm(draftId,PutFormId,PutJsonCode,PutUserId);
+            }catch (Exception e){
 
-            DraftForm draftForm=dbHandler.GetDraftByDraftId(String.valueOf(draftId));
-            PutJsonCode=draftForm.getDraftJson();
-            PutFormId=draftForm.getFormId();
-            PutUserId=draftForm.getUserId();
-            putDraftForm=new PutDraftForm(draftId,PutFormId,PutJsonCode,PutUserId);
+}
+
 
             return PUT(urls[0],putDraftForm);
         }
@@ -511,16 +517,16 @@ public class FormActivity extends Activity{
             boolean jSave=false;
             try {
                 JSONObject jsonObj = new JSONObject(result);
-                jFormId=jsonObj.getInt("FormId");
                 jDraftId=jsonObj.getInt("DraftId");
                 jSave=jsonObj.getBoolean("Save");
                 if (jSave) {
                    boolean success= dbHandler.DeleteDraftFormByDraftId(jDraftId);
+
                     if (success)
                     {
-                        Toast.makeText(getApplicationContext(), "Form Kaydedildi.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Form Kaydedildi. " + jDraftId, Toast.LENGTH_SHORT).show();
                     }else{
-                        Toast.makeText(getApplicationContext(), "Silinemedii...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Silinemedii..." + jDraftId, Toast.LENGTH_SHORT).show();
                     }
                 }
 
