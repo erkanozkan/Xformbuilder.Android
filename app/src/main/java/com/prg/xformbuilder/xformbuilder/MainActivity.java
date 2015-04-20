@@ -16,9 +16,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.daimajia.slider.library.Animations.DescriptionAnimation;
+import com.daimajia.slider.library.Indicators.PagerIndicator;
+import com.daimajia.slider.library.SliderLayout;
+import com.daimajia.slider.library.SliderTypes.BaseSliderView;
+import com.daimajia.slider.library.SliderTypes.TextSliderView;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -28,6 +38,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
 
 public class MainActivity extends Activity {
@@ -45,6 +56,7 @@ public class MainActivity extends Activity {
     SharedPreferences preferences; //preferences için bir nesne tanımlıyorum.
     SharedPreferences.Editor editor; //preferences içerisine bilgi girmek için tanımlama
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +64,8 @@ public class MainActivity extends Activity {
 
         preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = preferences.edit();
+
+
 
         username = (EditText)findViewById(R.id.editText_userName);
         password = (EditText)findViewById(R.id.editText_password);
@@ -115,6 +129,9 @@ public class MainActivity extends Activity {
             }
         });
     }
+
+
+
     @Override
     public void onBackPressed() {
 
