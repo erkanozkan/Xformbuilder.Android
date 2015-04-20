@@ -54,7 +54,7 @@ public class FormResponseActivity extends Activity {
     final Bundle bundleFormResponse = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+         super.onCreate(savedInstanceState);
 
 //----------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
@@ -131,6 +131,21 @@ public class FormResponseActivity extends Activity {
                 bundleFormResponse.putString("DraftId",draftId);
                 bundleFormResponse.putString("FormId",formId);
 
+
+                int count=  dbHandler.getFormCount(formId);
+                if (count>=1)
+                {
+                    Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
+                }else{
+                    Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
+                }
+
+
+              /*
                 if(draftId != null){
                     Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
                     i.putExtras(bundleFormResponse);
@@ -142,7 +157,7 @@ public class FormResponseActivity extends Activity {
                     i.putExtras(bundleFormResponse);
                     startActivity(i);
                     finish();
-                }
+                }*/
             }
         });
 
@@ -158,9 +173,6 @@ public void AlertMessagge(String messagge){
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,
                                             int which) {
-
-                            moveTaskToBack(true);
-                            finish();
 
                         }
                     });
@@ -198,7 +210,6 @@ public void AlertMessagge(String messagge){
             bundleFormResponse.putInt("UserId",userId);
             bundleFormResponse.putInt("ParentId",parentId);
             bundleFormResponse.putString("FormTitle",formTitle);
-
             if(draftId != null){
                 DraftForm draftForm = new DraftForm(Integer.parseInt(draftId),Integer.parseInt(formId),html,json,currentDateTimeString,userId,field1_title,field1_value,field2_title,field2_value,field3_title,field3_value,isUploadable);
                 dbHandler.UpdateDraft(draftForm);
