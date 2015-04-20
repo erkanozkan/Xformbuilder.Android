@@ -25,6 +25,7 @@ public class DraftForm {
         _field2Value=field2Value;
         _field3Title = field3Title;
         _field3Value=field3Value;
+        _isUploadable=isUploadable;
     }
 
     public int getId() {
@@ -68,4 +69,5 @@ public class DraftForm {
     public String getField3Value() {
         return _field3Value;
     }
+
 }

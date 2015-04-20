@@ -169,7 +169,7 @@ public void AlertMessagge(String messagge){
     alertDialog.setMessage(messagge);
     alertDialog
             .setCancelable(false)
-            .setPositiveButton("Evet",
+            .setPositiveButton("OK",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,
                                             int which) {
@@ -231,6 +231,8 @@ public void AlertMessagge(String messagge){
              //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
                 DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString,userId,field1_title,field1_value,field2_title,field2_value,field3_title,field3_value,isUploadable);
                 dbHandler.CreateDraftForm(form);
+                draftId = dbHandler.GetLastDraftId(formId);
+
             }
         }
     }
