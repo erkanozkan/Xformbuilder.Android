@@ -39,9 +39,6 @@ public class DraftFormActivity extends Activity {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_draft_form);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.draftlist_titlebar);
-
-
-
         //----------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
