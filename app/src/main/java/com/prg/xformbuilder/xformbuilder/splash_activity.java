@@ -34,10 +34,10 @@ public class splash_activity extends Activity implements BaseSliderView.OnSlider
         mDemoSlider = (SliderLayout)findViewById(R.id.slider);
 
         HashMap<String,Integer> file_maps = new HashMap<String, Integer>();
-        file_maps.put("Hannibal",R.drawable.splash_screen2);
-        file_maps.put("Big Bang Theory",R.drawable.preview);
-        file_maps.put("House of Cards",R.drawable.game_of_thrones);
-        file_maps.put("Game of Thrones", R.drawable.splash_screen1);
+        file_maps.put("Hannibal",R.drawable.splash3);
+        file_maps.put("Big Bang Theory",R.drawable.splash_1);
+        file_maps.put("House of Cards",R.drawable.house);
+        file_maps.put("Game of Thrones", R.drawable.game_of_thrones);
 
         for(String name : file_maps.keySet()){
             TextSliderView textSliderView = new TextSliderView(this);

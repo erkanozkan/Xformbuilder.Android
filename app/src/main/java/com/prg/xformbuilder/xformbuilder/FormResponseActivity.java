@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -164,7 +165,10 @@ public class FormResponseActivity extends Activity {
     }
 
 public void AlertMessagge(String messagge){
-    AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this);
+
+    AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this,AlertDialog.THEME_HOLO_LIGHT);
+
+
     alertDialog.setTitle("Form save as draft");
     alertDialog.setMessage(messagge);
     alertDialog
@@ -179,7 +183,7 @@ public void AlertMessagge(String messagge){
     AlertDialog alert = alertDialog.create();
     alert.show();
 
-}
+    }
 
 
 

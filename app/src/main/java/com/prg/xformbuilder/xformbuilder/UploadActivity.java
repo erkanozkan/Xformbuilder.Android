@@ -1,6 +1,5 @@
 package com.prg.xformbuilder.xformbuilder;
 
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -41,7 +40,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
 
 public class UploadActivity extends ActionBarActivity {
 
