@@ -11,10 +11,10 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/formlist_bg_border"
-        android:padding="2dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="5dp"
+        android:paddingBottom="2dp">
 
         <LinearLayout
             android:orientation="horizontal"
