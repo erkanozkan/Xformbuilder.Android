@@ -15,6 +15,7 @@ import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 public class SettingsActivity extends Activity {
@@ -34,6 +35,8 @@ public class SettingsActivity extends Activity {
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         Bundle bundle=getIntent().getExtras();
         userId=bundle.getInt("UserId");
+        TextView txtSettings = (TextView)findViewById(R.id.textView_FormName);
+        txtSettings.setText("Settings");
         ContactButton=(LinearLayout)findViewById(R.id.LinearLayout_Contact);
         FaqButton=(LinearLayout)findViewById(R.id.LinearLayout_Faq);
         AboutButton=(LinearLayout)findViewById(R.id.LinearLayout_about);
