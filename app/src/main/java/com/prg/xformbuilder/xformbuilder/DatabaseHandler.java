@@ -104,6 +104,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+
+
+
     public void CreateUser (User user){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -234,11 +237,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public User AccountLogin(String userName,String password)
     {
         SQLiteDatabase db = getReadableDatabase();
-        User user=null;
+        User user = null;
         String sql="SELECT * FROM " + TABLE_USER + " WHERE " + KEY_USERNAME + "='" + userName + "' AND " + KEY_PASSWORD + "='" + password + "'";
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor !=null) {
-            cursor.moveToFirst();
+        if (cursor !=null &&  cursor.moveToFirst()) {
             user  = new User(
                     cursor.getInt(cursor.getColumnIndex(KEY_ID)),
                     cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
@@ -249,7 +251,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
                     cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
                     cursor.getString(cursor.getColumnIndex(KEY_SYNC)));
-
             return user;
         }
         cursor.close();
@@ -357,8 +358,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER + " WHERE " + KEY_USERID + "='" + userId + "' ", null);
 
         User user = null;
-        if (cursor != null){
-            cursor.moveToFirst();
+        if (cursor != null && cursor.moveToFirst()){
+           /* cursor.moveToFirst();*/
             user  = new User(
                     cursor.getInt(cursor.getColumnIndex(KEY_ID)),
                     cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),
@@ -379,8 +380,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Form form=null;
         String sql="SELECT * FROM " + TABLE_FORM + " WHERE " + KEY_FORMID + "='" + formId+"'";
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor !=null) {
-            cursor.moveToFirst();
+        if (cursor !=null && cursor.moveToFirst()) {
+            /*cursor.moveToFirst();*/
             form  = new Form(
                     cursor.getInt(cursor.getColumnIndex(KEY_ID)),
                     cursor.getString(cursor.getColumnIndex(KEY_FORMTITLE)),
@@ -402,8 +403,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         DraftForm  draft=null;
         String sql="SELECT * FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_ID + "='" + draftId+"'";
         Cursor cursor = db.rawQuery(sql, null);
-        if (cursor !=null) {
-            cursor.moveToFirst();
+        if (cursor !=null && cursor.moveToFirst()) {
+            /*cursor.moveToFirst();*/
             draft  = new DraftForm(
                     cursor.getInt(cursor.getColumnIndex(KEY_ID)),
                     cursor.getInt(cursor.getColumnIndex(KEY_FORMID)),
@@ -556,14 +557,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     //Draft Form Database Siler
     public boolean DeleteDraftFormByDraftId(int draftId){
- try    {
+     try    {
 
 
         SQLiteDatabase db = getWritableDatabase();
         String sql="DELETE FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_ID + "=" + draftId;
         db.execSQL(sql);
         return true;
- }
+    }
          catch ( Exception e) {
         return false;
          }

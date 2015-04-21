@@ -3,6 +3,7 @@ package com.prg.xformbuilder.xformbuilder;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -46,6 +47,7 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -58,6 +60,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Handler;
+import com.onesignal.OneSignal;
+import com.onesignal.OneSignal.NotificationOpenedHandler;
 
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
@@ -65,15 +69,14 @@ import com.yalantis.phoenix.PullToRefreshView;
 
 public class FormActivity extends Activity {
 
-    int parentId = 0, userId = 0, jsonParentId = 0, jsonFormId = 0, jsonUserId = 0, PutUserId, PutFormId, PutParentId, draftId;
-    boolean InternetConnection = false;
+    int parentId = 0, userId = 0, jsonParentId = 0, jsonFormId = 0, jsonUserId = 0, PutUserId, PutFormId,count=0, draftId,draftCount=0;
     FormAdaptor adaptor;
     ImageButton ButtonLogout, ButtonSync, ButtonSettings;
     ListView lv;
     String jsonFormTitle = "", jsonUserName = "", jsonMobileHtml = "", jsonImage = "", PutJsonCode;
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();
-    ProgressDialog progressDialogFormList;
+     ProgressDialog progressDialogFormList;
     User GetUserSync;
     public static final int REFRESH_DELAY = 2000;
     private PullToRefreshListView mPullToRefreshView;
@@ -90,6 +93,12 @@ public class FormActivity extends Activity {
         parentId = bundle.getInt("ParentId");
         userId = bundle.getInt("UserId");
 
+
+
+
+
+        OneSignal.init(this, "452990216540", "AIzaSyA6B0SEFS2NjP4476zc8K4W1j3bJOkDrnE", new ExampleNotificationOpenedHandler());
+
         //-------------------------Progress Dialog Baslangıc
         progressDialogFormList = new ProgressDialog(FormActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         progressDialogFormList.setTitle("Senkronize işlemleri");
@@ -97,25 +106,11 @@ public class FormActivity extends Activity {
         progressDialogFormList.setCanceledOnTouchOutside(false);
         //--------------------------Progress Dialog Bitis
 
-
         lv = (ListView) findViewById(R.id.liste);
         ButtonLogout = (ImageButton) findViewById(R.id.imageButton_logout);
         ButtonSync = (ImageButton) findViewById(R.id.imageButton_sync);
         ButtonSettings = (ImageButton) findViewById(R.id.imageButton_settings);
 
-        //--------------------------------------Internet Connection baslangıc
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-            InternetConnection = true;
-        } else
-            InternetConnection = false;
-        //--------------------------------------Internet Connection bitis
-
-        GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
-        if (GetUserSync.getSync().equals("true") && InternetConnection) {
-            progressDialogFormList.show();
-        }
         //------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -127,52 +122,22 @@ public class FormActivity extends Activity {
         }
         //------------------------------------Session Kontrol
 
-        if (InternetConnection && GetUserSync.getSync().equals("true")) {
-
-           /* new Thread(new Runnable(){
+        try {
+            GetFormList();
+            mPullToRefreshView = (PullToRefreshListView) findViewById(R.id.liste);
+            mPullToRefreshView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
                 @Override
-                public void run() { */
-                    try {
-                        List<Form> formListPut = dbHandler.getAllFormListVw(String.valueOf(parentId));
-                        int pFormId = 0;
-                        for (int i = 0; i < formListPut.size(); i++) {
-                            pFormId = formListPut.get(i).getFormId();
-                            int count = dbHandler.getFormDraftCount(String.valueOf(pFormId));
-                            if (count >= 1) {
-                                List<DraftForm> draftFormsPut = dbHandler.getAllIsUploadDraftFormListByFormId(String.valueOf(pFormId));
-                                for (int k = 0; k < draftFormsPut.size(); k++) {
-                                    draftId = draftFormsPut.get(k).getId();
-                                    //SystemClock.sleep(3000);
-                                    String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId=" + userId + "&formId=" + pFormId;
-                                    new PutHttpAsyncTask().execute(HostUrl, String.valueOf(draftId));
-                                }
-                            }
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                //}
-           // }).start();
+                public void onRefresh() {
+                    new GetDataAsync().execute();
 
+                    // mPullToRefreshView.onRefreshComplete();
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
+            Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
 
-
-       /* //----------------------------------Verilerin Upload işlemi baslangıc
-        List<Form> formListPut=dbHandler.getAllFormListVw(String.valueOf(parentId));
-        FormList   formArray[] = new FormList[formListPut.size()];
-        int pFormId=0,pDraftId=0;
-        for (int i=0;i<formListPut.size();i++){
-            pFormId= formListPut.get(i).getFormId();
-            List<DraftForm> draftFormsPut =dbHandler.getAllDraftFormListVw(String.valueOf(pFormId));
-            for (int k=0;k<draftFormsPut.size();k++){
-                draftId=draftFormsPut.get(k).getId();
-                // String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId=3366&formId=4446";
-
-                //  new PutHttpAsyncTask().execute(HostUrl);
-
-            }
-        }
-        //----------------------------------Verilerin Upload işlemi bitis*/
 
         ButtonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,8 +181,9 @@ public class FormActivity extends Activity {
         ButtonSync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (InternetConnection) {
+                if (NetWorkControl()) {
                     new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
+                    SendServerDraftData();
                     progressDialogFormList.show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
@@ -228,6 +194,7 @@ public class FormActivity extends Activity {
             @Override
             public void onClick(View v) {
                 bundleForm.putInt("UserId", userId);
+                bundleForm.putInt("ParentId", parentId);
                 Intent i = new Intent(FormActivity.this, SettingsActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
@@ -254,22 +221,123 @@ public class FormActivity extends Activity {
                 }
             }
         });
-        try {
-            GetFormList();
-            mPullToRefreshView = (PullToRefreshListView) findViewById(R.id.liste);
-            mPullToRefreshView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    new GetDataAsync().execute();
 
-                    // mPullToRefreshView.onRefreshComplete();
-                }
-            });
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
-            Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+
+    }
+
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        OneSignal.onPaused();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        OneSignal.onResumed();
+    }
+
+    public void sendTag(View view) {
+        OneSignal.sendTag("title", "Notification");
+        OneSignal.sendTag("message", "Test messagge");
+    }
+
+
+
+    private class BackgroundDataBroadcastReceiver extends BroadcastReceiver {
+
+        // This onReceive will be call when a OneSignal Background Data Notification is received(before clicking) by the device.
+        // You can read the additionalData and do anything you need here with it.
+        // You may consider adding a wake lock here if you need to make sure the devices doesn't go to sleep while processing.
+        // The following must also be in your AndroidManifest.xml for this to fire:
+	/*
+	 <receiver
+	    android:name="com.onesignal.example.BackgroundDataBroadcastReceiver"
+	    android:exported="false">
+		<intent-filter>
+	    	<action android:name="com.onesignal.BackgroundBroadcast.RECEIVE" />
+	 	</intent-filter>
+	 </receiver>
+
+	 Make sure to keep android:exported="false" so other apps can't call can this.
+	*/
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle dataBundle = intent.getBundleExtra("data");
+
+            try {
+                Log.i("OneSignalExample", "Notification content: " + dataBundle.getString("alert"));
+                Log.i("OneSignalExample", "Notification title: " + dataBundle.getString("title"));
+                Log.i("OneSignalExample", "Is Your App Active: " + dataBundle.getBoolean("isActive"));
+
+                JSONObject customJSON = new JSONObject(dataBundle.getString("custom"));
+                if (customJSON.has("a"))
+                    Log.i("OneSignalExample", "additionalData: " + customJSON.getJSONObject("a").toString());
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
         }
     }
+
+
+
+
+
+
+
+
+
+    // NotificationOpenedHandler is implemented in its own class instead of adding implements to MainActivity so we don't hold on to a reference of our first activity if it gets recreated.
+    private class ExampleNotificationOpenedHandler implements OneSignal.NotificationOpenedHandler {
+        /**
+         * Callback to implement in your app to handle when a notification is opened from the Android status bar or
+         * a new one comes in while the app is running.
+         * This method is located in this activity as an example, you may have any class you wish implement NotificationOpenedHandler and define this method.
+         *
+         * @param message        The message string the user seen/should see in the Android status bar.
+         * @param additionalData The additionalData key value pair section you entered in on onesignal.com.
+         * @param isActive       Was the app in the foreground when the notification was received.
+         */
+        @Override
+        public void notificationOpened(String message, JSONObject additionalData, boolean isActive) {
+            String messageTitle = message, messageBody = message;
+
+            try {
+                if (additionalData != null) {
+                    if (additionalData.has("title"))
+                        messageTitle = additionalData.getString("title");
+                    if (additionalData.has("actionSelected"))
+                        messageBody += "\nPressed ButtonID: " + additionalData.getString("actionSelected");
+
+                    messageBody = message + "\n\nFull additionalData:\n" + additionalData.toString();
+                }
+            } catch (JSONException e) {
+            }
+
+            new AlertDialog.Builder(FormActivity.this)
+                    .setTitle(messageTitle)
+                    .setMessage(messageBody)
+                    .setCancelable(true)
+                    .setPositiveButton("OK", null)
+                    .create().show();
+        }
+    }
+
+
+
+    //----------------------------------------------Internet Connection Control-------------------------------------------------------------//
+    private boolean NetWorkControl(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            return  true;
+        } else
+            return  false;
+    }
+
+
+
 
     private class GetDataAsync extends AsyncTask<String, String, String> {
         protected String doInBackground(String... strings) {
@@ -291,40 +359,63 @@ public class FormActivity extends Activity {
         }
     }
 
-    private void GetFormList() {
-        //Internet baglantısı var ise web apiden formları cekiyoruz.
-        if (InternetConnection) {
 
-            if (GetUserSync.getSync().equals("true")) {
-                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
-            } else {
-                try {
-                    List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
-                    FormList formArray[] = new FormList[formList.size()];
-                    for (int i = 0; i < formList.size(); i++) {
-                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+
+
+
+    //----------------------------------Data get in local database-------------------------------------//
+    private void SetFormListInListView(){
+        try {
+            List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
+            FormList formArray[] = new FormList[formList.size()];
+            for (int i = 0; i < formList.size(); i++) {
+                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+            }
+            adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
+            lv.setAdapter(adaptor);
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
+            Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+        }
+
+
+
+    }
+
+
+
+    private void SendServerDraftData(){
+
+        try {
+            List<Form> formListPut = dbHandler.getAllFormListVw(String.valueOf(parentId));
+            int pFormId = 0;
+            for (int i = 0; i < formListPut.size(); i++) {
+                pFormId = formListPut.get(i).getFormId();
+                draftCount = dbHandler.getFormDraftCount(String.valueOf(pFormId));
+                if (draftCount >= 1) {
+                    List<DraftForm> draftFormsPut = dbHandler.getAllIsUploadDraftFormListByFormId(String.valueOf(pFormId));
+                    for (int k = 0; k < draftFormsPut.size(); k++) {
+                        draftId = draftFormsPut.get(k).getId();
+                        String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId=" + userId + "&formId=" + pFormId;
+                        new PutHttpAsyncTask().execute(HostUrl, String.valueOf(draftId));
                     }
-                    adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
-                    lv.setAdapter(adaptor);
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
-                    Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
                 }
             }
-        } else {
-            try {
-                List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
-                FormList formArray[] = new FormList[formList.size()];
-                for (int i = 0; i < formList.size(); i++) {
-                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
-                }
-                // progressDialogFormList.dismiss();
-                adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
-                lv.setAdapter(adaptor);
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
-                Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
-            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void GetFormList() {
+        GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+        //Internet baglantısı var ise web apiden formları cekiyoruz.
+        if (NetWorkControl() && GetUserSync.getSync().equals("true")) {
+                progressDialogFormList.show();
+                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
+               SendServerDraftData();
+        }
+        else {
+            SetFormListInListView();
         }
     }
 
@@ -395,19 +486,10 @@ public class FormActivity extends Activity {
                     }
                 }
                 try {
-                    List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
-                    FormList formArray[] = new FormList[formList.size()];
-                    for (int i = 0; i < formList.size(); i++) {
-                       /*
-                        FormImageByte = formList.get(i).getFormImage().getBytes(Charset.forName("UTF-8"));
-                        Bitmap bmp = BitmapFactory.decodeByteArray(FormImageByte, 0, FormImageByte.length);
-                        imageViewForm.setImageBitmap(bmp);*/
 
-                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
-                    }
+                     SetFormListInListView();
                     progressDialogFormList.dismiss();
-                    adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
-                    lv.setAdapter(adaptor);
+
                 } catch (Exception e) {
                 }
             } catch (Exception e) {
@@ -548,8 +630,6 @@ public class FormActivity extends Activity {
 
             }
 
-
-            //onPostExecute(PUT(urls[0], putDraftForm));
         }
 
         protected void onPostExecute(String result) {
@@ -576,7 +656,6 @@ public class FormActivity extends Activity {
             }
         }
 
-
     }
 
     private class PutHttpAsyncTask extends AsyncTask<String, Void, String> {
@@ -597,10 +676,20 @@ public class FormActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-
+            progressDialogFormList.dismiss();
+            draftCount=0;
+            count=0;
         }
 
+        @Override
+        protected void onPreExecute(){
+            if (draftCount!=0)
+                progressDialogFormList.setMessage("Formlarınız Upload Ediliyor... "+draftCount+"/"+count++);
+                else
+                progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
 
+
+        }
     }
 
 }

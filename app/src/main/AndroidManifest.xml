@@ -5,11 +5,33 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <permission android:name="com.prg.xformbuilder.xformbuilder.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="com.prg.xformbuilder.xformbuilder.permission.C2D_MESSAGE" />
+
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <activity android:name="com.onesignal.NotificationOpenedActivity"/>
+        <receiver
+            android:name="com.onesignal.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.prg.xformbuilder.xformbuilder" />
+            </intent-filter>
+        </receiver>
+        <service android:name="com.onesignal.GcmIntentService" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -19,6 +41,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity
             android:name=".FormActivity"
@@ -49,6 +72,7 @@
         <activity
             android:name=".splash_activity"
             android:label="@string/title_activity_splash_activity" >
+
         </activity>
     </application>
 

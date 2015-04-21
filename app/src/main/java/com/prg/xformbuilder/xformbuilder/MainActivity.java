@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -61,18 +62,13 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        dbHandler = new DatabaseHandler(getApplicationContext());
+         preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = preferences.edit();
-
-
-
         username = (EditText)findViewById(R.id.editText_userName);
         password = (EditText)findViewById(R.id.editText_password);
-        dbHandler = new DatabaseHandler(getApplicationContext());
        // dbHandler.ClearLocalDatabase();
         login = (Button)findViewById(R.id.button_login);
-
         //--------------------------------------Internet Connection
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
@@ -99,7 +95,7 @@ public class MainActivity extends Activity {
                         new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
 
                     }else{
-                       User  login=dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
+                       User login = dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
                         if (login!=null){
                             loginDialog.dismiss();
                             //Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
@@ -119,7 +115,7 @@ public class MainActivity extends Activity {
                         }
                         else {
                             loginDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Sistemde kayıtlı kullanıcı bulunamadı.",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Böyle bir kullanıcı kaydı bulunamadı.",Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

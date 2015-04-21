@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.Image;
+import android.media.audiofx.BassBoost;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,18 +26,20 @@ public class SettingsActivity extends Activity {
     DatabaseHandler dbHandler;
     ListView lv;
     int parentId = 0;
-    int userId = 0;
+    int userId = 0,getParentId=0;
     LinearLayout AboutButton,FaqButton,ContactButton,ClearDatabase;
     CheckBox checkBoxSync;
     User GetUserSync;
+    ImageButton btnBack;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_settings);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
-        Bundle bundle=getIntent().getExtras();
+        final Bundle bundle=getIntent().getExtras();
         userId=bundle.getInt("UserId");
+        parentId=bundle.getInt("ParentId");
         TextView txtSettings = (TextView)findViewById(R.id.textView_FormName);
         txtSettings.setText("Settings");
         ContactButton=(LinearLayout)findViewById(R.id.LinearLayout_Contact);
@@ -42,6 +47,20 @@ public class SettingsActivity extends Activity {
         AboutButton=(LinearLayout)findViewById(R.id.LinearLayout_about);
         ClearDatabase=(LinearLayout)findViewById(R.id.LinearLayout_CleanDatabase);
         checkBoxSync=(CheckBox)findViewById(R.id.checkBox_sync);
+        btnBack=(ImageButton)findViewById(R.id.imageButton_Back);
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
+                bundle.putInt("UserId", userId);
+                bundle.putInt("ParentId",parentId);
+                goBackFormList.putExtras(bundle);
+                startActivity(goBackFormList);
+
+            }
+        });
+
         dbHandler = new DatabaseHandler(getApplicationContext());
 
         GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
@@ -50,6 +69,10 @@ public class SettingsActivity extends Activity {
         }else{
             checkBoxSync.setChecked(false);
         }
+
+
+
+
 
         AboutButton.setOnClickListener(new View.OnClickListener() {
             @Override
