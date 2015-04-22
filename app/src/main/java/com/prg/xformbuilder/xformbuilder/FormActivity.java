@@ -280,7 +280,29 @@ public class FormActivity extends Activity {
             List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
             FormList formArray[] = new FormList[formList.size()];
             for (int i = 0; i < formList.size(); i++) {
-                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+                if(i<=4){
+                    switch (i){
+                        case 0:
+                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+                            break;
+                        case 1:
+                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon2);
+                            break;
+                        case 2:
+                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon3);
+                            break;
+                        case 3:
+                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon4);
+                            break;
+                        case 4:
+                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon5);
+                            break;
+                }
+                }
+                else{
+                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+                }
+
             }
             adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
             lv.setAdapter(adaptor);
