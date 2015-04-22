@@ -25,13 +25,11 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.3.2'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.slider:library:1.1.2@aar'
+    compile files('libs/Android-AdvancedWebView.jar')
     compile 'com.google.android.gms:play-services:7.0.0'
     compile 'com.google.android.gms:play-services-fitness:7.0.0'
     compile 'com.google.android.gms:play-services-wearable:7.0.0'
-    compile files('libs/Android-AdvancedWebView.jar')
     compile files('libs/OneSignalSDK.jar')
-
-
 }
 
 
