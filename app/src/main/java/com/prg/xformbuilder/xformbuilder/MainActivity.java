@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -17,29 +16,23 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
+
 import android.widget.Toast;
 
-import com.daimajia.slider.library.Animations.DescriptionAnimation;
-import com.daimajia.slider.library.Indicators.PagerIndicator;
-import com.daimajia.slider.library.SliderLayout;
-import com.daimajia.slider.library.SliderTypes.BaseSliderView;
-import com.daimajia.slider.library.SliderTypes.TextSliderView;
-
+import com.onesignal.OneSignal;
+import com.onesignal.OneSignal.NotificationOpenedHandler;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 
 
 public class MainActivity extends Activity {
@@ -62,6 +55,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Pass in your app's Context, Google Project number, your OneSignal App ID, and NotificationOpenedHandler
+        OneSignal.init(this, "71156653394", "52ee36a0-e8c3-11e4-b391-0370dbb1438c", new ExampleNotificationOpenedHandler());
+
         dbHandler = new DatabaseHandler(getApplicationContext());
          preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = preferences.edit();
@@ -94,6 +91,8 @@ public class MainActivity extends Activity {
                         //Web Api Cagırıyoruz.
                         new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
 
+
+
                     }else{
                        User login = dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
                         if (login!=null){
@@ -111,7 +110,12 @@ public class MainActivity extends Activity {
 
                             Intent i = new Intent(MainActivity.this,FormActivity.class);
                             i.putExtras(bundle);
+
+                            SendTag(login.getCompany());
+
                             startActivity(i);
+
+
                         }
                         else {
                             loginDialog.dismiss();
@@ -126,8 +130,56 @@ public class MainActivity extends Activity {
         });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        OneSignal.onPaused();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        OneSignal.onResumed();
+    }
+
+    // NotificationOpenedHandler is implemented in its own class instead of adding implements to MainActivity so we don't hold on to a reference of our first activity if it gets recreated.
+    private class ExampleNotificationOpenedHandler implements NotificationOpenedHandler {
+        /**
+         * Callback to implement in your app to handle when a notification is opened from the Android status bar or
+         * a new one comes in while the app is running.
+         * This method is located in this activity as an example, you may have any class you wish implement NotificationOpenedHandler and define this method.
+         *
+         * @param message        The message string the user seen/should see in the Android status bar.
+         * @param additionalData The additionalData key value pair section you entered in on onesignal.com.
+         * @param isActive       Was the app in the foreground when the notification was received.
+         */
+        @Override
+        public void notificationOpened(String message, JSONObject additionalData, boolean isActive) {
+            String messageTitle = "", messageBody = " " + message;
+
+            try {
+                if (additionalData != null) {
+
+                    String addCompany = additionalData.getString("COMPANY");
 
 
+
+                    if (additionalData.has("title"))
+                        messageTitle = additionalData.getString("title");
+                    if (additionalData.has("actionSelected"))
+                        messageBody += "\nPressed ButtonID: " + additionalData.getString("actionSelected");
+
+                }
+            } catch (JSONException e) {
+            }
+
+            new AlertDialog.Builder(MainActivity.this,AlertDialog.THEME_HOLO_LIGHT)
+                    .setTitle(messageTitle)
+                    .setMessage(messageBody)
+                    .setCancelable(true)
+                    .setPositiveButton("OK", null)
+                    .create().show();
+        }
+    }
     @Override
     public void onBackPressed() {
 
@@ -246,7 +298,11 @@ public class MainActivity extends Activity {
                     loginDialog.dismiss();
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
                     i.putExtras(bundle);
+
+                    SendTag(jsonCompany);
+
                     startActivity(i);
+
                 }else
                 {
                     loginDialog.dismiss();
@@ -259,6 +315,11 @@ public class MainActivity extends Activity {
             }
         }
     }
+
+    private void SendTag(String companyName) {
+        OneSignal.sendTag("COMPANY",companyName);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

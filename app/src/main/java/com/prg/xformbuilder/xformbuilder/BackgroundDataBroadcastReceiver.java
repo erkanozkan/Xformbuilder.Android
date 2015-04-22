@@ -54,6 +54,7 @@ public class BackgroundDataBroadcastReceiver extends BroadcastReceiver {
 	*/
 	@Override
 	public void onReceive(Context context, Intent intent) {
+
 		Bundle dataBundle = intent.getBundleExtra("data");
 		
 		try {
@@ -64,6 +65,8 @@ public class BackgroundDataBroadcastReceiver extends BroadcastReceiver {
 			JSONObject customJSON = new JSONObject(dataBundle.getString("custom"));
 			if (customJSON.has("a"))
 				Log.i("OneSignalExample", "additionalData: " + customJSON.getJSONObject("a").toString());
+
+
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
