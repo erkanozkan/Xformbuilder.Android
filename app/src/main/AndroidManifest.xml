@@ -22,6 +22,14 @@
         <activity android:name="com.onesignal.NotificationOpenedActivity"/>
 
         <receiver
+            android:name="com.prg.xformbuilder.xformbuilder.BackgroundDataBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.onesignal.BackgroundBroadcast.RECEIVE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
             android:name="com.onesignal.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
