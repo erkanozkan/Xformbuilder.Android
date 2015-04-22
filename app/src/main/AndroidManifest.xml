@@ -71,8 +71,8 @@
         </activity>
         <activity
             android:name=".splash_activity"
-            android:label="@string/title_activity_splash_activity" >
-
+            android:label="@string/title_activity_splash_activity"
+            android:screenOrientation="locked" >
         </activity>
     </application>
 
