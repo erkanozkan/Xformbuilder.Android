@@ -30,7 +30,7 @@ public class SettingsActivity extends Activity {
     LinearLayout AboutButton,FaqButton,ContactButton,ClearDatabase;
     CheckBox checkBoxSync;
     User GetUserSync;
-    ImageButton btnBack;
+    LinearLayout btnBack;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +47,8 @@ public class SettingsActivity extends Activity {
         AboutButton=(LinearLayout)findViewById(R.id.LinearLayout_about);
         ClearDatabase=(LinearLayout)findViewById(R.id.LinearLayout_CleanDatabase);
         checkBoxSync=(CheckBox)findViewById(R.id.checkBox_sync);
-        btnBack=(ImageButton)findViewById(R.id.imageButton_Back);
+
+        btnBack=(LinearLayout)findViewById(R.id.LinearLayoutBack);
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override

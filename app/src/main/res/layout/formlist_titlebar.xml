@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="fill_parent"
-    android:layout_height="70dp"
+    android:layout_height="50dp"
     android:background="#000000"
     android:id="@+id/mainlinearcustomtitle_formlist"
     android:gravity="right"
@@ -51,8 +51,8 @@
                 android:paddingLeft="5dp">
 
                 <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:id="@+id/imageButton_sync"
                     android:background="@drawable/appbar_button_async"
                     android:layout_row="0"
@@ -75,8 +75,8 @@
                 android:gravity="right">
 
                 <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:id="@+id/imageButton_settings"
                     android:background="@drawable/appbar_button_settings"
                     android:layout_row="0"
@@ -98,8 +98,8 @@
                 android:layout_height="wrap_content">
 
                 <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:id="@+id/imageButton_logout"
                     android:background="@drawable/appbar_button_logout"
                     android:contentDescription="logout"

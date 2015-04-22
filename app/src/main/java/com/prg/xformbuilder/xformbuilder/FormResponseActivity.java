@@ -28,6 +28,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +49,10 @@ public class FormResponseActivity extends Activity {
     String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
     public Uri imageUri;
     ProgressDialog progressDialogResponce;
-   ImageButton btnBackResponse;
+     ImageButton btnBackResponse;
+    LinearLayout  BackLinearLayout;
+
+
     private static final int FILECHOOSER_RESULTCODE   = 2888;
     private ValueCallback<Uri> mUploadMessage;
     private Uri mCapturedImageURI = null;
@@ -122,8 +126,11 @@ public class FormResponseActivity extends Activity {
             }
         });
 
-        btnBackResponse= (ImageButton)findViewById(R.id.imageButton_Back);
-        btnBackResponse.setOnClickListener(new View.OnClickListener() {
+
+
+        BackLinearLayout = (LinearLayout)findViewById(R.id.LinearLayoutBack);
+
+        BackLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 bundleFormResponse.putInt("UserId",userId);
@@ -145,22 +152,11 @@ public class FormResponseActivity extends Activity {
                     startActivity(i);
                 }
 
-
-              /*
-                if(draftId != null){
-                    Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
-                    i.putExtras(bundleFormResponse);
-                    startActivity(i);
-                    finish();
-                }
-                else{
-                    Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
-                    i.putExtras(bundleFormResponse);
-                    startActivity(i);
-                    finish();
-                }*/
             }
         });
+
+
+
 
     }
 

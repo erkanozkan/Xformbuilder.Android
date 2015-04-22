@@ -7,7 +7,7 @@ package com.prg.xformbuilder.xformbuilder;
 public class Form {
     private String _formTitle,_userName,_mobileHtml;
     private int _parentId,_id,_formId,_userId;
-    private String _formImage;
+    private String  _formImage;
 
     public Form (int id, String formTitle, int formId, int parentId,String userName,String mobileHtml,int userId,String formImage){
         _id=id;

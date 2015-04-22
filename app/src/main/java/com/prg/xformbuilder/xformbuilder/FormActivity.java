@@ -51,6 +51,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -61,6 +62,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Handler;
 
+import com.loopj.android.http.Base64;
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.yalantis.phoenix.PullToRefreshView;
@@ -260,35 +262,22 @@ public class FormActivity extends Activity {
 
 
 
-
-
     //----------------------------------Data get in local database-------------------------------------//
     private void SetFormListInListView(){
         try {
             List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
             FormList formArray[] = new FormList[formList.size()];
             for (int i = 0; i < formList.size(); i++) {
-                if(i<=4){
-                    switch (i){
-                        case 0:
-                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
-                            break;
-                        case 1:
-                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon2);
-                            break;
-                        case 2:
-                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon3);
-                            break;
-                        case 3:
-                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon4);
-                            break;
-                        case 4:
-                            formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon5);
-                            break;
-                }
-                }
+             byte [] FormImageByte = formList.get(i).getFormImage().getBytes("UTF-8");
+             InputStream stream = new ByteArrayInputStream(Base64.decode(FormImageByte, Base64.DEFAULT));
+             Bitmap bmp =  BitmapFactory.decodeStream(stream);
+
+                int count = dbHandler.getFormCount(String.valueOf(formList.get(i).getFormId()));
+                if (count >= 1) {
+                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,String.valueOf(count),R.mipmap.appbar_draw_pencil);
+               }
                 else{
-                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), R.mipmap.icon1);
+                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
                 }
 
             }
@@ -298,8 +287,6 @@ public class FormActivity extends Activity {
             Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
-
-
 
     }
 

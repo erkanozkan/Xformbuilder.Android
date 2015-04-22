@@ -43,6 +43,8 @@ public class FormAdaptor extends ArrayAdapter<FormList> {
             holder.baslik = (TextView) row.findViewById(R.id.formTitle);
             holder.detay = (TextView) row.findViewById(R.id.username);
             holder.formID = (TextView) row.findViewById(R.id.frmId);
+            holder.counter =(TextView)row.findViewById(R.id.textView_draftCount);
+            holder.imgPencil = (ImageView)row.findViewById(R.id.imageView_draftPencil);
 
             row.setTag(holder);
         }
@@ -51,10 +53,12 @@ public class FormAdaptor extends ArrayAdapter<FormList> {
         }
 
         FormList fInfo = formLists[position];
-        holder.img.setImageResource(fInfo.getFormImage());
+        holder.img.setImageBitmap(fInfo.getFormImage());
         holder.baslik.setText(fInfo.getFormTitle());
         holder.detay.setText(fInfo.getUserName());
         holder.formID.setText(String.valueOf(fInfo.getFormId()));
+        holder.counter.setText(fInfo.getDraftCount());
+        holder.imgPencil.setImageResource(fInfo.getImgPencil());
 
         return row;
     }
@@ -65,5 +69,7 @@ public class FormAdaptor extends ArrayAdapter<FormList> {
         TextView baslik;
         TextView detay;
         TextView formID;
+        TextView counter;
+        ImageView imgPencil;
     }
 }

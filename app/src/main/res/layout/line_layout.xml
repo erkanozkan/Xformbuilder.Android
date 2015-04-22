@@ -93,15 +93,14 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:id="@+id/imageView2"
+                            android:id="@+id/imageView_draftPencil"
                             android:layout_gravity="bottom|right"
                             android:src="@mipmap/appbar_draw_pencil" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2"
-                            android:id="@+id/textView"
+                            android:id="@+id/textView_draftCount"
                             android:textColor="#19c839"
                             android:textSize="17dp"
                             android:layout_gravity="bottom" />
