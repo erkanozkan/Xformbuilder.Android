@@ -68,6 +68,7 @@
                     android:text="admin"
                     android:singleLine="true"
                     android:layout_marginTop="4dp" />
+
             </LinearLayout>
 
             <LinearLayout

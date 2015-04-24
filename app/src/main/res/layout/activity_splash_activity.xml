@@ -13,6 +13,7 @@
         custom:indicator_visibility="visible"
         custom:pager_animation_span="1100"
         android:layout_height="fill_parent">
+
         <TextView
             android:id="@+id/skipbutton"
             android:layout_width="wrap_content"
@@ -26,7 +27,6 @@
             android:layout_marginRight="7dp"
             android:textSize="15dp"
             android:clickable="true"/>
-
         </com.daimajia.slider.library.SliderLayout>
 
 
