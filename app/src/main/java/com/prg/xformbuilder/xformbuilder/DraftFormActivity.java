@@ -31,7 +31,7 @@ public class DraftFormActivity extends Activity {
     int parentId=0,userId=0;
     DraftAdapter draftAdapter;
     ListView lv;
-    ImageButton buttonNewResponse;
+    ImageButton buttonNewResponse,imgBtnBack;
     TextView title1,title2,title3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +75,22 @@ public class DraftFormActivity extends Activity {
                 i.putExtras(bundleForm);
                 startActivity(i);
                 finish();
+            }
+        });
+
+        imgBtnBack=(ImageButton)findViewById(R.id.imageButtonDraftList_Back);
+        imgBtnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bundleForm.putString("FormId", formId);
+                bundleForm.putInt("UserId", userId);
+                bundleForm.putInt("ParentId", parentId);
+                bundleForm.putString("FormTitle", formTitle);
+                Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
+                i.putExtras(bundleForm);
+                startActivity(i);
+                finish();
+
             }
         });
 

@@ -164,6 +164,7 @@ public class FormActivity extends Activity {
                                         editor.remove("UserId");
                                         editor.remove("ParentId");
                                         editor.commit();
+                                        dbHandler.DeleteSplashValue();
                                         //----------------------------------------Session Kontrol
                                         Intent i = new Intent(FormActivity.this, MainActivity.class);
                                         startActivity(i);
@@ -265,8 +266,6 @@ public class FormActivity extends Activity {
         }
     }
 
-
-
     //----------------------------------Data get in local database-------------------------------------//
     private void SetFormListInListView(){
         try {
@@ -283,7 +282,7 @@ public class FormActivity extends Activity {
                     formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,String.valueOf(count),R.mipmap.appbar_draw_pencil);
                }
                 else{
-                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
+                 formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
                 }
 
             }
