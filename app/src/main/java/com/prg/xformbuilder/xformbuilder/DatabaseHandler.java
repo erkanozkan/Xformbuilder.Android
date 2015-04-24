@@ -234,6 +234,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return count;
     }
 
+    public int getAllFormDraftCount(){
+        SQLiteDatabase db = getReadableDatabase();
+        String sql="SELECT * FROM " + TABLE_DRAFTFORM + " WHERE  isuploadable='1'";
+        Cursor cursor = db.rawQuery(sql, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
+    }
+
     public User AccountLogin(String userName,String password)
     {
         SQLiteDatabase db = getReadableDatabase();

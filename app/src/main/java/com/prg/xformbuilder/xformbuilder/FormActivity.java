@@ -72,7 +72,7 @@ import com.yalantis.phoenix.PullToRefreshView;
 
 public class FormActivity extends Activity {
 
-    int parentId = 0, userId = 0, jsonParentId = 0, jsonFormId = 0, jsonUserId = 0, PutUserId, PutFormId,count=0, draftId,draftCount=0;
+    int parentId = 0, userId = 0, jsonParentId = 0, jsonFormId = 0, jsonUserId = 0, PutUserId, PutFormId,count=0, draftId,draftCount=0,totalCount_=0,totalDraftCount=0,counter_ = 1;
     FormAdaptor adaptor;
     ImageButton ButtonLogout, ButtonSync, ButtonSettings;
     ListView lv;
@@ -189,6 +189,8 @@ public class FormActivity extends Activity {
                     new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
                     SendServerDraftData();
                     progressDialogFormList.show();
+
+
                 } else {
                     Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
                 }
@@ -268,6 +270,7 @@ public class FormActivity extends Activity {
     //----------------------------------Data get in local database-------------------------------------//
     private void SetFormListInListView(){
         try {
+
             List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
             FormList formArray[] = new FormList[formList.size()];
             for (int i = 0; i < formList.size(); i++) {
@@ -300,18 +303,24 @@ public class FormActivity extends Activity {
         try {
             List<Form> formListPut = dbHandler.getAllFormListVw(String.valueOf(parentId));
             int pFormId = 0;
+            totalDraftCount = dbHandler.getAllFormDraftCount();
+            totalCount_ = totalDraftCount;
             for (int i = 0; i < formListPut.size(); i++) {
                 pFormId = formListPut.get(i).getFormId();
                 draftCount = dbHandler.getFormDraftCount(String.valueOf(pFormId));
+
                 if (draftCount >= 1) {
                     List<DraftForm> draftFormsPut = dbHandler.getAllIsUploadDraftFormListByFormId(String.valueOf(pFormId));
                     for (int k = 0; k < draftFormsPut.size(); k++) {
                         draftId = draftFormsPut.get(k).getId();
                         String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId=" + userId + "&formId=" + pFormId;
                         new PutHttpAsyncTask().execute(HostUrl, String.valueOf(draftId));
+
                     }
                 }
+
             }
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -399,7 +408,11 @@ public class FormActivity extends Activity {
                 try {
 
                      SetFormListInListView();
-                    progressDialogFormList.dismiss();
+
+                    if(totalDraftCount == 0) {
+                        progressDialogFormList.dismiss();
+                    }
+
 
                 } catch (Exception e) {
                 }
@@ -494,6 +507,7 @@ public class FormActivity extends Activity {
     public String PUT(String url, String JsonCode, String formId, String userId, String DraftId) {
         InputStream inputStream = null;
         String result = "";
+        String rValue = "False";
         try {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPut httpPost = new HttpPut(url);
@@ -535,12 +549,8 @@ public class FormActivity extends Activity {
                     jSave = jsonObj.getBoolean("Save");
                     if (jSave) {
                         boolean success = dbHandler.DeleteDraftFormByDraftId(jDraftId);
+                        rValue = "True";
 
-                        if (success) {
-                            Toast.makeText(getApplicationContext(), "Form Kaydedildi. " + jDraftId, Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Silinemedii..." + jDraftId, Toast.LENGTH_SHORT).show();
-                        }
                     }
 
 
@@ -549,12 +559,12 @@ public class FormActivity extends Activity {
                     Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
                 }
             } else
-                result = "Did not work!";
+                rValue = "False";
 
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
         }
-        return result;
+        return rValue;
     }
 
     private static String PutConvertInputStreamToString(InputStream inputStream) throws IOException {
@@ -569,7 +579,7 @@ public class FormActivity extends Activity {
     }
 
 
-    private class PutHttpAsyncTask extends AsyncTask<String, Void, String> {
+    private class PutHttpAsyncTask extends AsyncTask<String, Integer, String> {
 
         @Override
         protected String doInBackground(String... urls) {
@@ -582,22 +592,31 @@ public class FormActivity extends Activity {
             } catch (Exception e) {
 
             }
-            return PUT(urls[0], PutJsonCode,String.valueOf(PutFormId),String.valueOf(PutUserId),String.valueOf(urls[1]));
+
+
+            String rValue =  PUT(urls[0], PutJsonCode,String.valueOf(PutFormId),String.valueOf(PutUserId),String.valueOf(urls[1]));
+
+            publishProgress(totalDraftCount,counter_++);
+
+            return rValue;
         }
+
 
         @Override
-        protected void onPostExecute(String result) {
-            progressDialogFormList.dismiss();
-            draftCount=0;
-            count=0;
-        }
+        protected void onProgressUpdate(Integer... values) {
+            progressDialogFormList.setMessage("Formlarınız Upload Ediliyor... "+values[0]+"/"+values[1]);
+           if(values[0] == values[1] ){
+               SetFormListInListView();
+               progressDialogFormList.dismiss();
+           }
 
+            super.onProgressUpdate(values);
+
+        }
         @Override
         protected void onPreExecute(){
-            if (draftCount!=0)
-                progressDialogFormList.setMessage("Formlarınız Upload Ediliyor... "+draftCount+"/"+count++);
-                else
-                progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
+
+
 
 
         }
