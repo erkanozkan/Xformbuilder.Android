@@ -56,6 +56,7 @@ public class splash_activity extends Activity implements BaseSliderView.OnSlider
         }
         mDemoSlider.setPresetTransformer(SliderLayout.Transformer.Default);
         mDemoSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+
         //mDemoSlider.setCustomAnimation(new DescriptionAnimation());
         mDemoSlider.stopAutoCycle();
 

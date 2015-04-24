@@ -12,5 +12,22 @@
         custom:auto_cycle="true"
         custom:indicator_visibility="visible"
         custom:pager_animation_span="1100"
-        android:layout_height="fill_parent"/>
+        android:layout_height="fill_parent">
+        <TextView
+            android:id="@+id/txtLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="skip"
+            android:autoLink="all"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="3dp"
+            android:layout_marginRight="3dp"
+            android:clickable="true"/>
+
+        </com.daimajia.slider.library.SliderLayout>
+
+
+
+
 </RelativeLayout>
