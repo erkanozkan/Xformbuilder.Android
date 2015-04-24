@@ -13,18 +13,20 @@
         custom:indicator_visibility="visible"
         custom:pager_animation_span="1100"
         android:layout_height="fill_parent">
-        <TextViewm
-            android:id="@+id/txtLink"
+
+        <TextView
+            android:id="@+id/skipbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="skip"
+            android:text="Skip"
+            android:textColor="#74af55"
             android:autoLink="all"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_marginBottom="3dp"
-            android:layout_marginRight="3dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginRight="7dp"
+            android:textSize="15dp"
             android:clickable="true"/>
-
         </com.daimajia.slider.library.SliderLayout>
 
 
