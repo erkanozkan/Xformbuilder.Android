@@ -19,14 +19,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Skip"
-            android:textColor="#74af55"
+            android:textColor="#fff"
             android:autoLink="all"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_marginBottom="6dp"
             android:layout_marginRight="7dp"
-            android:textSize="15dp"
-            android:clickable="true"/>
+            android:textSize="17dp"
+            android:clickable="true"
+            />
         </com.daimajia.slider.library.SliderLayout>
 
 

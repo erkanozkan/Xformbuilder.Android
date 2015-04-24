@@ -62,10 +62,11 @@ public class SplashActivity extends Activity implements BaseSliderView.OnSliderC
         mDemoSlider = (SliderLayout)findViewById(R.id.slider);
         HashMap<String,Integer> file_maps = new HashMap<String, Integer>();
 
-        file_maps.put("Third",R.drawable.splash_image3);
-        file_maps.put("Second",R.drawable.splash_image2);
-        file_maps.put("Fourth",R.drawable.splash_image4);
-        file_maps.put("First", R.drawable.splash_image1);
+        file_maps.put("b", R.drawable.splash_image1);
+        file_maps.put("c",R.drawable.splash_image2);
+        file_maps.put("d",R.drawable.splash_image3);
+        file_maps.put("a",R.drawable.splash_image4);
+
 
 
 

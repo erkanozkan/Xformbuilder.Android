@@ -235,6 +235,7 @@ public class FormActivity extends Activity {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormActivity.this,AlertDialog.THEME_HOLO_LIGHT);
         alertDialog.setMessage("Oturum kapatılsın mı ?");
         alertDialog
+                .setTitle("xFormBuilder")
                 .setCancelable(false)
                 .setPositiveButton("Evet",
                         new DialogInterface.OnClickListener() {
