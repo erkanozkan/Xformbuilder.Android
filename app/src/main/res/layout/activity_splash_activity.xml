@@ -13,7 +13,7 @@
         custom:indicator_visibility="visible"
         custom:pager_animation_span="1100"
         android:layout_height="fill_parent">
-        <TextView
+        <TextViewm
             android:id="@+id/txtLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
