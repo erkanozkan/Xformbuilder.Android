@@ -37,6 +37,8 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_settings);
+        overridePendingTransition(R.anim.right_animation, R.anim.out_left_animation);
+
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         final Bundle bundle=getIntent().getExtras();
         userId=bundle.getInt("UserId");
@@ -59,6 +61,8 @@ public class SettingsActivity extends Activity {
                 bundle.putInt("ParentId",parentId);
                 goBackFormList.putExtras(bundle);
                 startActivity(goBackFormList);
+                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
 
             }
         });
@@ -73,6 +77,8 @@ public class SettingsActivity extends Activity {
                 bundle.putInt("ParentId",parentId);
                 goBackFormList.putExtras(bundle);
                 startActivity(goBackFormList);
+                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
 
             }
         });

@@ -77,6 +77,10 @@ public class FormResponseActivity extends Activity {
 //----------------------------------------Session Kontrol
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_form_response);
+
+        overridePendingTransition(R.anim.right_animation, R.anim.out_left_animation);
+
+
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
@@ -146,10 +150,14 @@ public class FormResponseActivity extends Activity {
                     Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
                     i.putExtras(bundleFormResponse);
                     startActivity(i);
+                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
                 }else{
                     Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
                     i.putExtras(bundleFormResponse);
                     startActivity(i);
+                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
                 }
 
             }
@@ -172,10 +180,14 @@ public class FormResponseActivity extends Activity {
                     Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
                     i.putExtras(bundleFormResponse);
                     startActivity(i);
+                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
                 }else{
                     Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
                     i.putExtras(bundleFormResponse);
                     startActivity(i);
+                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
                 }
 
             }
@@ -412,6 +424,7 @@ public void AlertMessagge(String messagge){
                                     Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
                                     i.putExtras(bundleFormResponse);
                                     startActivity(i);
+                                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
                                     finish();
                                 }
                             }

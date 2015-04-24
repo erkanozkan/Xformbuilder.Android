@@ -205,6 +205,8 @@ public class FormActivity extends Activity {
                 Intent i = new Intent(FormActivity.this, SettingsActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
+                overridePendingTransition(R.anim.left_animation, R.anim.out_right_animation);
+
             }
         });
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -219,12 +221,15 @@ public class FormActivity extends Activity {
                 int count = dbHandler.getFormCount(selectFormId);
                 if (count >= 1) {
                     Intent i = new Intent(FormActivity.this, DraftFormActivity.class);
+
                     i.putExtras(bundleForm);
                     startActivity(i);
+                    overridePendingTransition(R.anim.left_animation, R.anim.out_right_animation);
+
                 } else {
                     Intent i = new Intent(FormActivity.this, FormResponseActivity.class);
                     i.putExtras(bundleForm);
-                    startActivity(i);
+                     startActivity(i);
                 }
             }
         });
