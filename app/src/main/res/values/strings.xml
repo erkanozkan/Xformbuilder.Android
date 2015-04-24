@@ -26,4 +26,10 @@
     <string name="title_activity_upload">UploadActivity</string>
     <string name="title_activity_splash_activity">splash_activity</string>
     <string name="title_activity_notification_test">notification_test</string>
+
+    <string name="refreshlistview_arrow">Content Description Arrow</string>
+    <string name="refreshlistview_updating">Updating…</string>
+    <string name="refreshlistview_release">Release to refresh…</string>
+    <string name="refreshlistview_pulldown">Pull down to refresh…</string>
+    <string name="refreshlistview_no_update">"No past update"</string>
 </resources>

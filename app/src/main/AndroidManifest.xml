@@ -80,8 +80,7 @@
         <activity
             android:name=".splash_activity"
             android:label="@string/title_activity_splash_activity"
-            android:screenOrientation="locked"
-            >
+            android:screenOrientation="locked">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

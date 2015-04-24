@@ -58,16 +58,20 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Handler;
 
+import com.github.jeremiemartinez.refreshlistview.RefreshListView;
 import com.loopj.android.http.Base64;
 import com.markupartist.android.widget.PullToRefreshListView;
-import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.onesignal.OneSignal;
 import com.yalantis.phoenix.PullToRefreshView;
 
+import in.srain.cube.views.ptr.PtrDefaultHandler;
+import in.srain.cube.views.ptr.PtrFrameLayout;
+import in.srain.cube.views.ptr.PtrHandler;
 
 
 public class FormActivity extends Activity {
@@ -82,8 +86,10 @@ public class FormActivity extends Activity {
      ProgressDialog progressDialogFormList;
     User GetUserSync;
     public static final int REFRESH_DELAY = 2000;
-    private PullToRefreshListView mPullToRefreshView;
+    private ListView mPullToRefreshView;
     PutDraftForm putDraftForm;
+
+    PtrFrameLayout ptrFrameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,7 +134,33 @@ public class FormActivity extends Activity {
 
         try {
             GetFormList();
-            mPullToRefreshView = (PullToRefreshListView) findViewById(R.id.liste);
+
+
+             ptrFrameLayout = (PtrFrameLayout) findViewById(R.id.rotate_header_list_view_frame);
+            //ptrFrameLayout.setSoundEffectsEnabled(true);
+
+            ptrFrameLayout.setPtrHandler(new PtrHandler() {
+                @Override
+                public void onRefreshBegin(PtrFrameLayout frame) {
+                    MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
+                    mp.start();
+                    frame.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            new GetDataAsync().execute();
+
+                        }
+                    }, 1800);
+                }
+
+                @Override
+                public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
+                    return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+                }
+            });
+
+          /*  mPullToRefreshView = (PullToRefreshListView) findViewById(R.id.liste);
             mPullToRefreshView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
@@ -136,7 +168,7 @@ public class FormActivity extends Activity {
 
                     // mPullToRefreshView.onRefreshComplete();
                 }
-            });
+            }); */
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
@@ -253,13 +285,13 @@ public class FormActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
-            mp.start();
+
         }
 
         @Override
         protected void onPostExecute(String s) {
-            mPullToRefreshView.onRefreshComplete();
+            ptrFrameLayout.refreshComplete();
+            //mPullToRefreshView.onRefreshComplete();
             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound2);
             mp.start();
         }
