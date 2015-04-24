@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
                             Intent i = new Intent(MainActivity.this,FormActivity.class);
                             i.putExtras(bundle);
 
-                            SendTag(login.getCompany());
+                            SendTag(String.valueOf(login.getParentId()));
 
                             startActivity(i);
 
@@ -130,19 +130,9 @@ public class MainActivity extends Activity {
         });
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        OneSignal.onPaused();
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        OneSignal.onResumed();
-    }
 
     // NotificationOpenedHandler is implemented in its own class instead of adding implements to MainActivity so we don't hold on to a reference of our first activity if it gets recreated.
-    private class ExampleNotificationOpenedHandler implements NotificationOpenedHandler {
+    public class ExampleNotificationOpenedHandler implements OneSignal.NotificationOpenedHandler {
         /**
          * Callback to implement in your app to handle when a notification is opened from the Android status bar or
          * a new one comes in while the app is running.
@@ -180,6 +170,19 @@ public class MainActivity extends Activity {
                     .create().show();
         }
     }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        OneSignal.onPaused();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        OneSignal.onResumed();
+    }
+
     @Override
     public void onBackPressed() {
 
@@ -299,7 +302,7 @@ public class MainActivity extends Activity {
                     Intent i = new Intent(MainActivity.this,FormActivity.class);
                     i.putExtras(bundle);
 
-                    SendTag(jsonCompany);
+                    SendTag(String.valueOf(jsonParentId));
 
                     startActivity(i);
 
@@ -316,8 +319,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void SendTag(String companyName) {
-        OneSignal.sendTag("COMPANY",companyName);
+    private void SendTag(String parentId) {
+        OneSignal.sendTag("COMPANYID", parentId);
     }
 
     @Override
