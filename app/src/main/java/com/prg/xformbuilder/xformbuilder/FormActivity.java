@@ -164,6 +164,7 @@ public class FormActivity extends Activity {
                                         editor.remove("UserId");
                                         editor.remove("ParentId");
                                         editor.commit();
+                                        dbHandler.DeleteSplashValue();
                                         //----------------------------------------Session Kontrol
                                         Intent i = new Intent(FormActivity.this, MainActivity.class);
                                         startActivity(i);

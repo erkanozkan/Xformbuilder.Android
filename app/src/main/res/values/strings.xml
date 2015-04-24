@@ -24,6 +24,6 @@
     <string name="pull_to_refresh_refreshing_label">Loading...</string>
     <string name="pull_to_refresh_tap_label">Tap to refresh...</string>
     <string name="title_activity_upload">UploadActivity</string>
-    <string name="title_activity_splash_activity">splash_activity</string>
+    <string name="title_activity_splash_activity">Xformbuilder</string>
     <string name="title_activity_notification_test">notification_test</string>
 </resources>
