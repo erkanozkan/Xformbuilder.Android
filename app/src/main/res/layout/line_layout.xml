@@ -101,9 +101,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/textView_draftCount"
-                            android:textColor="#19c839"
+                            android:textColor="#ff14c843"
                             android:textSize="17dp"
-                            android:layout_gravity="bottom" />
+                            android:layout_gravity="bottom"
+                            android:layout_marginLeft="3px"
+                            android:layout_marginBottom="4px"
+                            android:textStyle="bold" />
 
                     </LinearLayout>
 

@@ -56,13 +56,8 @@ public class SettingsActivity extends Activity {
         layoutBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
-                bundle.putInt("UserId", userId);
-                bundle.putInt("ParentId",parentId);
-                goBackFormList.putExtras(bundle);
-                startActivity(goBackFormList);
-                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
 
+                backProcess();
 
             }
         });
@@ -72,14 +67,7 @@ public class SettingsActivity extends Activity {
         imgBtnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
-                bundle.putInt("UserId", userId);
-                bundle.putInt("ParentId",parentId);
-                goBackFormList.putExtras(bundle);
-                startActivity(goBackFormList);
-                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
-
-
+                backProcess();
             }
         });
 
@@ -175,10 +163,25 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    public void onBackPressed() {
+      backProcess();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_settings, menu);
         return true;
+    }
+
+    public  void backProcess() {
+        final Bundle bundle=getIntent().getExtras();
+        Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
+        bundle.putInt("UserId", userId);
+        bundle.putInt("ParentId",parentId);
+        goBackFormList.putExtras(bundle);
+        startActivity(goBackFormList);
+        overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
     }
 
     @Override

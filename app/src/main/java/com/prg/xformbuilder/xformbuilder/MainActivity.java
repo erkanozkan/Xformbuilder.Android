@@ -186,9 +186,10 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this,AlertDialog.THEME_HOLO_LIGHT);
         alertDialog.setMessage("Xformbuilder kapatılsın mı?");
         alertDialog
+                .setTitle("xFormBuilder")
                 .setCancelable(false)
                 .setPositiveButton("Evet",
                         new DialogInterface.OnClickListener() {

@@ -39,8 +39,8 @@ import java.util.Date;
 
 public class FormResponseActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId="",draftId="",formTitle="";
-    int userId=0,parentId=0;
+    String formId = "", draftId = "", formTitle = "";
+    int userId = 0, parentId = 0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
     DraftForm draft;
@@ -49,29 +49,30 @@ public class FormResponseActivity extends Activity {
     String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
     public Uri imageUri;
     ProgressDialog progressDialogResponce;
-     ImageButton btnBackResponse;
-    LinearLayout  BackLinearLayout;
+    ImageButton btnBackResponse;
+    LinearLayout BackLinearLayout;
 
 
-    private static final int FILECHOOSER_RESULTCODE   = 2888;
+    private static final int FILECHOOSER_RESULTCODE = 2888;
     private ValueCallback<Uri> mUploadMessage;
     private Uri mCapturedImageURI = null;
     final Bundle bundleFormResponse = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-         super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
 //----------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
-        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         // editor = preferences.edit();
 
-        String sessionUserName=preferences.getString("UserName", "NULL");
-        String sessionPassword=preferences.getString("Password", "NULL");
+        String sessionUserName = preferences.getString("UserName", "NULL");
+        String sessionPassword = preferences.getString("Password", "NULL");
 
-        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
-            Intent i = new Intent(FormResponseActivity.this,MainActivity.class);
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")) {
+            Intent i = new Intent(FormResponseActivity.this, MainActivity.class);
             startActivity(i);
         }
 //----------------------------------------Session Kontrol
@@ -82,27 +83,25 @@ public class FormResponseActivity extends Activity {
 
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         dbHandler = new DatabaseHandler(getApplicationContext());
-        Bundle bundle=getIntent().getExtras();
-        formId=bundle.getString("FormId");
-        userId=bundle.getInt("UserId");
-        draftId =bundle.getString("DraftId");
-        formTitle =bundle.getString("FormTitle");
-        parentId=bundle.getInt("ParentId");
-        TextView frmname = (TextView)findViewById(R.id.textView_FormName);
+        Bundle bundle = getIntent().getExtras();
+        formId = bundle.getString("FormId");
+        userId = bundle.getInt("UserId");
+        draftId = bundle.getString("DraftId");
+        formTitle = bundle.getString("FormTitle");
+        parentId = bundle.getInt("ParentId");
+        TextView frmname = (TextView) findViewById(R.id.textView_FormName);
         frmname.setText(formTitle);
         webView = (WebView) findViewById(R.id.webview);
 
-        if(savedInstanceState!= null){
-         webView.restoreState(savedInstanceState);
-         }
-        else{
+        if (savedInstanceState != null) {
+            webView.restoreState(savedInstanceState);
+        } else {
 
-            if(draftId != null){
+            if (draftId != null) {
                 draft = dbHandler.GetDraftByDraftId(draftId);
-                html.append("<html>"+ draft.getDraftHtml()+"</html>");
-            }
-            else{
-                form=  dbHandler.GetFormByFormId(formId);
+                html.append("<html>" + draft.getDraftHtml() + "</html>");
+            } else {
+                form = dbHandler.GetFormByFormId(formId);
                 html.append(form.getMobileHtml());
             }
 
@@ -126,126 +125,99 @@ public class FormResponseActivity extends Activity {
         startWebView();
 
 
-
-
-
-        webView.setWebViewClient(new WebViewClient(){
+        webView.setWebViewClient(new WebViewClient() {
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url){
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
                 if (url.startsWith("https://") || url.startsWith("http://")) {
                     view.getContext().startActivity(
                             new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                     return true;
-                }
-                else
-                {
+                } else {
                     view.loadUrl(url);
-                     webView.setVisibility(View.GONE);
+                    webView.setVisibility(View.GONE);
                     return true;
                 }
             }
         });
 
 
-
-        BackLinearLayout = (LinearLayout)findViewById(R.id.LinearLayoutBack);
+        BackLinearLayout = (LinearLayout) findViewById(R.id.LinearLayoutBack);
 
         BackLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bundleFormResponse.putInt("UserId",userId);
-                bundleFormResponse.putInt("ParentId",parentId);
-                bundleFormResponse.putString("FormTitle",formTitle);
-                bundleFormResponse.putString("DraftId",draftId);
-                bundleFormResponse.putString("FormId",formId);
-
-
-                int count=  dbHandler.getFormCount(formId);
-                if (count>=1)
-                {
-                    Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
-                    i.putExtras(bundleFormResponse);
-                    startActivity(i);
-                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
-
-                }else{
-                    Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
-                    i.putExtras(bundleFormResponse);
-                    startActivity(i);
-                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
-
-                }
+                BackPressed();
 
             }
         });
 
-        btnBackResponse = (ImageButton)findViewById(R.id.imageButton_Back);
+        btnBackResponse = (ImageButton) findViewById(R.id.imageButton_Back);
 
         btnBackResponse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bundleFormResponse.putInt("UserId",userId);
-                bundleFormResponse.putInt("ParentId",parentId);
-                bundleFormResponse.putString("FormTitle",formTitle);
-                bundleFormResponse.putString("DraftId",draftId);
-                bundleFormResponse.putString("FormId",formId);
-
-                int count=  dbHandler.getFormCount(formId);
-                if (count>=1)
-                {
-                    Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
-                    i.putExtras(bundleFormResponse);
-                    startActivity(i);
-                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
-
-                }else{
-                    Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
-                    i.putExtras(bundleFormResponse);
-                    startActivity(i);
-                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
-
-                }
-
+                BackPressed();
             }
         });
 
-
-
-
-    }
-
-public void AlertMessagge(String messagge){
-
-    AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this,AlertDialog.THEME_HOLO_LIGHT);
-
-
-    alertDialog.setTitle("Form save as draft");
-    alertDialog.setMessage(messagge);
-    alertDialog
-            .setCancelable(false)
-            .setPositiveButton("OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog,
-                                            int which) {
-
-                        }
-                    });
-    AlertDialog alert = alertDialog.create();
-    alert.show();
-
     }
 
 
+    public void YesClikced() {
+        bundleFormResponse.putInt("UserId", userId);
+        bundleFormResponse.putInt("ParentId", parentId);
+        bundleFormResponse.putString("FormTitle", formTitle);
+        bundleFormResponse.putString("DraftId", draftId);
+        bundleFormResponse.putString("FormId", formId);
 
-    public class WebViewJavaScriptInterface{
+        int count = dbHandler.getFormCount(formId);
+        if (count >= 1) {
+            Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
+            i.putExtras(bundleFormResponse);
+            startActivity(i);
+            overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
+        } else {
+            Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
+            i.putExtras(bundleFormResponse);
+            startActivity(i);
+            overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
+        }
+    }
+
+    public void AlertMessagge(String messagge) {
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
+
+
+        alertDialog.setTitle("Form save as draft");
+        alertDialog.setMessage(messagge);
+        alertDialog
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+
+                            }
+                        });
+        AlertDialog alert = alertDialog.create();
+        alert.show();
+
+    }
+
+
+    public class WebViewJavaScriptInterface {
 
         private Context context;
+
         /*
          * Need a reference to the context in order to sent a post message
          */
-        public WebViewJavaScriptInterface(Context context){
+        public WebViewJavaScriptInterface(Context context) {
             this.context = context;
         }
 
@@ -254,44 +226,37 @@ public void AlertMessagge(String messagge){
          * required after SDK version 17.
          */
         @JavascriptInterface
-        public void FormSubmit(String html, String json,String isUploadable,String field1_title ,String field1_value ,String field2_title ,String field2_value  ,String field3_title  ,String field3_value){
+        public void FormSubmit(String html, String json, String isUploadable, String field1_title, String field1_value, String field2_title, String field2_value, String field3_title, String field3_value) {
            /* progressDialogResponce = new ProgressDialog(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
 
             progressDialogResponce.setTitle("Form Cevaplama İşlemi");
             progressDialogResponce.setMessage("Form cevaplanıyor...");
             progressDialogResponce.setCanceledOnTouchOutside(false);
             progressDialogResponce.show();*/
-              // dbHandler.DeleteDraftFormTable();
+            // dbHandler.DeleteDraftFormTable();
             bundleFormResponse.putString("FormId", formId);
-            bundleFormResponse.putInt("UserId",userId);
-            bundleFormResponse.putInt("ParentId",parentId);
-            bundleFormResponse.putString("FormTitle",formTitle);
-            if(draftId != null){
-                DraftForm draftForm = new DraftForm(Integer.parseInt(draftId),Integer.parseInt(formId),html,json,currentDateTimeString,userId,field1_title,field1_value,field2_title,field2_value,field3_title,field3_value,isUploadable);
+            bundleFormResponse.putInt("UserId", userId);
+            bundleFormResponse.putInt("ParentId", parentId);
+            bundleFormResponse.putString("FormTitle", formTitle);
+            if (draftId != null) {
+                DraftForm draftForm = new DraftForm(Integer.parseInt(draftId), Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
                 dbHandler.UpdateDraft(draftForm);
-                if (isUploadable.equals("1")){
-                    AlertMessagge("");
-                }
-                else{
+                if (isUploadable.equals("0"))
                     AlertMessagge("Doldurulması gereken alanlar var.");
-                }
 
-            }
-            else{
-                if (isUploadable.equals("1")){
-                    AlertMessagge("");
-                }
-                else{
+            } else {
+                if (isUploadable.equals("0"))
                     AlertMessagge("Doldurulması gereken alanlar var.");
-                }
-             //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                DraftForm form = new DraftForm(0,Integer.parseInt(formId),html,json, currentDateTimeString,userId,field1_title,field1_value,field2_title,field2_value,field3_title,field3_value,isUploadable);
+
+                //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                DraftForm form = new DraftForm(0, Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
                 dbHandler.CreateDraftForm(form);
                 draftId = dbHandler.GetLastDraftId(formId);
 
             }
         }
     }
+
     private void startWebView() {
 
         //Create new webview Client to show progress dialog
@@ -304,19 +269,18 @@ public void AlertMessagge(String messagge){
             // Called when all page resources loaded
             public void onPageFinished(WebView view, String url) {
 
-                try{
+                try {
                     // Close progressDialog
                     if (progressDialog.isShowing()) {
                         progressDialog.dismiss();
                         progressDialog = null;
                     }
-                }catch(Exception exception){
+                } catch (Exception exception) {
                     exception.printStackTrace();
                 }
             }
 
         });
-
 
 
         // implement WebChromeClient inner class
@@ -382,16 +346,15 @@ public void AlertMessagge(String messagge){
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent intent) {
 
-        if(requestCode==FILECHOOSER_RESULTCODE)
-        {
+        if (requestCode == FILECHOOSER_RESULTCODE) {
 
             if (null == this.mUploadMessage) {
                 return;
             }
 
-            Uri result=null;
+            Uri result = null;
 
-            try{
+            try {
                 if (resultCode != RESULT_OK) {
 
                     result = null;
@@ -401,10 +364,8 @@ public void AlertMessagge(String messagge){
                     // retrieve from the private variable if the intent is null
                     result = intent == null ? mCapturedImageURI : intent.getData();
                 }
-            }
-            catch(Exception e)
-            {
-                Toast.makeText(getApplicationContext(), "activity :"+e, Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "activity :" + e, Toast.LENGTH_LONG).show();
             }
 
             mUploadMessage.onReceiveValue(result);
@@ -418,27 +379,32 @@ public void AlertMessagge(String messagge){
 
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this);
+        BackPressed();
+    }
+
+
+    public void BackPressed() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         alertDialog.setMessage("Değişiklikleri kaydetmeden çıkmak istediğinize emin misiniz ?");
         alertDialog
+                .setTitle("xFormBuilder")
                 .setCancelable(false)
                 .setPositiveButton("Evet",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
-                                bundleFormResponse.putInt("UserId",userId);
-                                bundleFormResponse.putInt("ParentId",parentId);
-                                bundleFormResponse.putString("FormTitle",formTitle);
-                                bundleFormResponse.putString("DraftId",draftId);
-                                bundleFormResponse.putString("FormId",formId);
+                                bundleFormResponse.putInt("UserId", userId);
+                                bundleFormResponse.putInt("ParentId", parentId);
+                                bundleFormResponse.putString("FormTitle", formTitle);
+                                bundleFormResponse.putString("DraftId", draftId);
+                                bundleFormResponse.putString("FormId", formId);
 
-                                if(draftId != null){
+                                if (draftId != null) {
                                     Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
                                     i.putExtras(bundleFormResponse);
                                     startActivity(i);
                                     finish();
-                                }
-                                else{
+                                } else {
                                     Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
                                     i.putExtras(bundleFormResponse);
                                     startActivity(i);
@@ -459,7 +425,6 @@ public void AlertMessagge(String messagge){
 
         AlertDialog alert = alertDialog.create();
         alert.show();
-
     }
 
     @Override
@@ -490,14 +455,14 @@ public void AlertMessagge(String messagge){
         //----------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
-        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         // editor = preferences.edit();
 
-        String sessionUserName=preferences.getString("UserName", "NULL");
-        String sessionPassword=preferences.getString("Password", "NULL");
+        String sessionUserName = preferences.getString("UserName", "NULL");
+        String sessionPassword = preferences.getString("Password", "NULL");
 
-        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
-            Intent i = new Intent(FormResponseActivity.this,MainActivity.class);
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")) {
+            Intent i = new Intent(FormResponseActivity.this, MainActivity.class);
             startActivity(i);
         }
         //----------------------------------------Session Kontrol

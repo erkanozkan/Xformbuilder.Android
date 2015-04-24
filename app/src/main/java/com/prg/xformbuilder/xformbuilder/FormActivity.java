@@ -175,40 +175,7 @@ public class FormActivity extends Activity {
         ButtonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormActivity.this);
-                alertDialog.setMessage("Oturum kapatılsın mı ?");
-                alertDialog
-                        .setCancelable(false)
-                        .setPositiveButton("Evet",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        //----------------------------------------Session Kontrol
-                                        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
-                                        SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
-                                        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                                        editor = preferences.edit();
-                                        editor.remove("UserName");
-                                        editor.remove("Password");
-                                        editor.remove("UserId");
-                                        editor.remove("ParentId");
-                                        editor.commit();
-                                        dbHandler.DeleteSplashValue();
-                                        //----------------------------------------Session Kontrol
-                                        Intent i = new Intent(FormActivity.this, MainActivity.class);
-                                        startActivity(i);
-                                    }
-                                })
-                        .setNegativeButton("Hayır",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                AlertDialog alert = alertDialog.create();
-                alert.show();
+              Logout();
             }
         });
 
@@ -262,10 +229,49 @@ public class FormActivity extends Activity {
                 }
             }
         });
-
-
     }
 
+    private void Logout() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormActivity.this,AlertDialog.THEME_HOLO_LIGHT);
+        alertDialog.setMessage("Oturum kapatılsın mı ?");
+        alertDialog
+                .setCancelable(false)
+                .setPositiveButton("Evet",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                //----------------------------------------Session Kontrol
+                                SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+                                SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
+                                preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                editor = preferences.edit();
+                                editor.remove("UserName");
+                                editor.remove("Password");
+                                editor.remove("UserId");
+                                editor.remove("ParentId");
+                                editor.commit();
+                                dbHandler.DeleteSplashValue();
+                                //----------------------------------------Session Kontrol
+                                Intent i = new Intent(FormActivity.this, MainActivity.class);
+                                startActivity(i);
+                            }
+                        })
+                .setNegativeButton("Hayır",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+        AlertDialog alert = alertDialog.create();
+        alert.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Logout();
+    }
 
     //----------------------------------------------Internet Connection Control-------------------------------------------------------------//
     private boolean NetWorkControl(){

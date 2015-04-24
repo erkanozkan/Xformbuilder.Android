@@ -69,15 +69,7 @@ public class DraftFormActivity extends Activity {
         backFormList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bundleForm.putString("FormId", formId);
-                bundleForm.putInt("UserId", userId);
-                bundleForm.putInt("ParentId", parentId);
-                bundleForm.putString("FormTitle", formTitle);
-                Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
-                i.putExtras(bundleForm);
-                startActivity(i);
-                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
-                finish();
+              BackPressed();
             }
         });
 
@@ -85,19 +77,7 @@ public class DraftFormActivity extends Activity {
         imgBtnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bundleForm.putString("FormId", formId);
-                bundleForm.putInt("UserId", userId);
-                bundleForm.putInt("ParentId", parentId);
-                bundleForm.putString("FormTitle", formTitle);
-                Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
-                i.putExtras(bundleForm);
-                startActivity(i);
-                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
-
-
-
-                finish();
-
+               BackPressed();
             }
         });
 
@@ -173,6 +153,28 @@ public class DraftFormActivity extends Activity {
             Toast.makeText(getApplicationContext(), "Verileri �ekerken hata olu�tu l�tfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        BackPressed();
+    }
+
+    public void BackPressed() {
+        final Bundle bundleForm = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
+        Bundle bundle=getIntent().getExtras();
+        bundleForm.putString("FormId", formId);
+        bundleForm.putInt("UserId", userId);
+        bundleForm.putInt("ParentId", parentId);
+        bundleForm.putString("FormTitle", formTitle);
+        Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
+        i.putExtras(bundleForm);
+        startActivity(i);
+        overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
+
+
+        finish();
     }
 
     @Override
