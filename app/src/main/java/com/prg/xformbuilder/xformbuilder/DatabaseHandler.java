@@ -22,6 +22,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME="xformbuilder",
             TABLE_USER ="user",
+            TABLE_SPLASH ="splash",
             KEY_ID="id",
             KEY_USERNAME="username",
             KEY_FIRSTNAME="firstname",
@@ -46,7 +47,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_ISUPLOADABLE="isuploadable",
             KEY_SYNC="sync",
             KEY_FORMIMAGE="formimage",
-            KEY_DATEDRAFT="datedraft";
+            KEY_DATEDRAFT="datedraft",
+            KEY_ISSPLASH="issplash";
+
+
 
 
 
@@ -95,6 +99,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 +KEY_USERID + " TEXT)" );
         Log.d("DBHelper", "SQL : " + sqlDraftForm);
         db.execSQL(sqlDraftForm);
+
+        String sqlSplash= ("CREATE TABLE IF NOT EXISTS  "+TABLE_SPLASH + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_ISSPLASH + " TEXT)");
+        Log.d("DBHelper", "SQL : " + sqlSplash);
+        db.execSQL(sqlSplash);
+
     }
 
     @Override
@@ -153,6 +163,36 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_FORMIMAGE,form.getFormImage());
         db.insert(TABLE_FORM, null, values);
     }
+
+    public void CreateSplash (){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_ISSPLASH, "true");
+        db.insert(TABLE_SPLASH, null, values);
+    }
+
+    public String getSplashValue(){
+        SQLiteDatabase db = getReadableDatabase();
+       // String query = "SELECT * FROM" + TABLE_SPLASH;
+        Cursor cursor=db.query(TABLE_SPLASH,new String[] {KEY_ID,KEY_ISSPLASH},null, null,null,null,null,null);
+
+       String value = "";
+        if (cursor !=null &&  cursor.moveToFirst())
+              value =cursor.getString(1);
+
+        cursor.close();
+
+        return  value;
+    }
+
+    public void DeleteSplashValue(){
+            SQLiteDatabase db = getWritableDatabase();
+            String sql="DELETE FROM " + TABLE_SPLASH  ;
+            db.execSQL(sql);
+    }
+
+
+
 
 
     public User getUser(int userId){
@@ -560,6 +600,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAFTFORM);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FORM);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPLASH);
+
         onCreate(db);
         return true;
     }

@@ -31,13 +31,15 @@ public class DraftFormActivity extends Activity {
     int parentId=0,userId=0;
     DraftAdapter draftAdapter;
     ListView lv;
-    ImageButton buttonNewResponse;
+    ImageButton buttonNewResponse,imgBtnBack;
     TextView title1,title2,title3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_draft_form);
+        overridePendingTransition(R.anim.right_animation, R.anim.out_left_animation);
+
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.draftlist_titlebar);
         //----------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
@@ -74,7 +76,28 @@ public class DraftFormActivity extends Activity {
                 Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
+                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
                 finish();
+            }
+        });
+
+        imgBtnBack=(ImageButton)findViewById(R.id.imageButtonDraftList_Back);
+        imgBtnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bundleForm.putString("FormId", formId);
+                bundleForm.putInt("UserId", userId);
+                bundleForm.putInt("ParentId", parentId);
+                bundleForm.putString("FormTitle", formTitle);
+                Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
+                i.putExtras(bundleForm);
+                startActivity(i);
+                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
+
+
+                finish();
+
             }
         });
 

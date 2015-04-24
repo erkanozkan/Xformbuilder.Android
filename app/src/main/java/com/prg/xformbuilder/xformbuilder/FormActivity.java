@@ -196,6 +196,7 @@ public class FormActivity extends Activity {
                                         editor.remove("UserId");
                                         editor.remove("ParentId");
                                         editor.commit();
+                                        dbHandler.DeleteSplashValue();
                                         //----------------------------------------Session Kontrol
                                         Intent i = new Intent(FormActivity.this, MainActivity.class);
                                         startActivity(i);
@@ -236,6 +237,8 @@ public class FormActivity extends Activity {
                 Intent i = new Intent(FormActivity.this, SettingsActivity.class);
                 i.putExtras(bundleForm);
                 startActivity(i);
+                overridePendingTransition(R.anim.left_animation, R.anim.out_right_animation);
+
             }
         });
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -250,12 +253,15 @@ public class FormActivity extends Activity {
                 int count = dbHandler.getFormCount(selectFormId);
                 if (count >= 1) {
                     Intent i = new Intent(FormActivity.this, DraftFormActivity.class);
+
                     i.putExtras(bundleForm);
                     startActivity(i);
+                    overridePendingTransition(R.anim.left_animation, R.anim.out_right_animation);
+
                 } else {
                     Intent i = new Intent(FormActivity.this, FormResponseActivity.class);
                     i.putExtras(bundleForm);
-                    startActivity(i);
+                     startActivity(i);
                 }
             }
         });
@@ -297,8 +303,6 @@ public class FormActivity extends Activity {
         }
     }
 
-
-
     //----------------------------------Data get in local database-------------------------------------//
     private void SetFormListInListView(){
         try {
@@ -315,7 +319,7 @@ public class FormActivity extends Activity {
                     formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,String.valueOf(count),R.mipmap.appbar_draw_pencil);
                }
                 else{
-                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
+                 formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
                 }
 
             }

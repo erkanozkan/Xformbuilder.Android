@@ -30,12 +30,15 @@ public class SettingsActivity extends Activity {
     LinearLayout AboutButton,FaqButton,ContactButton,ClearDatabase;
     CheckBox checkBoxSync;
     User GetUserSync;
-    LinearLayout btnBack;
+    LinearLayout layoutBack;
+    ImageButton imgBtnBack;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_settings);
+        overridePendingTransition(R.anim.right_animation, R.anim.out_left_animation);
+
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         final Bundle bundle=getIntent().getExtras();
         userId=bundle.getInt("UserId");
@@ -48,9 +51,9 @@ public class SettingsActivity extends Activity {
         ClearDatabase=(LinearLayout)findViewById(R.id.LinearLayout_CleanDatabase);
         checkBoxSync=(CheckBox)findViewById(R.id.checkBox_sync);
 
-        btnBack=(LinearLayout)findViewById(R.id.LinearLayoutBack);
+        layoutBack=(LinearLayout)findViewById(R.id.LinearLayoutBack);
 
-        btnBack.setOnClickListener(new View.OnClickListener() {
+        layoutBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
@@ -58,9 +61,28 @@ public class SettingsActivity extends Activity {
                 bundle.putInt("ParentId",parentId);
                 goBackFormList.putExtras(bundle);
                 startActivity(goBackFormList);
+                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
 
             }
         });
+
+
+        imgBtnBack=(ImageButton)findViewById(R.id.imageButton_Back);
+        imgBtnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
+                bundle.putInt("UserId", userId);
+                bundle.putInt("ParentId",parentId);
+                goBackFormList.putExtras(bundle);
+                startActivity(goBackFormList);
+                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+
+
+            }
+        });
+
 
         dbHandler = new DatabaseHandler(getApplicationContext());
 

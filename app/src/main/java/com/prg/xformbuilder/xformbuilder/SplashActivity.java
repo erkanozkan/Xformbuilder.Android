@@ -1,6 +1,7 @@
 package com.prg.xformbuilder.xformbuilder;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,24 +21,54 @@ import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import java.util.HashMap;
 
 
-public class splash_activity extends Activity implements BaseSliderView.OnSliderClickListener  {
+public class SplashActivity extends Activity implements BaseSliderView.OnSliderClickListener  {
 
     private SliderLayout mDemoSlider;
-
+    DatabaseHandler dbHandler;
+         TextView  btnSkip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_activity);
+        dbHandler = new DatabaseHandler(getApplicationContext());
+        btnSkip = (TextView)findViewById(R.id.skipbutton);
+
+        String val = dbHandler.getSplashValue();
+
+        if(val.equals("true"))
+        {
+            Intent i = new Intent(SplashActivity.this,MainActivity.class);
+            startActivity(i);
+            finish();
+        }
+
+
+
+
+        btnSkip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               dbHandler.CreateSplash();
+                Intent i = new Intent(SplashActivity.this,MainActivity.class);
+                startActivity(i);
+                finish();
+            }
+        });
+
+
 
 
         mDemoSlider = (SliderLayout)findViewById(R.id.slider);
 
         HashMap<String,Integer> file_maps = new HashMap<String, Integer>();
-        file_maps.put("Hannibal",R.drawable.splash_image4);
-        file_maps.put("Big Bang Theory",R.drawable.splash_image3);
-        file_maps.put("House of Cards",R.drawable.splash_image2);
-        file_maps.put("Game of Thrones", R.drawable.splash_image1);
+
+        file_maps.put("Third",R.drawable.splash_image3);
+        file_maps.put("Second",R.drawable.splash_image2);
+        file_maps.put("Fourth",R.drawable.splash_image4);
+        file_maps.put("First", R.drawable.splash_image1);
+
+
 
         for(String name : file_maps.keySet()){
             TextSliderView textSliderView = new TextSliderView(this);
