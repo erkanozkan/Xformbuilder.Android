@@ -80,7 +80,6 @@ public class FormResponseActivity extends Activity {
 
         overridePendingTransition(R.anim.right_animation, R.anim.out_left_animation);
 
-
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle=getIntent().getExtras();
@@ -90,27 +89,46 @@ public class FormResponseActivity extends Activity {
         formTitle =bundle.getString("FormTitle");
         parentId=bundle.getInt("ParentId");
         TextView frmname = (TextView)findViewById(R.id.textView_FormName);
-        //   dbHandler.DeleteDraftFormTable();
-        if(draftId != null){
-            draft = dbHandler.GetDraftByDraftId(draftId);
-            html.append("<html>"+ draft.getDraftHtml()+"</html>");
-        }
-    else{
-            form=  dbHandler.GetFormByFormId(formId);
-            html.append(form.getMobileHtml());
-        }
         frmname.setText(formTitle);
         webView = (WebView) findViewById(R.id.webview);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setLoadWithOverviewMode(true);
-        //webView.getSettings().setUseWideViewPort(true);
-        //Other webview settings
-        webView.setScrollbarFadingEnabled(false);
-        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
-        webView.getSettings().setAllowFileAccess(true);
-        webView.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
-        webView.addJavascriptInterface(new WebViewJavaScriptInterface(this), "app");
+
+        if(savedInstanceState!= null){
+         webView.restoreState(savedInstanceState);
+         }
+        else{
+
+            if(draftId != null){
+                draft = dbHandler.GetDraftByDraftId(draftId);
+                html.append("<html>"+ draft.getDraftHtml()+"</html>");
+            }
+            else{
+                form=  dbHandler.GetFormByFormId(formId);
+                html.append(form.getMobileHtml());
+            }
+
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setLoadWithOverviewMode(true);
+            //webView.getSettings().setUseWideViewPort(true);
+            //Other webview settings
+            webView.setScrollbarFadingEnabled(false);
+            webView.getSettings().setPluginState(WebSettings.PluginState.ON);
+            webView.getSettings().setAllowFileAccess(true);
+            webView.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
+            webView.addJavascriptInterface(new WebViewJavaScriptInterface(this), "app");
+
+
+        }
+
+
+        //   dbHandler.DeleteDraftFormTable();
+
+
         startWebView();
+
+
+
+
+
         webView.setWebViewClient(new WebViewClient(){
 
             @Override

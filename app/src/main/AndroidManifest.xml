@@ -54,11 +54,12 @@
         <activity
             android:name=".FormActivity"
             android:label="@string/title_activity_form"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/MyTheme" >
         </activity>
         <activity
             android:name=".FormResponseActivity"
-            android:configChanges="orientation|keyboardHidden"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_form_response"
             android:theme="@style/MyTheme"
             android:windowSoftInputMode="adjustResize" >

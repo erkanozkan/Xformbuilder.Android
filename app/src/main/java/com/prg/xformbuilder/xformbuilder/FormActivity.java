@@ -93,21 +93,11 @@ public class FormActivity extends Activity {
         Bundle bundle = getIntent().getExtras();
         parentId = bundle.getInt("ParentId");
         userId = bundle.getInt("UserId");
-
-
-
-        //-------------------------Progress Dialog Baslangıc
         progressDialogFormList = new ProgressDialog(FormActivity.this, AlertDialog.THEME_HOLO_LIGHT);
-        progressDialogFormList.setTitle("Senkronize işlemleri");
-        progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
-        progressDialogFormList.setCanceledOnTouchOutside(false);
-        //--------------------------Progress Dialog Bitis
-
         lv = (ListView) findViewById(R.id.liste);
         ButtonLogout = (ImageButton) findViewById(R.id.imageButton_logout);
         ButtonSync = (ImageButton) findViewById(R.id.imageButton_sync);
         ButtonSettings = (ImageButton) findViewById(R.id.imageButton_settings);
-
         //------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -119,33 +109,41 @@ public class FormActivity extends Activity {
         }
         //------------------------------------Session Kontrol
 
-        try {
-            GetFormList();
+
+        if (savedInstanceState == null)
+        {
+    //-------------------------Progress Dialog Baslangıc
+    progressDialogFormList.setTitle("Senkronize işlemleri");
+    progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
+    progressDialogFormList.setCanceledOnTouchOutside(false);
+    //--------------------------Progress Dialog Bitis
+    try {
+        GetFormList();
 
 
-             ptrFrameLayout = (PtrFrameLayout) findViewById(R.id.rotate_header_list_view_frame);
-            //ptrFrameLayout.setSoundEffectsEnabled(true);
+        ptrFrameLayout = (PtrFrameLayout) findViewById(R.id.rotate_header_list_view_frame);
+        //ptrFrameLayout.setSoundEffectsEnabled(true);
 
-            ptrFrameLayout.setPtrHandler(new PtrHandler() {
-                @Override
-                public void onRefreshBegin(PtrFrameLayout frame) {
+        ptrFrameLayout.setPtrHandler(new PtrHandler() {
+            @Override
+            public void onRefreshBegin(PtrFrameLayout frame) {
                   /*  MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
                     mp.start();*/
-                    frame.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
+                frame.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
 
-                            new GetDataAsync().execute();
+                        new GetDataAsync().execute();
 
-                        }
-                    }, 1800);
-                }
+                    }
+                }, 1800);
+            }
 
-                @Override
-                public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-                    return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
-                }
-            });
+            @Override
+            public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
+                return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
+            }
+        });
 
           /*  mPullToRefreshView = (PullToRefreshListView) findViewById(R.id.liste);
             mPullToRefreshView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
@@ -156,10 +154,22 @@ public class FormActivity extends Activity {
                     // mPullToRefreshView.onRefreshComplete();
                 }
             }); */
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
-            Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
-        }
+    } catch (Exception e) {
+        Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
+        Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
 
 
         ButtonLogout.setOnClickListener(new View.OnClickListener() {
