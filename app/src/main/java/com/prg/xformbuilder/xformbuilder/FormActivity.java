@@ -28,22 +28,17 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -56,18 +51,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Handler;
 
-import com.github.jeremiemartinez.refreshlistview.RefreshListView;
 import com.loopj.android.http.Base64;
-import com.markupartist.android.widget.PullToRefreshListView;
 import com.onesignal.OneSignal;
-import com.yalantis.phoenix.PullToRefreshView;
 
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
@@ -85,8 +73,7 @@ public class FormActivity extends Activity {
     final Bundle bundleForm = new Bundle();
      ProgressDialog progressDialogFormList;
     User GetUserSync;
-    public static final int REFRESH_DELAY = 2000;
-    private ListView mPullToRefreshView;
+
     PutDraftForm putDraftForm;
 
     PtrFrameLayout ptrFrameLayout;
@@ -142,8 +129,8 @@ public class FormActivity extends Activity {
             ptrFrameLayout.setPtrHandler(new PtrHandler() {
                 @Override
                 public void onRefreshBegin(PtrFrameLayout frame) {
-                    MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
-                    mp.start();
+                  /*  MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
+                    mp.start();*/
                     frame.postDelayed(new Runnable() {
                         @Override
                         public void run() {
