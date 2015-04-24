@@ -265,8 +265,6 @@ public class FormActivity extends Activity {
         }
     }
 
-
-
     //----------------------------------Data get in local database-------------------------------------//
     private void SetFormListInListView(){
         try {
@@ -283,7 +281,7 @@ public class FormActivity extends Activity {
                     formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,String.valueOf(count),R.mipmap.appbar_draw_pencil);
                }
                 else{
-                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
+                 formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
                 }
 
             }

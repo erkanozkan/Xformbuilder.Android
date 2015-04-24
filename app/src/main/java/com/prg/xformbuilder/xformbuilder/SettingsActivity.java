@@ -30,7 +30,8 @@ public class SettingsActivity extends Activity {
     LinearLayout AboutButton,FaqButton,ContactButton,ClearDatabase;
     CheckBox checkBoxSync;
     User GetUserSync;
-    LinearLayout btnBack;
+    LinearLayout layoutBack;
+    ImageButton imgBtnBack;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,9 +49,9 @@ public class SettingsActivity extends Activity {
         ClearDatabase=(LinearLayout)findViewById(R.id.LinearLayout_CleanDatabase);
         checkBoxSync=(CheckBox)findViewById(R.id.checkBox_sync);
 
-        btnBack=(LinearLayout)findViewById(R.id.LinearLayoutBack);
+        layoutBack=(LinearLayout)findViewById(R.id.LinearLayoutBack);
 
-        btnBack.setOnClickListener(new View.OnClickListener() {
+        layoutBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
@@ -61,6 +62,21 @@ public class SettingsActivity extends Activity {
 
             }
         });
+
+
+        imgBtnBack=(ImageButton)findViewById(R.id.imageButton_Back);
+        imgBtnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
+                bundle.putInt("UserId", userId);
+                bundle.putInt("ParentId",parentId);
+                goBackFormList.putExtras(bundle);
+                startActivity(goBackFormList);
+
+            }
+        });
+
 
         dbHandler = new DatabaseHandler(getApplicationContext());
 

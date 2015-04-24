@@ -155,6 +155,32 @@ public class FormResponseActivity extends Activity {
             }
         });
 
+        btnBackResponse = (ImageButton)findViewById(R.id.imageButton_Back);
+
+        btnBackResponse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bundleFormResponse.putInt("UserId",userId);
+                bundleFormResponse.putInt("ParentId",parentId);
+                bundleFormResponse.putString("FormTitle",formTitle);
+                bundleFormResponse.putString("DraftId",draftId);
+                bundleFormResponse.putString("FormId",formId);
+
+                int count=  dbHandler.getFormCount(formId);
+                if (count>=1)
+                {
+                    Intent i = new Intent(FormResponseActivity.this,DraftFormActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
+                }else{
+                    Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
+                }
+
+            }
+        });
+
 
 
 
