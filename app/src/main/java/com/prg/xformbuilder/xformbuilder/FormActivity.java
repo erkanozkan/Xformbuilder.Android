@@ -57,6 +57,8 @@ import java.util.List;
 import com.loopj.android.http.Base64;
 import com.onesignal.OneSignal;
 
+import in.srain.cube.views.ptr.PtrClassicDefaultHeader;
+import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrHandler;
@@ -76,7 +78,7 @@ public class FormActivity extends Activity {
 
     PutDraftForm putDraftForm;
 
-    PtrFrameLayout ptrFrameLayout;
+    PtrClassicFrameLayout ptrFrameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,9 +123,9 @@ public class FormActivity extends Activity {
         GetFormList();
 
 
-        ptrFrameLayout = (PtrFrameLayout) findViewById(R.id.rotate_header_list_view_frame);
+        ptrFrameLayout = (PtrClassicFrameLayout) findViewById(R.id.rotate_header_list_view_frame);
         //ptrFrameLayout.setSoundEffectsEnabled(true);
-
+        ptrFrameLayout.setLastUpdateTimeRelateObject(this);
         ptrFrameLayout.setPtrHandler(new PtrHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
