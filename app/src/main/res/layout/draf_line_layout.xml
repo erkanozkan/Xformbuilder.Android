@@ -10,35 +10,41 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:background="@mipmap/formlist_item_bg">
+        android:layout_height="60dp">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="@null">
+            android:background="@drawable/draftheader_bottomborder">
 
             <LinearLayout
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical">
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dp">
 
-                <ImageView
-                    android:id="@+id/formDraftImage"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:src="@mipmap/appbar_draw_pencil" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/formDraftImage"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        android:src="@mipmap/appbar_draw_pencil" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:layout_height="fill_parent"
+                android:gravity="center_vertical"
                 android:layout_marginLeft="10dp">
 
                 <TextView
@@ -75,5 +81,6 @@
             </LinearLayout>
 
         </LinearLayout>
+
     </LinearLayout>
 </RelativeLayout>
