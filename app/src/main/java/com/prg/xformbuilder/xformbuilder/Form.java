@@ -27,10 +27,5 @@ public class Form {
     public String getMobileHtml(){return _mobileHtml;}
     public int getUserId() {return _userId;}
     public String getFormImage(){return _formImage;}
-
-
-
-
-
 }
 

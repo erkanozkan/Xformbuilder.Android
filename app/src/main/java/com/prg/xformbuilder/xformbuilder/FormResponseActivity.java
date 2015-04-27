@@ -7,11 +7,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.content.CursorLoader;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,27 +36,32 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.Base64;
+
+import org.apache.http.entity.StringEntity;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.util.Date;
 
 
 public class FormResponseActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId = "", draftId = "", formTitle = "";
+    String formId = "", draftId = "", formTitle = "",base64="";
     int userId = 0, parentId = 0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
     DraftForm draft;
     Form form;
-    final Activity activity = this;
     String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-    public Uri imageUri;
-    ProgressDialog progressDialogResponce;
     ImageButton btnBackResponse;
     LinearLayout BackLinearLayout;
-
-
     private static final int FILECHOOSER_RESULTCODE = 2888;
     private ValueCallback<Uri> mUploadMessage;
     private Uri mCapturedImageURI = null;
@@ -255,6 +264,14 @@ public class FormResponseActivity extends Activity {
 
             }
         }
+
+
+        @JavascriptInterface
+           public String OpenFile() {
+         return base64;
+        }
+
+
     }
 
     private void startWebView() {
@@ -285,54 +302,43 @@ public class FormResponseActivity extends Activity {
 
         // implement WebChromeClient inner class
         // we will define openFileChooser for select file from camera
-        webView.setWebChromeClient(new WebChromeClient() {
+      webView.setWebChromeClient(new WebChromeClient() {
+
 
             // openFileChooser for Android 3.0+
 
-            public void openFileChooser(ValueCallback uploadMsg) {
+         public void openFileChooser(ValueCallback uploadMsg) {
 
-                Log.i("For Android < 3.0", "called");
-
-                mUploadMessage = uploadMsg;
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-
-
+             mUploadMessage = uploadMsg;
+             Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
-
-                i.setType("*/*");
+                i.setType("image/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
             }
-
             // For Android 3.0+
-            public void openFileChooser(ValueCallback uploadMsg,
-                                        String acceptType) {
-
-                Log.i("For Android 3.0+", "called");
+              public void openFileChooser(ValueCallback uploadMsg,String acceptType) {
 
                 mUploadMessage = uploadMsg;
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
 
                 i.addCategory(Intent.CATEGORY_OPENABLE);
 
-                i.setType("*/*");
+                i.setType("image/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
             }
 
             public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
-                openFileChooser(uploadMsg);
-
-                Log.i("For Android Jellybeans", "called");
 
                 mUploadMessage = uploadMsg;
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
 
                 i.addCategory(Intent.CATEGORY_OPENABLE);
 
-                i.setType("*/*");
+                i.setType("image/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
@@ -351,31 +357,52 @@ public class FormResponseActivity extends Activity {
             if (null == this.mUploadMessage) {
                 return;
             }
-
             Uri result = null;
-
             try {
                 if (resultCode != RESULT_OK) {
 
                     result = null;
 
                 } else {
-
                     // retrieve from the private variable if the intent is null
                     result = intent == null ? mCapturedImageURI : intent.getData();
                 }
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "activity :" + e, Toast.LENGTH_LONG).show();
             }
+            if(result != null){
+                String path = "";
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
-            mUploadMessage.onReceiveValue(result);
-            mUploadMessage = null;
+                Cursor cursor = getContentResolver().query(intent.getData(),
+                        filePathColumn, null, null, null);
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                path = cursor.getString(columnIndex);
+                cursor.close();
+                if (!path.equals("")){
+                    Bitmap bm = BitmapFactory.decodeFile(path);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] b = baos.toByteArray();
+                    base64= Base64.encodeToString(b, Base64.DEFAULT);
+                }
+
+
+                mUploadMessage.onReceiveValue(result);
+                mUploadMessage = null;
+
+            }
+            else{
+                return;
+            }
+
 
         }
 
     }
 
-    // Open previous opened link from history on webview when back button pressed
+
 
     @Override
     public void onBackPressed() {

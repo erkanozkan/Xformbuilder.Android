@@ -2,14 +2,18 @@
 
 
 
- 
-
-
 
 $(document).ready(function () {
 
 
     var lang = $('#lang')[0].value;
+
+
+           $('input[type="file"]').change(function () {
+                   var base64 = app.OpenFile();
+                   $(this).attr("data-val-value",base64);
+                });
+
 
     if (lang == "tr-TR") {
         $.extend($.validator.messages, {
@@ -240,19 +244,11 @@ $(document).ready(function () {
                     };
                     break;
                 case 'file':
-                    if (fieldDiv[i].children[1].files.length > 0) {
-                        mobileObject = {
+                         mobileObject = {
                             'type': type,
-                            'value': fieldDiv[i].children[1].files[0].name,
+                            'value': fieldDiv[i].children[1].attributes['data-val-value'],
                             'id': elementId
                         };
-                    } else {
-                        mobileObject = {
-                            'type': type,
-                            'value': '',
-                            'id': elementId
-                        };
-                    }
                     break;
                 case 'select':
                     var selectValue = $('#' + fieldDiv[i].id + ' select')[0].value;
@@ -331,8 +327,6 @@ $(document).ready(function () {
         app.FormSubmit(html, json, isUploadable, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
         return false;
     }
-
-
 
 
 });

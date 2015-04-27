@@ -23,6 +23,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DATABASE_NAME="xformbuilder",
             TABLE_USER ="user",
             TABLE_SPLASH ="splash",
+            TABLE_FILES ="files",
             KEY_ID="id",
             KEY_USERNAME="username",
             KEY_FIRSTNAME="firstname",
@@ -48,8 +49,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_SYNC="sync",
             KEY_FORMIMAGE="formimage",
             KEY_DATEDRAFT="datedraft",
-            KEY_ISSPLASH="issplash";
-
+            KEY_ISSPLASH="issplash",
+            KEY_ELEMENTID="elementid",
+            KEY_IMAGEBINARY="binaryimage",
+            KEY_DRAFTID="draftid";
 
 
 
@@ -104,6 +107,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + KEY_ISSPLASH + " TEXT)");
         Log.d("DBHelper", "SQL : " + sqlSplash);
         db.execSQL(sqlSplash);
+
+      /*  String sqlFiles= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FILES + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"  +KEY_FORMID+ " TEXT,"+KEY_ELEMENTID+ " TEXT,"+KEY_DRAFTID+ " TEXT,"+KEY_IMAGEBINARY+ " TEXT )");
+        Log.d("DBHelper", "SQL : " + sqlFiles);
+        db.execSQL(sqlFiles);*/
 
     }
 
@@ -171,6 +178,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.insert(TABLE_SPLASH, null, values);
     }
 
+   /* public void CreateFiles (Files file){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_FORMID,file.getFormId());
+        values.put(KEY_DRAFTID,file.getDraftId());
+        values.put(KEY_IMAGEBINARY,file.getImageBinary());
+        values.put(KEY_ELEMENTID,file.getElementId());
+        db.insert(TABLE_FILES, null, values);
+    }*/
+
     public String getSplashValue(){
         SQLiteDatabase db = getReadableDatabase();
        // String query = "SELECT * FROM" + TABLE_SPLASH;
@@ -232,6 +249,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         return id;
     }
+
+
+  /*  public String GetLastFileId(String formId,String elementId,String draftId){
+        SQLiteDatabase db = getReadableDatabase();
+        String id=null;
+        String sql = "SELECT "+KEY_ID+" FROM "+TABLE_FILES+ " WHERE "+KEY_FORMID+"='"+formId+"' and " +KEY_ELEMENTID+"='"+elementId+"' and "+KEY_DRAFTID+"='"+draftId+"'  ORDER BY "+KEY_ID+" DESC LIMIT 1";
+
+
+        Cursor cursor = db.rawQuery(sql,null);
+
+
+        if (cursor != null){
+            cursor.moveToFirst();
+            id =  String.valueOf(cursor.getInt(cursor.getColumnIndex(KEY_ID)));
+        }
+        return id;
+    }
+*/
 
     public boolean DeleteFormTable(){
         SQLiteDatabase db = getWritableDatabase();
@@ -326,6 +361,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_SYNC,sync);
         db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(userId)});
     }
+
+    /* public void UpdateFiles (Files file){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_FORMID,file.getFormId());
+        values.put(KEY_DRAFTID,file.getDraftId());
+        values.put(KEY_IMAGEBINARY,file.getImageBinary());
+        values.put(KEY_ELEMENTID,file.getElementId());
+         db.update(TABLE_FILES, values,KEY_ID+"=?",new String[]{String.valueOf(file.getId())});
+    }*/
 
 
 
@@ -601,6 +646,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FORM);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPLASH);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FILES);
+
 
         onCreate(db);
         return true;
