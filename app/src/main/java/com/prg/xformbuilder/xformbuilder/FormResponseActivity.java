@@ -1,5 +1,6 @@
 package com.prg.xformbuilder.xformbuilder;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -11,10 +12,13 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.v4.content.CursorLoader;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -39,12 +43,17 @@ import android.widget.Toast;
 import com.loopj.android.http.Base64;
 
 import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
@@ -53,7 +62,7 @@ import java.util.Date;
 
 public class FormResponseActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId = "", draftId = "", formTitle = "",base64="";
+    String formId = "", draftId = "", formTitle = "", fileStringByte="",fileType="";
     int userId = 0, parentId = 0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
@@ -267,11 +276,10 @@ public class FormResponseActivity extends Activity {
 
 
         @JavascriptInterface
-           public String OpenFile() {
-         return base64;
+           public String OpenFile()  {
+             String returnValue = fileStringByte+"^^^^^^"+fileType;
+         return returnValue;
         }
-
-
     }
 
     private void startWebView() {
@@ -312,7 +320,7 @@ public class FormResponseActivity extends Activity {
              mUploadMessage = uploadMsg;
              Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
-                i.setType("image/*");
+                i.setType("*/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
@@ -325,7 +333,7 @@ public class FormResponseActivity extends Activity {
 
                 i.addCategory(Intent.CATEGORY_OPENABLE);
 
-                i.setType("image/*");
+                i.setType("*/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
@@ -338,7 +346,7 @@ public class FormResponseActivity extends Activity {
 
                 i.addCategory(Intent.CATEGORY_OPENABLE);
 
-                i.setType("image/*");
+                i.setType("*/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
@@ -364,30 +372,42 @@ public class FormResponseActivity extends Activity {
                     result = null;
 
                 } else {
-                    // retrieve from the private variable if the intent is null
                     result = intent == null ? mCapturedImageURI : intent.getData();
                 }
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "activity :" + e, Toast.LENGTH_LONG).show();
             }
             if(result != null){
-                String path = "";
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
-                Cursor cursor = getContentResolver().query(intent.getData(),
-                        filePathColumn, null, null, null);
-                cursor.moveToFirst();
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                path = cursor.getString(columnIndex);
-                cursor.close();
-                if (!path.equals("")){
-                    Bitmap bm = BitmapFactory.decodeFile(path);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                    byte[] b = baos.toByteArray();
-                    base64= Base64.encodeToString(b, Base64.DEFAULT);
-                }
+                String path = getPath(getApplicationContext(),result);
+                fileStringByte = ConvertFile(path);
+                fileType =  path.substring(path.lastIndexOf("."));
 
+              /*  String uriString = null;
+                uriString = result.toString();
+                if (uriString.startsWith("content://")) {
+                    Cursor cursor = null;
+                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                    try {
+                        cursor = this.getContentResolver().query(result, null, null,
+                                null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int Index = cursor.getColumnIndex(filePathColumn[0]);
+                            path= cursor.getString(Index);
+                        }
+                    }
+                    finally {
+                        cursor.close();
+                    }
+                    fileStringByte = ConvertFile(path);
+                    fileType =  path.substring(path.lastIndexOf("."));
+                }*/
+           /*   else  if (uriString.startsWith("file://")) {
+                    File  f = new File(uriString);
+                    fileStringByte =  ConvertFile(f.getAbsolutePath().split("file:")[1]);
+                    fileType  = f.getName().substring(f.getName().lastIndexOf("."));
+
+                }*/
 
                 mUploadMessage.onReceiveValue(result);
                 mUploadMessage = null;
@@ -396,12 +416,168 @@ public class FormResponseActivity extends Activity {
             else{
                 return;
             }
-
-
         }
-
     }
 
+
+
+
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public static String getPath(final Context context, final Uri uri) {
+
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        // DocumentProvider
+        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                }
+
+                // TODO handle non-primary volumes
+            }
+            // DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+
+                final String id = DocumentsContract.getDocumentId(uri);
+                final Uri contentUri = Uri.parse(Uri.parse("content://downloads/public_downloads")+ Long.valueOf(id).toString());
+                return getDataColumn(context, contentUri, null, null);
+            }
+            // MediaProvider
+            else if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] {
+                        split[1]
+                };
+
+                return getDataColumn(context, contentUri, selection, selectionArgs);
+            }
+        }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
+    }
+
+    public static String getDataColumn(Context context, Uri uri, String selection,
+                                       String[] selectionArgs) {
+
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = {
+                column
+        };
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int column_index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(column_index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+
+
+
+
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public String ConvertFile (String path){
+        String byteString = null;
+        byte[] buffer = null;
+        FileInputStream stream = null;
+        File file = new File(path);
+         buffer = new byte[(int)file.length()];
+
+            try {
+                stream = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            assert stream != null;
+            try {
+                stream.read(buffer);
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+             byteString  = Base64.encodeToString(buffer, Base64.DEFAULT);
+
+
+
+        return byteString;
+    }
 
 
     @Override

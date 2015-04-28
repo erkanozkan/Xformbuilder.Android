@@ -8,12 +8,15 @@ $(document).ready(function () {
 
     var lang = $('#lang')[0].value;
 
-
            $('input[type="file"]').change(function () {
-                   var base64 = app.OpenFile();
-                   $(this).attr("data-val-value",base64);
-                });
+                   var value = app.OpenFile();
+             var array = new Array();
+              array = value.split("^^^^^^");
+                  $(this).attr('data-val-type',array[1]);
+                  $(this).attr('data-val-value',array[0]);
+              $('input[type="submit"]')[0].value = array[1];
 
+                });
 
     if (lang == "tr-TR") {
         $.extend($.validator.messages, {
@@ -246,7 +249,8 @@ $(document).ready(function () {
                 case 'file':
                          mobileObject = {
                             'type': type,
-                            'value': fieldDiv[i].children[1].attributes['data-val-value'],
+                            'data_val_type':fieldDiv[i].children[1].attributes['data-val-type'] != undefined ?  fieldDiv[i].children[1].attributes['data-val-type'].value : '',
+                            'value':fieldDiv[i].children[1].attributes['data-val-value'] != undefined ?  fieldDiv[i].children[1].attributes['data-val-value'].value : '',
                             'id': elementId
                         };
                     break;
