@@ -57,12 +57,10 @@ import java.util.List;
 import com.loopj.android.http.Base64;
 import com.onesignal.OneSignal;
 
-import in.srain.cube.views.ptr.PtrClassicDefaultHeader;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrHandler;
-
 
 public class FormActivity extends Activity {
 
@@ -73,7 +71,7 @@ public class FormActivity extends Activity {
     String jsonFormTitle = "", jsonUserName = "", jsonMobileHtml = "", jsonImage = "", PutJsonCode;
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();
-     ProgressDialog progressDialogFormList;
+    ProgressDialog progressDialogFormList;
     User GetUserSync;
 
     PutDraftForm putDraftForm;
@@ -124,7 +122,7 @@ public class FormActivity extends Activity {
 
 
         ptrFrameLayout = (PtrClassicFrameLayout) findViewById(R.id.rotate_header_list_view_frame);
-        //ptrFrameLayout.setSoundEffectsEnabled(true);
+
         ptrFrameLayout.setLastUpdateTimeRelateObject(this);
         ptrFrameLayout.setPtrHandler(new PtrHandler() {
             @Override
