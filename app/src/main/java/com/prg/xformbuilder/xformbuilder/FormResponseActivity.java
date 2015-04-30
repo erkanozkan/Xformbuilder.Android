@@ -379,7 +379,7 @@ public class FormResponseActivity extends Activity {
 
                 String path = getPath(getApplicationContext(),result);
                 fileStringByte = ConvertFile(path);
-                fileType =  path.substring(path.lastIndexOf("."));
+
                 mUploadMessage.onReceiveValue(result);
                 mUploadMessage = null;
 
@@ -519,7 +519,7 @@ public class FormResponseActivity extends Activity {
         File file = new File(path);
 
         fileSize =String.valueOf(file.length());
-
+        fileType = file.getName();
 
          buffer = new byte[(int)file.length()];
 
