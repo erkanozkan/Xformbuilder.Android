@@ -13,6 +13,10 @@ $(document).ready(function () {
               array = value.split("$^^$^^$");
                                $(this).attr('data-val-type',array[1]);
                                $(this).attr('data-val-value',value);
+     var input = "<input type='button' value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'   onclick=app.ViewFile(array[0])    />";
+
+     var divId = $(this)[0].parentElement.parentElement.parentElement.id;
+     $('#'+divId).append(input);
              }
 
                 });
@@ -248,8 +252,8 @@ $(document).ready(function () {
                 case 'file':
                          mobileObject = {
                             'type': type,
-                            'data_val_type':fieldDiv[i].children[1].attributes['data-val-type'] != undefined ?  fieldDiv[i].children[1].attributes['data-val-type'].value : '',
-                            'value':fieldDiv[i].children[1].attributes['data-val-value'] != undefined ?  fieldDiv[i].children[1].attributes['data-val-value'].value : '',
+                            'data_val_type':fieldDiv[i].children[1].children[0].children[0].attributes['data-val-type'] != undefined ?  fieldDiv[i].children[1].children[0].children[0].attributes['data-val-type'].value : '',
+                            'value':fieldDiv[i].children[1].children[0].children[0].attributes['data-val-value'] != undefined ?  fieldDiv[i].children[1].children[0].children[0].attributes['data-val-value'].value : '',
                             'id': elementId
                         };
                     break;
@@ -330,10 +334,12 @@ $(document).ready(function () {
 
       $('input[type="submit"]')[0].value = "Kaydediliyor...";
       $('input[type="submit"]').attr('disabled','disabled');
-      var submitText =  app.FormSubmit(html, json, isUploadable, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
-        $('input[type="submit"]').removeAttr('disabled');
-       $('input[type="submit"]')[0].value = submitText;
+       app.FormSubmit(html, json, isUploadable, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
+      $('input[type="submit"]').removeAttr('disabled');
 
+     /* ------------------BURAYI SONRA AÇ-------------------
+     $('input[type="submit"]')[0].value = $('#submitText')[0].value;
+      */
         return false;
     }
 

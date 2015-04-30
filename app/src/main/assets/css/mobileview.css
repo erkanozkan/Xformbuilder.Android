@@ -12,6 +12,58 @@ body, textarea:focus,select:focus, input:focus{
 
 
 
+ .file-input {
+                           overflow-x: auto;
+                       }
+                       .btn-file {
+                           position: relative;
+                           overflow: hidden;
+                       }
+                       .btn-primary {
+                           color: #fff;
+                           background-color: #363D44;
+                           border-color: #4F575E;
+                       }
+                       .btn {
+                           display: inline-block;
+                           padding: 6px 12px;
+                           margin-bottom: 0;
+                           font-size: 24px;
+                           font-weight: 400;
+                           line-height: 1.42857143;
+                           text-align: center;
+                           white-space: nowrap;
+                           vertical-align: middle;
+                           -ms-touch-action: manipulation;
+                           touch-action: manipulation;
+                           cursor: pointer;
+                           -webkit-user-select: none;
+                           -moz-user-select: none;
+                           -ms-user-select: none;
+                           user-select: none;
+                           background-image: none;
+                           border: 1px solid transparent;
+                           border-radius: 4px;
+                       }
+                       .btn-file input[type=file] {
+                           position: absolute;
+                           top: 0;
+                           right: 0;
+                           min-width: 100%;
+                           min-height: 100%;
+                           text-align: right;
+                           filter: alpha(opacity=0);
+                           opacity: 0;
+                           background: none repeat scroll 0 0 transparent;
+                           cursor: inherit;
+                           display: block;
+                           font-family: inherit;
+                           font-size: inherit;
+                           line-height: inherit;
+                       }
+
+
+
 #mobilediv {
     width: 100%;
     height: 100%;
@@ -28,7 +80,7 @@ body, textarea:focus,select:focus, input:focus{
 
 } 
 
-    .field > input[type=text], input[type=number], input[type=date], input[type=tel], input[type=url], input[type=email], input[type=file], input[type=submit] {
+    .field > input[type=text], input[type=number], input[type=date], input[type=tel], input[type=url], input[type=email],  input[type=submit] {
         width: 100%;
         height: 55px;
         border: 2px solid rgba(128, 128, 128, 0.45);
