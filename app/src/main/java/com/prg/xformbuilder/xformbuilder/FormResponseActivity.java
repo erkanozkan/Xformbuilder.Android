@@ -549,7 +549,7 @@ public class FormResponseActivity extends Activity {
         FileInputStream stream = null;
         File file = new File(path);
 
-        fileSize =String.valueOf(file.getUsableSpace());
+        fileSize =String.valueOf(file.length());
 
 
          buffer = new byte[(int)file.length()];
