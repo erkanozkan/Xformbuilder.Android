@@ -243,7 +243,7 @@ public class FormResponseActivity extends Activity {
          * required after SDK version 17.
          */
         @JavascriptInterface
-        public String FormSubmit(String html, String json, String isUploadable, String field1_title, String field1_value, String field2_title, String field2_value, String field3_title, String field3_value)
+        public void FormSubmit(String html, String json, String isUploadable, String field1_title, String field1_value, String field2_title, String field2_value, String field3_title, String field3_value)
         {
            /* progressDialogResponce = new ProgressDialog(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
 
@@ -272,14 +272,28 @@ public class FormResponseActivity extends Activity {
                 draftId = dbHandler.GetLastDraftId(formId);
             }
 
-            return "Kaydet";
-        }
+         }
 
 
         @JavascriptInterface
            public String OpenFile()  {
              String returnValue = fileStringByte+"$^^$^^$"+fileType+"$^^$^^$"+fileSize;
          return returnValue;
+        }
+
+        @JavascriptInterface
+        public void Viewfile(String base64File)  {
+            bundleFormResponse.putString("FormId", formId);
+            bundleFormResponse.putInt("UserId", userId);
+            bundleFormResponse.putInt("ParentId", parentId);
+            bundleFormResponse.putString("FormTitle", formTitle);
+            bundleFormResponse.putString("draftId", draftId);
+            byte [] bytesBase64 = base64File.getBytes();
+            bundleFormResponse.putByteArray("base64",bytesBase64);
+            Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
+            i.putExtras(bundleFormResponse);
+            startActivity(i);
+
         }
     }
 
