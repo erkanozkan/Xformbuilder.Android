@@ -133,7 +133,6 @@ public class FormResponseActivity extends Activity {
             webView.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
             webView.addJavascriptInterface(new WebViewJavaScriptInterface(this), "app");
 
-
         }
 
 
@@ -379,33 +378,6 @@ public class FormResponseActivity extends Activity {
                 String path = getPath(getApplicationContext(),result);
                 fileStringByte = ConvertFile(path);
                 fileType =  path.substring(path.lastIndexOf("."));
-
-              /*  String uriString = null;
-                uriString = result.toString();
-                if (uriString.startsWith("content://")) {
-                    Cursor cursor = null;
-                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
-                    try {
-                        cursor = this.getContentResolver().query(result, null, null,
-                                null, null);
-                        if (cursor != null && cursor.moveToFirst()) {
-                            int Index = cursor.getColumnIndex(filePathColumn[0]);
-                            path= cursor.getString(Index);
-                        }
-                    }
-                    finally {
-                        cursor.close();
-                    }
-                    fileStringByte = ConvertFile(path);
-                    fileType =  path.substring(path.lastIndexOf("."));
-                }*/
-           /*   else  if (uriString.startsWith("file://")) {
-                    File  f = new File(uriString);
-                    fileStringByte =  ConvertFile(f.getAbsolutePath().split("file:")[1]);
-                    fileType  = f.getName().substring(f.getName().lastIndexOf("."));
-
-                }*/
-
                 mUploadMessage.onReceiveValue(result);
                 mUploadMessage = null;
 
@@ -415,9 +387,6 @@ public class FormResponseActivity extends Activity {
             }
         }
     }
-
-
-
 
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -504,9 +473,6 @@ public class FormResponseActivity extends Activity {
 
 
 
-
-
-
     /**
      * @param uri The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
@@ -547,6 +513,7 @@ public class FormResponseActivity extends Activity {
         String byteString = null;
         byte[] buffer = null;
         FileInputStream stream = null;
+
         File file = new File(path);
 
         fileSize =String.valueOf(file.length());
@@ -567,16 +534,12 @@ public class FormResponseActivity extends Activity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             try {
                 stream.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
              byteString  = Base64.encodeToString(buffer, Base64.DEFAULT);
-
-
-
         return byteString;
     }
 

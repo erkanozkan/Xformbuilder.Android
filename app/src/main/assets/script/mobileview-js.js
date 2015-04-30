@@ -8,10 +8,13 @@ $(document).ready(function () {
 
            $('input[type="file"]').change(function () {
                    var value = app.OpenFile();
+             if(value != null){
              var array = new Array();
               array = value.split("$^^$^^$");
-                  $(this).attr('data-val-type',array[1]);
-                  $(this).attr('data-val-value',value);
+                               $(this).attr('data-val-type',array[1]);
+                               $(this).attr('data-val-value',value);
+             }
+
                 });
 
     if (lang == "tr-TR") {
