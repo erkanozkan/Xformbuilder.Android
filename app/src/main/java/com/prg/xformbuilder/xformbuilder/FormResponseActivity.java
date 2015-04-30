@@ -243,7 +243,8 @@ public class FormResponseActivity extends Activity {
          * required after SDK version 17.
          */
         @JavascriptInterface
-        public void FormSubmit(String html, String json, String isUploadable, String field1_title, String field1_value, String field2_title, String field2_value, String field3_title, String field3_value) {
+        public String FormSubmit(String html, String json, String isUploadable, String field1_title, String field1_value, String field2_title, String field2_value, String field3_title, String field3_value)
+        {
            /* progressDialogResponce = new ProgressDialog(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
 
             progressDialogResponce.setTitle("Form Cevaplama İşlemi");
@@ -260,8 +261,8 @@ public class FormResponseActivity extends Activity {
                 dbHandler.UpdateDraft(draftForm);
                 if (isUploadable.equals("0"))
                     AlertMessagge("Doldurulması gereken alanlar var.");
-
-            } else {
+            }
+            else {
                 if (isUploadable.equals("0"))
                     AlertMessagge("Doldurulması gereken alanlar var.");
 
@@ -269,8 +270,9 @@ public class FormResponseActivity extends Activity {
                 DraftForm form = new DraftForm(0, Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
                 dbHandler.CreateDraftForm(form);
                 draftId = dbHandler.GetLastDraftId(formId);
-
             }
+
+            return "Kaydet";
         }
 
 
@@ -552,7 +554,7 @@ public class FormResponseActivity extends Activity {
 
     public void BackPressed() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
-        alertDialog.setMessage("Değişiklikleri kaydetmeden çıkmak istediğinize emin misiniz ?");
+        alertDialog.setMessage("Kaydedilmemiş değişiklik olabilir çıkmak istediğinize eminmisiniz ?");
         alertDialog
                 .setTitle("xFormBuilder")
                 .setCancelable(false)

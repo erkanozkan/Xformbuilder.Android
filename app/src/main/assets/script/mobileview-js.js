@@ -325,9 +325,15 @@ $(document).ready(function () {
         } 
 
         json = JSON.stringify(mobileFieldArray);  
-        var mobileDivHtml = $('#mobilediv').html(); 
-         
-        app.FormSubmit(html, json, isUploadable, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
+        var mobileDivHtml = $('#mobilediv').html();
+
+
+      $('input[type="submit"]')[0].value = "Kaydediliyor...";
+      $('input[type="submit"]').attr('disabled','disabled');
+      var submitText =  app.FormSubmit(html, json, isUploadable, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
+        $('input[type="submit"]').removeAttr('disabled');
+       $('input[type="submit"]')[0].value = submitText;
+
         return false;
     }
 
