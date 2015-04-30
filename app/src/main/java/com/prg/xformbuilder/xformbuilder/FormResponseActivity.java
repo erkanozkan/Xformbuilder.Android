@@ -62,7 +62,7 @@ import java.util.Date;
 
 public class FormResponseActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId = "", draftId = "", formTitle = "", fileStringByte="",fileType="";
+    String formId = "", draftId = "", formTitle = "", fileStringByte="",fileType="",fileSize="";
     int userId = 0, parentId = 0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
@@ -277,20 +277,17 @@ public class FormResponseActivity extends Activity {
 
         @JavascriptInterface
            public String OpenFile()  {
-             String returnValue = fileStringByte+"^^^^^^"+fileType;
+             String returnValue = fileStringByte+"$^^$^^$"+fileType+"$^^$^^$"+fileSize;
          return returnValue;
         }
     }
 
     private void startWebView() {
-
         //Create new webview Client to show progress dialog
         //Called When opening a url or click on link
 
         webView.setWebViewClient(new WebViewClient() {
             ProgressDialog progressDialog;
-
-
             // Called when all page resources loaded
             public void onPageFinished(WebView view, String url) {
 
@@ -551,6 +548,10 @@ public class FormResponseActivity extends Activity {
         byte[] buffer = null;
         FileInputStream stream = null;
         File file = new File(path);
+
+        fileSize =String.valueOf(file.getUsableSpace());
+
+
          buffer = new byte[(int)file.length()];
 
             try {

@@ -1,8 +1,6 @@
 ﻿
 
 
-
-
 $(document).ready(function () {
 
 
@@ -11,11 +9,9 @@ $(document).ready(function () {
            $('input[type="file"]').change(function () {
                    var value = app.OpenFile();
              var array = new Array();
-              array = value.split("^^^^^^");
+              array = value.split("$^^$^^$");
                   $(this).attr('data-val-type',array[1]);
-                  $(this).attr('data-val-value',array[0]);
-              $('input[type="submit"]')[0].value = array[1];
-
+                  $(this).attr('data-val-value',value);
                 });
 
     if (lang == "tr-TR") {
