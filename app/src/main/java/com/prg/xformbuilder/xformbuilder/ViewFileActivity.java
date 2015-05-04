@@ -1,42 +1,43 @@
 package com.prg.xformbuilder.xformbuilder;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
+import com.loopj.android.http.Base64;
+
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 
 public class ViewFileActivity extends ActionBarActivity {
 
 
-
+String fileName ="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_file);
         Bundle bundle = getIntent().getExtras();
-         byte [] base64 = bundle.getByteArray("base64");
-
-        FileOutputStream fos = null;
+         String  base64  = bundle.getString("base64");
+        byte [] FormImageByte = null;
         try {
-            fos = new FileOutputStream("test");
-        } catch (FileNotFoundException e) {
+             FormImageByte = base64.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        try {
-            fos.write(base64);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        InputStream stream = new ByteArrayInputStream(Base64.decode(FormImageByte, Base64.DEFAULT));
+        Bitmap bmp =  BitmapFactory.decodeStream(stream);
+        ImageView img = (ImageView)findViewById(R.id.imageView_viewFile);
+        img.setImageBitmap(bmp);
 
 
     }

@@ -316,7 +316,7 @@ public class FormActivity extends Activity {
             for (int i = 0; i < formList.size(); i++) {
              byte [] FormImageByte = formList.get(i).getFormImage().getBytes("UTF-8");
               InputStream stream = new ByteArrayInputStream(Base64.decode(FormImageByte, Base64.DEFAULT));
-             Bitmap bmp =  BitmapFactory.decodeStream(stream);
+              Bitmap bmp =  BitmapFactory.decodeStream(stream);
 
                 int count = dbHandler.getFormCount(String.valueOf(formList.get(i).getFormId()));
                 if (count >= 1) {

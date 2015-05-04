@@ -7,19 +7,31 @@ $(document).ready(function () {
     var lang = $('#lang')[0].value;
 
            $('input[type="file"]').change(function () {
-                   var value = app.OpenFile();
+             var value = app.OpenFile();
              if(value != null){
-             var array = new Array();
-              array = value.split("$^^$^^$");
-                               $(this).attr('data-val-type',array[1]);
-                               $(this).attr('data-val-value',value);
-     var input = "<input type='button' value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'   onclick=app.ViewFile(array[0])    />";
+            var array = new Array();
+           array = value.split("$^^$^^$");
+           $(this).attr('data-val-type',array[1]);
+           $(this).attr('data-val-value',value);
+           var divId = $(this)[0].parentElement.parentElement.parentElement.id;
+           var base64File = array[0];
+           var input = "<input type='button'  onclick=CallView(this)  id='btnView_"+divId+"'    data-val-value='"+base64File+"'  value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'    />";
 
-     var divId = $(this)[0].parentElement.parentElement.parentElement.id;
-     $('#'+divId).append(input);
-             }
+
+
+     if ($('#btnView_' + divId )[0] != undefined) {
+                     $('#btnView_' + divId).remove();
+                     $('#' + divId).append(input);
+                 }
+                 else{
+                     $('#' + divId).append(input);
+                  }
+               }
 
                 });
+
+
+
 
     if (lang == "tr-TR") {
         $.extend($.validator.messages, {
@@ -132,6 +144,8 @@ $(document).ready(function () {
 
         return false;
     });
+
+
 
 
     function Submit(isUploadable) {
@@ -343,5 +357,10 @@ $(document).ready(function () {
         return false;
     }
 
-
 });
+
+  function CallView(sender){
+      var id = sender.id;
+       var base64File =  $('#'+id)[0].attributes["data-val-value"].value;
+      app.ViewFile(base64File);
+        }

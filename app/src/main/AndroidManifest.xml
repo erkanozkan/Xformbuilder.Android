@@ -14,6 +14,8 @@
 
     <uses-permission android:name="com.prg.xformbuilder.xformbuilder.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <provider android:name=".MyProvider" android:authorities="com.prg.xformbuilder.xformbuilder" android:exported="true" />
+
 
     <application
         android:allowBackup="true"

@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
@@ -30,6 +31,7 @@ import android.view.View;
 import android.view.Window;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
+import android.webkit.MimeTypeMap;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -46,7 +48,9 @@ import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,6 +58,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
@@ -62,7 +69,7 @@ import java.util.Date;
 
 public class FormResponseActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId = "", draftId = "", formTitle = "", fileStringByte="",fileType="",fileSize="";
+    String formId = "", draftId = "", formTitle = "", fileStringByte="",fileName="",fileSize="";
     int userId = 0, parentId = 0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
@@ -277,25 +284,64 @@ public class FormResponseActivity extends Activity {
 
         @JavascriptInterface
            public String OpenFile()  {
-             String returnValue = fileStringByte+"$^^$^^$"+fileType+"$^^$^^$"+fileSize;
-         return returnValue;
+             String returnValue = fileStringByte+"$^^$^^$"+fileName+"$^^$^^$"+fileSize;
+             return returnValue;
         }
 
         @JavascriptInterface
-        public void Viewfile(String base64File)  {
-            bundleFormResponse.putString("FormId", formId);
-            bundleFormResponse.putInt("UserId", userId);
-            bundleFormResponse.putInt("ParentId", parentId);
-            bundleFormResponse.putString("FormTitle", formTitle);
-            bundleFormResponse.putString("draftId", draftId);
-            byte [] bytesBase64 = base64File.getBytes();
-            bundleFormResponse.putByteArray("base64",bytesBase64);
-            Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
-            i.putExtras(bundleFormResponse);
-            startActivity(i);
+         public void ViewFile(String base64File)  {
+
+            if(!base64File.equals(""))
+            {
+
+                /* ------ Dosya image ise açma kodu başka view de ------
+                bundleFormResponse.putString("base64",base64File);
+                Intent i = new Intent(FormResponseActivity.this, ViewFileActivity.class);
+                i.putExtras(bundleFormResponse);
+                startActivity(i); */
+
+              /*   byte [] bytesBase64 = new byte[0];
+                try {
+                    bytesBase64   = base64File.getBytes("UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                FileOutputStream fos = null;
+                try {
+                    fos = openFileOutput("test", Context.MODE_PRIVATE);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                assert fos != null;
+                 try {
+                    fos.write(bytesBase64);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                File file = new File(getFilesDir() +  "test");
+                Uri uri = Uri.fromFile(file);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(uri, "image/jpeg");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);  */
+
+
+            }
+
 
         }
+
     }
+
+
+
 
     private void startWebView() {
         //Create new webview Client to show progress dialog
@@ -368,6 +414,16 @@ public class FormResponseActivity extends Activity {
         });
     }
 
+
+
+
+
+
+
+
+
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent intent) {
@@ -393,13 +449,9 @@ public class FormResponseActivity extends Activity {
 
                 String path = getPath(getApplicationContext(),result);
                 fileStringByte = ConvertFile(path);
-
                 mUploadMessage.onReceiveValue(result);
                 mUploadMessage = null;
 
-            }
-            else{
-                return;
             }
         }
     }
@@ -533,7 +585,7 @@ public class FormResponseActivity extends Activity {
         File file = new File(path);
 
         fileSize =String.valueOf(file.length());
-        fileType = file.getName();
+        fileName = file.getName();
 
          buffer = new byte[(int)file.length()];
 
