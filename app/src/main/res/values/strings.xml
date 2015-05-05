@@ -28,4 +28,9 @@
     <string name="title_activity_notification_test">notification_test</string>
     <string name="title_activity_view_file">ViewFileActivity</string>
 
+    <string name="AppId">20a9d85f-3a67-4c91-be5b-0aff74fa00df</string>
+    <string name="AppKey">61993513-c1c5-4ce1-aacd-3d37e36627b7</string>
+
+
+
 </resources>

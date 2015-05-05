@@ -24,4 +24,8 @@
     <string name="pull_to_refresh_release_label">Release to refresh...</string>
     <string name="pull_to_refresh_refreshing_label">Loading...</string>
     <string name="pull_to_refresh_tap_label">Tap to refresh...</string>
+    <string name="LoginProcess">Giriş İşlemi</string>
+    <string name="PleaseWait">Lütfen Bekleyin.</string>
+    <string name="CheckInformation">Lütfen kullanıcı bilgilerinizi kontrol edin.</string>
+    <string name="SyncProcess">Senkronize İşlemleri</string>
 </resources>

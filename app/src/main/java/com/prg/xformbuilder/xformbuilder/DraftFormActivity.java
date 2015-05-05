@@ -139,19 +139,35 @@ public class DraftFormActivity extends Activity {
         });
 
         try{
-            List<DraftForm> draftForms=  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
-            DraftList   draftArray[] = new DraftList[draftForms.size()];
-            for (int i=0;i<draftForms.size();i++){
-              draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
+            if(!formId.equals("")){
+                List<DraftForm> draftForms=  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
+                DraftList   draftArray[] = new DraftList[draftForms.size()];
+                for (int i=0;i<draftForms.size();i++){
+                    draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
+                }
+                draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
+
+                lv.setAdapter(draftAdapter);
             }
-            draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
+            else{
+                Toast.makeText(getApplicationContext(), "Forma ait veri bulunamadı form listesine yönlendiriliyorsunuz.", Toast.LENGTH_SHORT).show();
 
-            lv.setAdapter(draftAdapter);
-
-
-        }catch (Exception e){
-            Toast.makeText(getApplicationContext(), "Verileri �ekerken hata olu�tu l�tfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
-            Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+                Bundle bundleReturn = new Bundle();
+                bundleReturn.putInt("UserId", userId);
+                bundleReturn.putInt("ParentId", parentId);
+                Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
+                i.putExtras(bundleReturn);
+                startActivity(i);
+            }
+        }
+        catch (Exception e){
+             Toast.makeText(getApplicationContext(), "Forma ait veri bulunamadı form listesine yönlendiriliyorsunuz.", Toast.LENGTH_SHORT).show();
+            Bundle bundleReturn = new Bundle();
+            bundleReturn.putInt("UserId", userId);
+            bundleReturn.putInt("ParentId", parentId);
+            Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
+            i.putExtras(bundleReturn);
+            startActivity(i);
         }
     }
 

@@ -45,6 +45,9 @@ public class MainActivity extends Activity {
     DatabaseHandler dbHandler;
     boolean InternetConnection = false;
     final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
+    final static  String AppId = "20a9d85f-3a67-4c91-be5b-0aff74fa00df";
+    final static  String AppKey = "61993513-c1c5-4ce1-aacd-3d37e36627b7";
+
     ProgressDialog loginDialog ;
 
     SharedPreferences preferences; //preferences için bir nesne tanımlıyorum.
@@ -60,22 +63,28 @@ public class MainActivity extends Activity {
         OneSignal.init(this, "71156653394", "52ee36a0-e8c3-11e4-b391-0370dbb1438c", new ExampleNotificationOpenedHandler());
 
         dbHandler = new DatabaseHandler(getApplicationContext());
-         preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = preferences.edit();
         username = (EditText)findViewById(R.id.editText_userName);
         password = (EditText)findViewById(R.id.editText_password);
        // dbHandler.ClearLocalDatabase();
         login = (Button)findViewById(R.id.button_login);
-        //--------------------------------------Internet Connection
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-            //we are connected to a network
-            InternetConnection = true;
+        try{
+            //--------------------------------------Internet Connection
+            ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+                //we are connected to a network
+                InternetConnection = true;
+            }
+            else
+                InternetConnection = false;
+            //--------------------------------------Internet Connection
         }
-        else
+        catch (Exception e){
             InternetConnection = false;
-        //--------------------------------------Internet Connection
+        }
+
 
 
         login.setOnClickListener(new View.OnClickListener() {
@@ -87,44 +96,47 @@ public class MainActivity extends Activity {
                     loginDialog.setMessage("Please Wait...");
                     loginDialog.setCanceledOnTouchOutside(false);
                     loginDialog.show();
-                    if (InternetConnection){
-                        //Web Api Cagırıyoruz.
-                        new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString());
-
-
-
-                    }else{
-                       User login = dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
-                        if (login!=null){
-                            loginDialog.dismiss();
-                            //Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
-                            bundle.putInt("ParentId", login.getParentId());
-                            bundle.putInt("UserId",login.getUserId());
-
-
-                            editor.putString("UserName",username.getText().toString());    //bilgileri ekle ve kaydet
-                            editor.putString("Password", password.getText().toString());
-                            editor.putInt("UserId",login.getUserId());
-                            editor.putInt("ParentId",login.getParentId());
-                            editor.commit();
-
-                            Intent i = new Intent(MainActivity.this,FormActivity.class);
-                            i.putExtras(bundle);
-
-                            SendTag(String.valueOf(login.getParentId()));
-
-                            startActivity(i);
-
-
+                    try{
+                        if (InternetConnection){
+                            //Web Api Cagırıyoruz.
+                            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString()+"&appId="+AppId+"&appKey="+AppKey);
                         }
-                        else {
-                            loginDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Böyle bir kullanıcı kaydı bulunamadı.",Toast.LENGTH_SHORT).show();
+                        else{
+                            User login = dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
+                            if (login!=null){
+                                loginDialog.dismiss();
+                                //Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
+                                bundle.putInt("ParentId", login.getParentId());
+                                bundle.putInt("UserId",login.getUserId());
+                                editor.putString("UserName",username.getText().toString());    //bilgileri ekle ve kaydet
+                                editor.putString("Password", password.getText().toString());
+                                editor.putInt("UserId",login.getUserId());
+                                editor.putInt("ParentId",login.getParentId());
+                                editor.commit();
+
+                                Intent i = new Intent(MainActivity.this,FormActivity.class);
+                                i.putExtras(bundle);
+
+                                SendTag(String.valueOf(login.getParentId()));
+
+                                startActivity(i);
+
+
+                            }
+                            else {
+                                loginDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), "Böyle bir kullanıcı kaydı bulunamadı.",Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
+                    catch (Exception e){
+                        Intent i = new Intent(MainActivity.this,MainActivity.class);
+                        startActivity(i);
+                    }
+
                 }
                 else{
-                    Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Lutfen bilgilerinizi kontrol ediniz.",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -282,21 +294,26 @@ public class MainActivity extends Activity {
                     editor.putInt("UserId",jsonUserId);
                     editor.putInt("ParentId",jsonParentId);
                     editor.commit();
+                    try{
 
-                    boolean  getUser=dbHandler.GetUserByUserId(jsonUserId);
-                    if (getUser){
-                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId),"true");
-                        dbHandler.UpdateUser(user);
-                    }else{
-                        User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId),"true");
-                        dbHandler.CreateUser(user);
+                        boolean  getUser = dbHandler.GetUserByUserId(jsonUserId);
+                        if (getUser){
+                            User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId),"true");
+                            dbHandler.UpdateUser(user);
+                        }else{
+                            User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId),"true");
+                            dbHandler.CreateUser(user);
+                        }
                     }
+                    catch (Exception e){
+
+                    }
+
                     editor.putString("UserName",username.getText().toString());    //bilgileri ekle ve kaydet
                     editor.putString("Password", password.getText().toString());
                     editor.putInt("UserId",jsonUserId);
                     editor.putInt("ParentId",jsonParentId);
                     editor.commit();
-
                     bundle.putInt("ParentId", jsonParentId);
                     bundle.putInt("UserId",jsonUserId);
                     loginDialog.dismiss();
@@ -307,7 +324,8 @@ public class MainActivity extends Activity {
 
                     startActivity(i);
 
-                }else
+                }
+                else
                 {
                     loginDialog.dismiss();
                     Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.",Toast.LENGTH_SHORT).show();

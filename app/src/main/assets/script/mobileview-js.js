@@ -120,8 +120,32 @@ $(document).ready(function () {
         return this.optional(element) || validatePhone(value);
     }, $('#phonevalidate')[0].value);
 
+$('form').on("keypress", function(e) {
+  var code = e.keyCode || e.which;
+  if (code  == 13) {
+     $('form').validate({
+               rules: {
+                   urlvalidation: {
+                       urlvalidation: true
+                   },
+                   phonevalidation: {
+                       phonevalidation: true
+                   }
+               }
+           });
 
-    $('form').submit(function () {
+           if ($('form').validate().errorList.length == 0 && $('form').valid()) {
+               Submit(1,"1"); // form doğru dolduruldu ise
+
+           }
+           else {
+               Submit(0,"1"); // form eksik dolduruldu ise
+           }
+e.preventDefault();
+    return false;
+  }
+});
+    $('form').submit(function (e) {
 
         $('form').validate({
             rules: {
@@ -135,11 +159,11 @@ $(document).ready(function () {
         });
         
         if ($('form').validate().errorList.length == 0 && $('form').valid()) {
-            Submit(1); // form doğru dolduruldu ise
+            Submit(1,"0"); // form doğru dolduruldu ise
 
         }
         else {
-            Submit(0); // form eksik dolduruldu ise
+            Submit(0,"0"); // form eksik dolduruldu ise
         } 
 
         return false;
@@ -148,7 +172,7 @@ $(document).ready(function () {
 
 
 
-    function Submit(isUploadable) {
+    function Submit(isUploadable,keyCode) {
 
         $('[type=text],[type=email],[type=date],[type=url],[type=tel],[type=file],[type=number],[type=hidden], textarea').each(function () {
             this.defaultValue = this.value;
@@ -348,12 +372,16 @@ $(document).ready(function () {
 
       $('input[type="submit"]')[0].value = "Kaydediliyor...";
       $('input[type="submit"]').attr('disabled','disabled');
-       app.FormSubmit(html, json, isUploadable, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
+
+      app.FormSubmit(html, json, isUploadable,keyCode, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
+
+
+
       $('input[type="submit"]').removeAttr('disabled');
 
-     /* ------------------BURAYI SONRA AÇ-------------------
+
      $('input[type="submit"]')[0].value = $('#submitText')[0].value;
-      */
+
         return false;
     }
 

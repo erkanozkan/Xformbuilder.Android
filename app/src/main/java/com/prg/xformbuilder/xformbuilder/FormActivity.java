@@ -20,6 +20,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
+import android.provider.Contacts;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.Menu;
@@ -73,7 +74,8 @@ public class FormActivity extends Activity {
     final Bundle bundleForm = new Bundle();
     ProgressDialog progressDialogFormList;
     User GetUserSync;
-
+    final static String AppId = "20a9d85f-3a67-4c91-be5b-0aff74fa00df";
+    final static String AppKey ="61993513-c1c5-4ce1-aacd-3d37e36627b7";
     PutDraftForm putDraftForm;
 
     PtrClassicFrameLayout ptrFrameLayout;
@@ -132,8 +134,14 @@ public class FormActivity extends Activity {
                 frame.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-
-                        new GetDataAsync().execute();
+                        if(NetWorkControl()){
+                            new GetDataAsync().execute();
+                        }
+                        else
+                        {
+                            Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                            ptrFrameLayout.refreshComplete();
+                        }
 
                     }
                 }, 1800);
@@ -154,22 +162,14 @@ public class FormActivity extends Activity {
                     // mPullToRefreshView.onRefreshComplete();
                 }
             }); */
-    } catch (Exception e) {
-        Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
-        Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
     }
+    catch (Exception e) {
+        Toast.makeText(getApplicationContext(), "Form verileri çekilirken hata oluştu tekrar giriş yapmanız gerekiyor.", Toast.LENGTH_SHORT).show();
+         Intent i = new Intent(FormActivity.this,MainActivity.class);
+        startActivity(i);
 
-
+     }
 }
-
-
-
-
-
-
-
-
-
 
 
         ButtonLogout.setOnClickListener(new View.OnClickListener() {
@@ -183,11 +183,9 @@ public class FormActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (NetWorkControl()) {
-                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
+                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId+"&appId="+AppId+"&appKey="+AppKey);
                     SendServerDraftData();
                     progressDialogFormList.show();
-
-
                 } else {
                     Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
                 }
@@ -289,7 +287,7 @@ public class FormActivity extends Activity {
 
     private class GetDataAsync extends AsyncTask<String, String, String> {
         protected String doInBackground(String... strings) {
-            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
+            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId+"&appId="+AppId+"&appKey="+AppKey);
             return null;
         }
 
@@ -308,30 +306,44 @@ public class FormActivity extends Activity {
     }
 
     //----------------------------------Data get in local database-------------------------------------//
-    private void SetFormListInListView(){
+    private void SetFormListInListView() {
         try {
+            if(parentId != 0){
+                List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
+                FormList formArray[] = new FormList[formList.size()];
+                for (int i = 0; i < formList.size(); i++) {
+                    byte [] FormImageByte = formList.get(i).getFormImage().getBytes("UTF-8");
+                    InputStream stream = new ByteArrayInputStream(Base64.decode(FormImageByte, Base64.DEFAULT));
+                    Bitmap bmp =  BitmapFactory.decodeStream(stream);
 
-            List<Form> formList = dbHandler.getAllFormListVw(String.valueOf(parentId));
-            FormList formArray[] = new FormList[formList.size()];
-            for (int i = 0; i < formList.size(); i++) {
-             byte [] FormImageByte = formList.get(i).getFormImage().getBytes("UTF-8");
-              InputStream stream = new ByteArrayInputStream(Base64.decode(FormImageByte, Base64.DEFAULT));
-              Bitmap bmp =  BitmapFactory.decodeStream(stream);
+                    int count = dbHandler.getFormCount(String.valueOf(formList.get(i).getFormId()));
+                    if (count >= 1) {
+                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,String.valueOf(count),R.mipmap.appbar_draw_pencil);
+                    }
+                    else{
+                        formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
+                    }
 
-                int count = dbHandler.getFormCount(String.valueOf(formList.get(i).getFormId()));
-                if (count >= 1) {
-                    formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,String.valueOf(count),R.mipmap.appbar_draw_pencil);
-               }
-                else{
-                 formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
                 }
-
+                adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
+                lv.setAdapter(adaptor);
             }
-            adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
-            lv.setAdapter(adaptor);
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Verileri çekerken hata oluştu lütfen daha sonra tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
+            else{
+                Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(FormActivity.this,MainActivity.class);
+                startActivity(intent);
+            }
+
+        }
+        catch (Exception e) {
+            Intent intent = new Intent(FormActivity.this,FormActivity.class);
+            bundleForm.putInt("UserId", userId);
+            bundleForm.putInt("ParentId", parentId);
+            intent.putExtras(bundleForm);
+            Toast.makeText(getApplicationContext(), "Verileri çekilirken hata oluştu sayfa yenileniyor...", Toast.LENGTH_SHORT).show();
             Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+            startActivity(intent);
+
         }
 
     }
@@ -341,42 +353,69 @@ public class FormActivity extends Activity {
     private void SendServerDraftData(){
 
         try {
-            List<Form> formListPut = dbHandler.getAllFormListVw(String.valueOf(parentId));
-            int pFormId = 0;
-            totalDraftCount = dbHandler.getAllFormDraftCount();
-            totalCount_ = totalDraftCount;
-            for (int i = 0; i < formListPut.size(); i++) {
-                pFormId = formListPut.get(i).getFormId();
-                draftCount = dbHandler.getFormDraftCount(String.valueOf(pFormId));
+            if(parentId != 0){
+                List<Form> formListPut = dbHandler.getAllFormListVw(String.valueOf(parentId));
+                int pFormId = 0;
+                totalDraftCount = dbHandler.getAllFormDraftCount();
+                totalCount_ = totalDraftCount;
+                for (int i = 0; i < formListPut.size(); i++) {
+                    pFormId = formListPut.get(i).getFormId();
+                    draftCount = dbHandler.getFormDraftCount(String.valueOf(pFormId));
 
-                if (draftCount >= 1) {
-                    List<DraftForm> draftFormsPut = dbHandler.getAllIsUploadDraftFormListByFormId(String.valueOf(pFormId));
-                    for (int k = 0; k < draftFormsPut.size(); k++) {
-                        draftId = draftFormsPut.get(k).getId();
-                        String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId=" + userId + "&formId=" + pFormId;
-                        new PutHttpAsyncTask().execute(HostUrl, String.valueOf(draftId));
+                    if (draftCount >= 1) {
+                        List<DraftForm> draftFormsPut = dbHandler.getAllIsUploadDraftFormListByFormId(String.valueOf(pFormId));
+                        for (int k = 0; k < draftFormsPut.size(); k++) {
+                            draftId = draftFormsPut.get(k).getId();
+                            String HostUrl = "http://developer.xformbuilder.com/api/AppForm?userId="+userId+"&formId="+pFormId+"&appId=20a9d85f-3a67-4c91-be5b-0aff74fa00df&appKey=61993513-c1c5-4ce1-aacd-3d37e36627b7";
+                            new PutHttpAsyncTask().execute(HostUrl, String.valueOf(draftId));
 
+                        }
                     }
+
                 }
-
             }
-
+            else{
+                Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(FormActivity.this,MainActivity.class);
+                startActivity(intent);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
+            Intent intent = new Intent(FormActivity.this,FormActivity.class);
+            bundleForm.putInt("UserId", userId);
+            bundleForm.putInt("ParentId", parentId);
+            intent.putExtras(bundleForm);
+            Toast.makeText(getApplicationContext(), "Verileri gönderilirken hata oluştu sayfa yenileniyor lütfen bekleyin...", Toast.LENGTH_SHORT).show();
+             startActivity(intent);
         }
     }
 
     private void GetFormList() {
-        GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
-        //Internet baglantısı var ise web apiden formları cekiyoruz.
-        if (NetWorkControl() && GetUserSync.getSync().equals("true")) {
-                progressDialogFormList.show();
-                new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId);
-               SendServerDraftData();
+        try{
+            if(userId != 0){
+                GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+                //Internet baglantısı var ise web apiden formları cekiyoruz.
+                if (NetWorkControl() &&  GetUserSync != null && GetUserSync.getSync().equals("true")) {
+                    progressDialogFormList.show();
+                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId="+userId+"&appId=20a9d85f-3a67-4c91-be5b-0aff74fa00df&appKey=61993513-c1c5-4ce1-aacd-3d37e36627b7");
+                    SendServerDraftData();
+                }
+                else {
+                    SetFormListInListView();
+                }
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(FormActivity.this,MainActivity.class);
+                startActivity(intent);
+            }
+
         }
-        else {
+        catch (Exception e){
             SetFormListInListView();
+
         }
+
     }
 
     public String GET(String url) {
@@ -415,51 +454,53 @@ public class FormActivity extends Activity {
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
-            return GET(urls[0]);
+                return GET(urls[0]);
         }
 
         @Override
         protected void onPostExecute(String result) {
             try {
-
-                JSONArray jsonArray = new JSONArray(result);
-                boolean deleteForm = dbHandler.DeleteFormTable();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject obj = jsonArray.getJSONObject(i);
-                    jsonFormTitle = obj.getString("FormTitle");
-                    jsonFormId = obj.getInt("FormId");
-                    jsonParentId = obj.getInt("ParentId");
-                    jsonUserName = obj.getString("UserName");
-                    jsonMobileHtml = obj.getString("MobileHtml");
-                    jsonImage = obj.getString("FormImage");
-
-                   /* if (jsonImage.equals("null")){
-                        FormImageByte = jsonImage.getBytes();
-                      //  Bitmap bmp = BitmapFactory.decodeByteArray(FormImageByte, 0, FormImageByte.length);
-                       // imageview.setImageBitmap(bmp);
-                    }*/
-                    if (deleteForm) {
-                        Form form = new Form(0, jsonFormTitle, jsonFormId, jsonParentId, jsonUserName, jsonMobileHtml, userId, jsonImage);
-                        dbHandler.CreateForm(form);
-                    } else {
-                        //TODO:tablolar silinemediyse kontrol edilecek. Login sayfasına geri gönder.
+                    JSONArray jsonArray = new JSONArray(result);
+                    boolean deleteForm = dbHandler.DeleteFormTable();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject obj = jsonArray.getJSONObject(i);
+                        jsonFormTitle = obj.getString("FormTitle");
+                        jsonFormId = obj.getInt("FormId");
+                        jsonParentId = obj.getInt("ParentId");
+                        jsonUserName = obj.getString("UserName");
+                        jsonMobileHtml = obj.getString("MobileHtml");
+                        jsonImage = obj.getString("FormImage");
+                        try {
+                            if (deleteForm) {
+                                Form form = new Form(0, jsonFormTitle, jsonFormId, jsonParentId, jsonUserName, jsonMobileHtml, userId, jsonImage);
+                                dbHandler.CreateForm(form);
+                            } else {
+                                 Intent intent = new Intent(FormActivity.this,MainActivity.class);
+                                startActivity(intent);
+                            }
+                        }
+                        catch (Exception e){
+                            Intent intent = new Intent(FormActivity.this,MainActivity.class);
+                            startActivity(intent);
+                        }
                     }
-                }
-                try {
+                    try {
+                        SetFormListInListView();
 
-                     SetFormListInListView();
+                        if(totalDraftCount == 0) {
+                            progressDialogFormList.dismiss();
+                        }
+                    }
+                    catch (Exception e) {
 
-                    if(totalDraftCount == 0) {
-                        progressDialogFormList.dismiss();
                     }
 
-
-                } catch (Exception e) {
-                }
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Lütfen daha sonra tekar deneyiniz.", Toast.LENGTH_SHORT).show();
-                Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
             }
+            catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "Form verileri çekilirken hata oluştu tekrar giriş yapmanız gerekiyor.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(FormActivity.this,MainActivity.class);
+                startActivity(intent);
+             }
         }
 
     }
@@ -557,7 +598,6 @@ public class FormActivity extends Activity {
             nameValuePair.add(new BasicNameValuePair("FormId", formId));
             nameValuePair.add(new BasicNameValuePair("UserId", userId));
             nameValuePair.add(new BasicNameValuePair("DraftId", DraftId));
-
             //Encoding POST data
             try {
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
@@ -592,8 +632,6 @@ public class FormActivity extends Activity {
                         rValue = "True";
 
                     }
-
-
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.", Toast.LENGTH_SHORT).show();
                     Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
@@ -633,15 +671,12 @@ public class FormActivity extends Activity {
 
             }
 
-
             String rValue =  PUT(urls[0], PutJsonCode,String.valueOf(PutFormId),String.valueOf(PutUserId),String.valueOf(urls[1]));
 
             publishProgress(totalDraftCount,counter_++);
 
             return rValue;
         }
-
-
         @Override
         protected void onProgressUpdate(Integer... values) {
             progressDialogFormList.setMessage("Formlarınız Upload Ediliyor... "+values[0]+"/"+values[1]);
@@ -649,15 +684,11 @@ public class FormActivity extends Activity {
                SetFormListInListView();
                progressDialogFormList.dismiss();
            }
-
             super.onProgressUpdate(values);
 
         }
         @Override
         protected void onPreExecute(){
-
-
-
 
         }
     }

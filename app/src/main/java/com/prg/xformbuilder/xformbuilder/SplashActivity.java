@@ -36,23 +36,36 @@ public class SplashActivity extends Activity implements BaseSliderView.OnSliderC
 
         String val = dbHandler.getSplashValue();
 
-        if(val.equals("true"))
-        {
-            Intent i = new Intent(SplashActivity.this,MainActivity.class);
-            startActivity(i);
-            finish();
+        if (!val.equals("")){
+            if(val.equals("true"))
+            {
+                Intent i = new Intent(SplashActivity.this,MainActivity.class);
+                startActivity(i);
+                finish();
+            }
         }
-
-
-
 
         btnSkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               dbHandler.CreateSplash();
-                Intent i = new Intent(SplashActivity.this,MainActivity.class);
-                startActivity(i);
-                finish();
+              try{
+                 if(dbHandler.CreateSplash())
+                 {
+                     Intent i = new Intent(SplashActivity.this,MainActivity.class);
+                     startActivity(i);
+                     finish();
+                 }
+                  else{
+                     Intent i = new Intent(SplashActivity.this,SplashActivity.class);
+                     startActivity(i);
+                     finish();
+                 }
+              }
+              catch (Exception e){
+                  Intent i = new Intent(SplashActivity.this,SplashActivity.class);
+                  startActivity(i);
+                  finish();
+              }
             }
         });
 

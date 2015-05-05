@@ -171,11 +171,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.insert(TABLE_FORM, null, values);
     }
 
-    public void CreateSplash (){
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_ISSPLASH, "true");
-        db.insert(TABLE_SPLASH, null, values);
+    public boolean CreateSplash (){
+        boolean state = false;
+        try{
+
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(KEY_ISSPLASH, "true");
+            db.insert(TABLE_SPLASH, null, values);
+            state = true;
+
+        }
+        catch (Exception e){
+
+            return  state;
+        }
+        return state;
     }
 
    /* public void CreateFiles (Files file){
@@ -269,6 +280,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 */
 
     public boolean DeleteFormTable(){
+
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FORM);
         onCreate(db);
@@ -344,7 +356,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void UpdateUser(User user){
         SQLiteDatabase db= getReadableDatabase();
         ContentValues values = new ContentValues();
-
         values.put(KEY_USERNAME,user.getUserName());
         values.put(KEY_FIRSTNAME,user.getFirstName());
         values.put(KEY_LASTNAME,user.getLastName());
