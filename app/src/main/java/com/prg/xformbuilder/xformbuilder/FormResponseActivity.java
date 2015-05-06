@@ -700,7 +700,7 @@ if(!formId.equals("")){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         alertDialog.setMessage(getString(R.string.UnsavedEdits));
         alertDialog
-                .setTitle("xFormBuilder")
+                .setTitle("XFORMBUILDER")
                 .setCancelable(false)
                 .setPositiveButton(R.string.Yes,
                         new DialogInterface.OnClickListener() {

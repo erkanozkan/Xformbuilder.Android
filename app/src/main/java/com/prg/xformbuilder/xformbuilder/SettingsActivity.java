@@ -154,9 +154,10 @@ public class SettingsActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(SettingsActivity.this);
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(SettingsActivity.this,AlertDialog.THEME_HOLO_LIGHT);
                 alertDialog.setMessage(getString(R.string.AllDataDelete));
                 alertDialog
+                        .setTitle("XFORMBUILDER")
                         .setCancelable(false)
                         .setPositiveButton(R.string.Yes,
                                 new DialogInterface.OnClickListener() {

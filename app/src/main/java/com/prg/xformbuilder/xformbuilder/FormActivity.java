@@ -240,7 +240,7 @@ public class FormActivity extends Activity {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormActivity.this,AlertDialog.THEME_HOLO_LIGHT);
         alertDialog.setMessage( getString(R.string.LogOut));
         alertDialog
-                .setTitle("xFormBuilder")
+                .setTitle("XFORMBUILDER")
                 .setCancelable(false)
                 .setPositiveButton(R.string.Yes,
                         new DialogInterface.OnClickListener() {

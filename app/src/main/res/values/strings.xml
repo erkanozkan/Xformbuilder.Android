@@ -62,6 +62,7 @@
     <string name="FormList">Form List</string>
     <string name="ViewerPicture">Viewer Picture</string>
     <string name="FileCorrupted">Selected file is corrupted or another file select.You are being redirected to organize data.</string>
+    <string name="Skip">Skip</string>
 
 
 

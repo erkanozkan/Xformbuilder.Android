@@ -207,7 +207,7 @@ public class MainActivity extends Activity {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
         alertDialog.setMessage(R.string.Exit);
         alertDialog
-                .setTitle("xFormBuilder")
+                .setTitle("XFORMBUILDER")
                 .setCancelable(false)
                 .setPositiveButton(R.string.Yes,
                         new DialogInterface.OnClickListener() {
