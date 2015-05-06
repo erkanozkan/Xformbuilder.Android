@@ -115,8 +115,8 @@ public class FormActivity extends Activity {
         if (savedInstanceState == null)
         {
     //-------------------------Progress Dialog Baslangıc
-    progressDialogFormList.setTitle("Senkronize işlemleri");
-    progressDialogFormList.setMessage("Formlarınız Yükleniyor...");
+    progressDialogFormList.setTitle(R.string.SyncProcess);
+    progressDialogFormList.setMessage(getString(R.string.LoadForms));
     progressDialogFormList.setCanceledOnTouchOutside(false);
     //--------------------------Progress Dialog Bitis
     try {
@@ -129,22 +129,29 @@ public class FormActivity extends Activity {
         ptrFrameLayout.setPtrHandler(new PtrHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
+
+                try{
+                    frame.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(NetWorkControl()){
+                                new GetDataAsync().execute();
+                            }
+                            else
+                            {
+                                Toast.makeText(getApplicationContext(), R.string.CheckYourNetwork, Toast.LENGTH_SHORT).show();
+                                ptrFrameLayout.refreshComplete();
+                            }
+
+                        }
+                    }, 1800);
+                }
+                catch (Exception e){
+                    Toast.makeText(getApplicationContext(), "hop", Toast.LENGTH_SHORT).show();
+                }
                   /*  MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.sound1);
                     mp.start();*/
-                frame.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(NetWorkControl()){
-                            new GetDataAsync().execute();
-                        }
-                        else
-                        {
-                            Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
-                            ptrFrameLayout.refreshComplete();
-                        }
 
-                    }
-                }, 1800);
             }
 
             @Override
@@ -164,7 +171,7 @@ public class FormActivity extends Activity {
             }); */
     }
     catch (Exception e) {
-        Toast.makeText(getApplicationContext(), "Form verileri çekilirken hata oluştu tekrar giriş yapmanız gerekiyor.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), R.string.GetFormDataError, Toast.LENGTH_SHORT).show();
          Intent i = new Intent(FormActivity.this,MainActivity.class);
         startActivity(i);
 
@@ -187,7 +194,7 @@ public class FormActivity extends Activity {
                     SendServerDraftData();
                     progressDialogFormList.show();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),R.string.CheckYourNetwork, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -231,11 +238,11 @@ public class FormActivity extends Activity {
 
     private void Logout() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormActivity.this,AlertDialog.THEME_HOLO_LIGHT);
-        alertDialog.setMessage("Oturum kapatılsın mı ?");
+        alertDialog.setMessage( getString(R.string.LogOut));
         alertDialog
                 .setTitle("xFormBuilder")
                 .setCancelable(false)
-                .setPositiveButton("Evet",
+                .setPositiveButton(R.string.Yes,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
@@ -255,7 +262,7 @@ public class FormActivity extends Activity {
                                 startActivity(i);
                             }
                         })
-                .setNegativeButton("Hayır",
+                .setNegativeButton(R.string.No,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
@@ -329,20 +336,28 @@ public class FormActivity extends Activity {
                 lv.setAdapter(adaptor);
             }
             else{
-                Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(FormActivity.this,MainActivity.class);
                 startActivity(intent);
             }
 
         }
         catch (Exception e) {
-            Intent intent = new Intent(FormActivity.this,FormActivity.class);
-            bundleForm.putInt("UserId", userId);
-            bundleForm.putInt("ParentId", parentId);
-            intent.putExtras(bundleForm);
-            Toast.makeText(getApplicationContext(), "Verileri çekilirken hata oluştu sayfa yenileniyor...", Toast.LENGTH_SHORT).show();
-            Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
-            startActivity(intent);
+            Intent intent;
+            Toast.makeText(getApplicationContext(), getString(R.string.UploadFormsError) , Toast.LENGTH_SHORT).show();
+            if(userId != 0 && parentId != 0){
+                intent = new Intent(FormActivity.this,FormActivity.class);
+                bundleForm.putInt("UserId", userId);
+                bundleForm.putInt("ParentId", parentId);
+                intent.putExtras(bundleForm);
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), R.string.GetFormDataError, Toast.LENGTH_SHORT).show();
+                intent = new Intent(FormActivity.this,MainActivity.class);
+
+            }
+             startActivity(intent);
 
         }
 
@@ -375,17 +390,27 @@ public class FormActivity extends Activity {
                 }
             }
             else{
-                Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(FormActivity.this,MainActivity.class);
                 startActivity(intent);
             }
         } catch (Exception ex) {
+            Toast.makeText(getApplicationContext(), getString(R.string.UploadFormsError), Toast.LENGTH_SHORT).show();
             ex.printStackTrace();
-            Intent intent = new Intent(FormActivity.this,FormActivity.class);
-            bundleForm.putInt("UserId", userId);
-            bundleForm.putInt("ParentId", parentId);
-            intent.putExtras(bundleForm);
-            Toast.makeText(getApplicationContext(), "Verileri gönderilirken hata oluştu sayfa yenileniyor lütfen bekleyin...", Toast.LENGTH_SHORT).show();
+            Intent intent;
+            if(userId != 0 && parentId != 0){
+               intent = new Intent(FormActivity.this,FormActivity.class);
+                bundleForm.putInt("UserId", userId);
+                bundleForm.putInt("ParentId", parentId);
+                intent.putExtras(bundleForm);
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), R.string.GetFormDataError, Toast.LENGTH_SHORT).show();
+                intent = new Intent(FormActivity.this,MainActivity.class);
+
+            }
+
              startActivity(intent);
         }
     }
@@ -405,7 +430,7 @@ public class FormActivity extends Activity {
                 }
             }
             else{
-                Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(FormActivity.this,MainActivity.class);
                 startActivity(intent);
             }
@@ -497,7 +522,7 @@ public class FormActivity extends Activity {
 
             }
             catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Form verileri çekilirken hata oluştu tekrar giriş yapmanız gerekiyor.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.GetFormDataError, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(FormActivity.this,MainActivity.class);
                 startActivity(intent);
              }
@@ -541,7 +566,7 @@ public class FormActivity extends Activity {
                     .setTitle(messageTitle)
                     .setMessage(messageBody)
                     .setCancelable(true)
-                    .setPositiveButton("OK", null)
+                    .setPositiveButton(R.string.OK, null)
                     .create().show();
         }
     }
@@ -633,7 +658,7 @@ public class FormActivity extends Activity {
 
                     }
                 } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
                     Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
                 }
             } else
@@ -679,7 +704,7 @@ public class FormActivity extends Activity {
         }
         @Override
         protected void onProgressUpdate(Integer... values) {
-            progressDialogFormList.setMessage("Formlarınız Upload Ediliyor... "+values[0]+"/"+values[1]);
+            progressDialogFormList.setMessage(getString(R.string.UploadForms)+values[0]+"/"+values[1]);
            if(values[0] == values[1] ){
                SetFormListInListView();
                progressDialogFormList.dismiss();

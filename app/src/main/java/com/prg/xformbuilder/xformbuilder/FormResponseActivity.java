@@ -144,7 +144,6 @@ public class FormResponseActivity extends Activity {
             webView.getSettings().setAllowFileAccess(true);
             webView.loadDataWithBaseURL("file:///android_asset/", html.toString(), "text/html", "utf-8", null);
             webView.addJavascriptInterface(new WebViewJavaScriptInterface(this), "app");
-
         }
 
 
@@ -171,7 +170,7 @@ public class FormResponseActivity extends Activity {
                         return true;
                     }
                 } else{
-                    Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.CheckYourNetwork, Toast.LENGTH_SHORT).show();
                 }
                  return true;
             }
@@ -198,8 +197,6 @@ public class FormResponseActivity extends Activity {
         });
 
     }
-
-
     public void YesClikced() {
         bundleFormResponse.putInt("UserId", userId);
         bundleFormResponse.putInt("ParentId", parentId);
@@ -237,10 +234,6 @@ if(!formId.equals("")){
 
 
 }
-
-
-
-
     }
     //----------------------------------------------Internet Connection Control-------------------------------------------------------------//
     private boolean NetWorkControl(){
@@ -256,11 +249,11 @@ if(!formId.equals("")){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
 
 
-        alertDialog.setTitle("Form save as draft");
+        alertDialog.setTitle(R.string.SavedProcess);
         alertDialog.setMessage(messagge);
         alertDialog
                 .setCancelable(false)
-                .setPositiveButton("OK",
+                .setPositiveButton(R.string.OK,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
@@ -271,7 +264,6 @@ if(!formId.equals("")){
         alert.show();
 
     }
-
 
     public class WebViewJavaScriptInterface {
 
@@ -289,7 +281,7 @@ if(!formId.equals("")){
          * required after SDK version 17.
          */
         @JavascriptInterface
-        public void FormSubmit( String html,  String json,  String isUploadable, String keyCode, String field1_title,  String field1_value,  String field2_title
+        public void FormSubmit( String html,  String json,  String isUploadable, String keyCode,String forFile, String field1_title,  String field1_value,  String field2_title
                 ,  String field2_value,  String field3_title,  String field3_value) {
 
             try {
@@ -303,17 +295,16 @@ if(!formId.equals("")){
                         dbHandler.UpdateDraft(draftForm);
 
                     } else {
-
                         //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
                         DraftForm form = new DraftForm(0, Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
                         dbHandler.CreateDraftForm(form);
                         draftId = dbHandler.GetLastDraftId(formId);
                     }
 
-                    if(isUploadable.equals("0"))
-                        AlertMessagge("Doldurulması gereken alanlar var.");
-                    else if (keyCode.equals("0")) {
-                        AlertMessagge("Form draft olarak kaydedildi");
+                    if(isUploadable.equals("0") && forFile.equals("1"))
+                        AlertMessagge(getString(R.string.ThereAreFillFields));
+                    else if (keyCode.equals("0") && forFile.equals("1")) {
+                        AlertMessagge(getString(R.string.FormSaveAsDraft));
                     }
                 }
                 else {
@@ -331,16 +322,29 @@ if(!formId.equals("")){
 
 
             } catch (Exception e) {
-                AlertMessagge("Hata oluştu");
-                Intent i = new Intent(FormResponseActivity.this,MainActivity.class);
-                startActivity(i);
+                if(userId != 0 || parentId != 0)
+                {
+                    Toast.makeText(getApplicationContext(),R.string.Error, Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(FormResponseActivity.this,FormActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
+                }
+                else{
+                    Toast.makeText(getApplicationContext(),R.string.Error, Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(FormResponseActivity.this,MainActivity.class);
+                    startActivity(i);
+                }
             }
         }
 
 
         @JavascriptInterface
         public String OpenFile() {
-            String returnValue = fileStringByte + "$^^$^^$" + fileName + "$^^$^^$" + fileSize;
+            String IsImage="false";
+            if(fileName.contains(".png") || fileName.contains(".jpg") || fileName.contains(".jpeg") || fileName.contains(".gif")){
+                IsImage="true";
+            }
+            String returnValue = fileStringByte + "$^^$^^$" + fileName + "$^^$^^$" + fileSize+ "$^^$^^$" +IsImage;
             return returnValue;
         }
 
@@ -348,17 +352,25 @@ if(!formId.equals("")){
         public void ViewFile(String base64File) throws IOException {
 
             if (!base64File.equals("")) {
-                String FILENAME = "hello_file.txt";
-                String string = "hello world!";
 
+                bundleFormResponse.putInt("UserId", userId);
+                bundleFormResponse.putInt("ParentId", parentId);
+                bundleFormResponse.putString("FormTitle", formTitle);
+                bundleFormResponse.putString("DraftId", draftId);
+                bundleFormResponse.putString("FormId", formId);
 
-                FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-                fos.write(base64File.getBytes());
+                byte [] FormImageByte = null;
+                try {
+                    FormImageByte = base64File.getBytes("UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                bundleFormResponse.putByteArray("base64", FormImageByte);
 
-                fos.close();
-
-                // here is the code to open file and i have to send as 'File'
-                // openFile(getApplicationContext(),file);
+                Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
+                i.putExtras(bundleFormResponse);
+                startActivity(i);
+                overridePendingTransition(R.anim.left_animation, R.anim.out_right_animation);
 
             }
         }
@@ -450,9 +462,7 @@ if(!formId.equals("")){
         // we will define openFileChooser for select file from camera
         webView.setWebChromeClient(new WebChromeClient() {
 
-
             // openFileChooser for Android 3.0+
-
             public void openFileChooser(ValueCallback uploadMsg) {
 
                 mUploadMessage = uploadMsg;
@@ -524,6 +534,10 @@ if(!formId.equals("")){
                 mUploadMessage.onReceiveValue(result);
                 mUploadMessage = null;
 
+            }
+            else{
+                mUploadMessage.onReceiveValue(result);
+                mUploadMessage = null;
             }
         }
     }
@@ -650,6 +664,7 @@ if(!formId.equals("")){
         fileSize = String.valueOf(file.length());
         fileName = file.getName();
 
+
         buffer = new byte[(int) file.length()];
 
         try {
@@ -683,11 +698,11 @@ if(!formId.equals("")){
 
     public void BackPressed() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
-        alertDialog.setMessage("Kaydedilmemiş değişiklik olabilir çıkmak istediğinize eminmisiniz ?");
+        alertDialog.setMessage(getString(R.string.UnsavedEdits));
         alertDialog
                 .setTitle("xFormBuilder")
                 .setCancelable(false)
-                .setPositiveButton("Evet",
+                .setPositiveButton(R.string.Yes,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
@@ -711,7 +726,7 @@ if(!formId.equals("")){
                                 }
                             }
                         })
-                .setNegativeButton("Hayır",
+                .setNegativeButton(R.string.No,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {

@@ -17,13 +17,13 @@ import java.util.List;
  */
 public class DatabaseHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION=1;
-
+    private static final int DATABASE_VERSION=2;
 
     private static final String DATABASE_NAME="xformbuilder",
             TABLE_USER ="user",
             TABLE_SPLASH ="splash",
             TABLE_FILES ="files",
+            TABLE_LOG ="log",
             KEY_ID="id",
             KEY_USERNAME="username",
             KEY_FIRSTNAME="firstname",
@@ -46,16 +46,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_FIELD2_VALUE ="field2value",
             KEY_FIELD3_VALUE ="field3value",
             KEY_ISUPLOADABLE="isuploadable",
+            KEY_ISPUSHNOTIFICATION="pushnotification",
             KEY_SYNC="sync",
             KEY_FORMIMAGE="formimage",
             KEY_DATEDRAFT="datedraft",
             KEY_ISSPLASH="issplash",
-            KEY_ELEMENTID="elementid",
-            KEY_IMAGEBINARY="binaryimage",
-            KEY_DRAFTID="draftid";
-
-
-
+            KEY_ERROR="error",
+            KEY_ERRORMESSAGE="errormessage";
 
 
 
@@ -71,10 +68,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 +KEY_PASSWORD + " TEXT,"
                 +KEY_PARENTID + " TEXT,"
                 +KEY_USERID + " TEXT,"
+                +KEY_ISPUSHNOTIFICATION + " TEXT,"
                 +KEY_SYNC + " TEXT,"
                 +KEY_COMPANY + " TEXT)");
         Log.d("DBHelper", "SQL : " + sqlUser);
         db.execSQL(sqlUser);
+
 
         String sqlForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + KEY_FORMTITLE + " TEXT,"
@@ -117,8 +116,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
 
-        // db.execSQL("ALTER TABLE IF EXISTS " + TABLE_USER);
-        onCreate(db);
+             onCreate(db);
+
     }
 
 
@@ -135,8 +134,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PASSWORD,user.getPassword());
         values.put(KEY_COMPANY, user.getCompany());
         values.put(KEY_SYNC,user.getSync());
+        values.put(KEY_ISPUSHNOTIFICATION,user.getPush());
+
         db.insert(TABLE_USER, null, values);
     }
+
+    public void CreateLog (LogError logError){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_ERROR, logError.getError());
+        values.put(KEY_ERRORMESSAGE, logError.getErrorMessage());
+        values.put(KEY_USERID, logError.getUserId());
+        values.put(KEY_PARENTID, logError.getParentId());
+        db.insert(TABLE_LOG, null, values);
+    }
+
+
+
 
     public void CreateDraftForm (DraftForm draftForm){
         SQLiteDatabase db = getWritableDatabase();
@@ -237,7 +251,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 cursor.getString(5),
                 Integer.parseInt(cursor.getString(6)),
                 Integer.parseInt(cursor.getString(7)),
-                cursor.getString(8));
+                cursor.getString(8),cursor.getString(9));
 
         cursor.close();
         return user;
@@ -346,7 +360,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
                     cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
                     cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
-                    cursor.getString(cursor.getColumnIndex(KEY_SYNC)));
+                    cursor.getString(cursor.getColumnIndex(KEY_SYNC)),cursor.getString(cursor.getColumnIndex(KEY_ISPUSHNOTIFICATION)));
             return user;
         }
         cursor.close();
@@ -362,6 +376,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_USERID,user.getUserId());
         values.put(KEY_PARENTID,user.getParentId());
         values.put(KEY_PASSWORD, user.getPassword());
+        values.put(KEY_ISPUSHNOTIFICATION, user.getPush());
         values.put(KEY_COMPANY, user.getCompany());
         db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(user.getUserId())});
     }
@@ -372,7 +387,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_SYNC,sync);
         db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(userId)});
     }
-
+    public void SettingPushNotificationUpdate(String push,int userId){
+        SQLiteDatabase db= getReadableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_ISPUSHNOTIFICATION,push);
+        db.update(TABLE_USER, values, KEY_USERID + "=?", new String[]{String.valueOf(userId)});
+    }
     /* public void UpdateFiles (Files file){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -399,16 +419,38 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(5),
                     Integer.parseInt(cursor.getString(6)),
                     Integer.parseInt(cursor.getString(7)),
-                    cursor.getString(8));
+                    cursor.getString(8),cursor.getString(9));
             userList.add(user);
         }
         cursor.close();
         return userList;
     }
 
+    public List<LogError> getLogErrorList(int userId){
+        SQLiteDatabase db =this.getReadableDatabase();
+        List<LogError> logList = null;
+        //  Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_LOG + " WHERE " + KEY_USERID + "='" + String.valueOf(userId) + "' ", null);
+
+        Cursor cursor=db.query(TABLE_LOG,new String[] {KEY_ID,KEY_ERROR,KEY_ERRORMESSAGE,KEY_USERID,KEY_PARENTID}, KEY_USERID + "=?", new String[] {String.valueOf(userId)},null,null,null,null);
+        while(cursor.moveToNext())
+        {
+            LogError logError = new LogError(cursor.getInt(cursor.getColumnIndex(KEY_ID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_ERROR)),
+                    cursor.getString(cursor.getColumnIndex(KEY_ERRORMESSAGE)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)));
+            logList.add(logError);
+        }
+
+        cursor.close();
+        return logList;
+    }
+
+
     public List<Form> getAllFormListVw(String parentId ) {
         List<Form> formList = new ArrayList<Form>();
         SQLiteDatabase db = this.getReadableDatabase();
+
         Cursor cursor = db.query(TABLE_FORM, new String[]{KEY_ID, KEY_FORMTITLE, KEY_FORMID,KEY_PARENTID,KEY_USERNAME,KEY_MOBILEHTML,KEY_USERID,KEY_FORMIMAGE}, KEY_PARENTID + "=?", new String[] {String.valueOf(parentId)}, null, null, null, null);
 
         while (cursor.moveToNext()) {
@@ -474,7 +516,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
                     cursor.getInt(cursor.getColumnIndex(KEY_USERID)),
                     cursor.getInt(cursor.getColumnIndex(KEY_PARENTID)),
-                    cursor.getString(cursor.getColumnIndex(KEY_SYNC)));
+                    cursor.getString(cursor.getColumnIndex(KEY_SYNC)),cursor.getString(cursor.getColumnIndex(KEY_ISPUSHNOTIFICATION)));
 
         }
         cursor.close();
@@ -658,8 +700,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FORM);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SPLASH);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FILES);
-
-
         onCreate(db);
         return true;
     }

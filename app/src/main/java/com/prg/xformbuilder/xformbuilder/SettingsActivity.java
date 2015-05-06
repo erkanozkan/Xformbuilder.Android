@@ -25,6 +25,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.onesignal.OneSignal;
+
 
 public class SettingsActivity extends Activity {
 
@@ -33,7 +35,7 @@ public class SettingsActivity extends Activity {
     int parentId = 0;
     int userId = 0,getParentId=0;
     LinearLayout AboutButton,FaqButton,ContactButton,ClearDatabase;
-    CheckBox checkBoxSync;
+    CheckBox checkBoxSync,checkBoxPushNotification;
     User GetUserSync;
     LinearLayout layoutBack;
     ImageButton imgBtnBack;
@@ -43,19 +45,18 @@ public class SettingsActivity extends Activity {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_settings);
         overridePendingTransition(R.anim.right_animation, R.anim.out_left_animation);
-
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         final Bundle bundle=getIntent().getExtras();
         userId=bundle.getInt("UserId");
         parentId=bundle.getInt("ParentId");
         TextView txtSettings = (TextView)findViewById(R.id.textView_FormName);
-        txtSettings.setText("Settings");
+        txtSettings.setText(getString(R.string.Settings));
         ContactButton=(LinearLayout)findViewById(R.id.LinearLayout_Contact);
         FaqButton=(LinearLayout)findViewById(R.id.LinearLayout_Faq);
         AboutButton=(LinearLayout)findViewById(R.id.LinearLayout_about);
         ClearDatabase=(LinearLayout)findViewById(R.id.LinearLayout_CleanDatabase);
         checkBoxSync=(CheckBox)findViewById(R.id.checkBox_sync);
-
+        checkBoxPushNotification = (CheckBox)findViewById(R.id.checkBox_PushNotification);
         layoutBack=(LinearLayout)findViewById(R.id.LinearLayoutBack);
 
         layoutBack.setOnClickListener(new View.OnClickListener() {
@@ -87,13 +88,26 @@ public class SettingsActivity extends Activity {
             }
         }
         else{
-            Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SettingsActivity.this,MainActivity.class);
             startActivity(intent);
 
         }
 
+        if(userId != 0 && parentId != 0){
+            GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+            if (GetUserSync != null && GetUserSync.getPush().equals("true")){
+                checkBoxPushNotification.setChecked(true);
+            }else{
+                checkBoxPushNotification.setChecked(false);
+            }
+        }
+        else{
+            Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(SettingsActivity.this,MainActivity.class);
+            startActivity(intent);
 
+        }
 
 
 
@@ -106,7 +120,7 @@ public class SettingsActivity extends Activity {
                     startActivity(browserIntent);
                 }
                 else{
-                    Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.CheckYourNetwork, Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -119,7 +133,7 @@ public class SettingsActivity extends Activity {
                     startActivity(browserIntent);
                 }
             else{
-                Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.CheckYourNetwork, Toast.LENGTH_SHORT).show();
             }
             }
         });
@@ -131,7 +145,7 @@ public class SettingsActivity extends Activity {
                 startActivity(browserIntent);
             }
             else{
-                Toast.makeText(getApplicationContext(), "Lütfen Internet bağlantınızı kontrol ediniz.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.CheckYourNetwork, Toast.LENGTH_SHORT).show();
             }
             }
         });
@@ -141,10 +155,10 @@ public class SettingsActivity extends Activity {
             public void onClick(View v) {
 
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(SettingsActivity.this);
-                alertDialog.setMessage("Tüm verilerinizi silmek istediğinize emin misiniz ?");
+                alertDialog.setMessage(getString(R.string.AllDataDelete));
                 alertDialog
                         .setCancelable(false)
-                        .setPositiveButton("Evet",
+                        .setPositiveButton(R.string.Yes,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,
                                                         int which) {
@@ -165,7 +179,7 @@ public class SettingsActivity extends Activity {
                                         finish();
                                     }
                                 })
-                        .setNegativeButton("Hayır",
+                        .setNegativeButton(R.string.No,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,
                                                         int which) {
@@ -190,13 +204,36 @@ public class SettingsActivity extends Activity {
                     }
                 }
                 else{
-                    Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SettingsActivity.this,MainActivity.class);
                     startActivity(intent);
 
                 }
 
 
+            }
+        });
+
+        checkBoxPushNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(userId != 0){
+                    if (checkBoxPushNotification.isChecked()) {
+                        OneSignal.sendTag("COMPANYID",String.valueOf(parentId));
+                        dbHandler.SettingPushNotificationUpdate("true", userId);
+                    }
+                    else
+                    {
+                        OneSignal.deleteTag("COMPANYID");
+                        dbHandler.SettingPushNotificationUpdate("false", userId);
+                    }
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(SettingsActivity.this,MainActivity.class);
+                    startActivity(intent);
+
+                }
             }
         });
 
@@ -236,7 +273,7 @@ public class SettingsActivity extends Activity {
             overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
         }
         else{
-            Toast.makeText(getApplicationContext(), "Oturumunuz dolmuştur tekrar giriş yapın.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(SettingsActivity.this,MainActivity.class);
             startActivity(intent);
         }

@@ -150,7 +150,7 @@ public class DraftFormActivity extends Activity {
                 lv.setAdapter(draftAdapter);
             }
             else{
-                Toast.makeText(getApplicationContext(), "Forma ait veri bulunamadı form listesine yönlendiriliyorsunuz.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.NoDataForms) , Toast.LENGTH_SHORT).show();
 
                 Bundle bundleReturn = new Bundle();
                 bundleReturn.putInt("UserId", userId);
@@ -161,7 +161,7 @@ public class DraftFormActivity extends Activity {
             }
         }
         catch (Exception e){
-             Toast.makeText(getApplicationContext(), "Forma ait veri bulunamadı form listesine yönlendiriliyorsunuz.", Toast.LENGTH_SHORT).show();
+             Toast.makeText(getApplicationContext(), getString(R.string.NoDataForms), Toast.LENGTH_SHORT).show();
             Bundle bundleReturn = new Bundle();
             bundleReturn.putInt("UserId", userId);
             bundleReturn.putInt("ParentId", parentId);

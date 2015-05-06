@@ -23,32 +23,35 @@ import android.widget.Toast;
 
 import com.onesignal.OneSignal;
 import com.onesignal.OneSignal.NotificationOpenedHandler;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 
 public class MainActivity extends Activity {
 
-    private EditText  username=null;
-    private EditText  password=null;
+    private EditText username = null;
+    private EditText password = null;
     private Button login;
-    String jsonUserName="",jsonCompany="", jsonLastName="", jsonFirstName="", jsonPassword="";
-    int jsonParentId=0,jsonUserId=0 ;
+    String jsonUserName = "", jsonCompany = "", jsonLastName = "", jsonFirstName = "", jsonPassword = "",push="",sync="";
+    int jsonParentId = 0, jsonUserId = 0;
     DatabaseHandler dbHandler;
     boolean InternetConnection = false;
     final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
-    final static  String AppId = "20a9d85f-3a67-4c91-be5b-0aff74fa00df";
-    final static  String AppKey = "61993513-c1c5-4ce1-aacd-3d37e36627b7";
+    final static String AppId = "20a9d85f-3a67-4c91-be5b-0aff74fa00df";
+    final static String AppKey = "61993513-c1c5-4ce1-aacd-3d37e36627b7";
 
-    ProgressDialog loginDialog ;
+    ProgressDialog loginDialog;
 
     SharedPreferences preferences; //preferences için bir nesne tanımlıyorum.
     SharedPreferences.Editor editor; //preferences içerisine bilgi girmek için tanımlama
@@ -63,80 +66,83 @@ public class MainActivity extends Activity {
         OneSignal.init(this, "71156653394", "52ee36a0-e8c3-11e4-b391-0370dbb1438c", new ExampleNotificationOpenedHandler());
 
         dbHandler = new DatabaseHandler(getApplicationContext());
-        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = preferences.edit();
-        username = (EditText)findViewById(R.id.editText_userName);
-        password = (EditText)findViewById(R.id.editText_password);
-       // dbHandler.ClearLocalDatabase();
-        login = (Button)findViewById(R.id.button_login);
-        try{
+        username = (EditText) findViewById(R.id.editText_userName);
+        password = (EditText) findViewById(R.id.editText_password);
+        // dbHandler.ClearLocalDatabase();
+        login = (Button) findViewById(R.id.button_login);
+        try {
             //--------------------------------------Internet Connection
-            ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-            if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                     connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
                 //we are connected to a network
                 InternetConnection = true;
-            }
-            else
+            } else
                 InternetConnection = false;
             //--------------------------------------Internet Connection
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             InternetConnection = false;
-        }
+            Log.e("İnternet bağlantı hatası", e.getMessage());
 
+        }
 
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( username != null && !username.getText().toString().isEmpty() &&  password != null && !password.getText().toString().isEmpty() ) {
+                if (username != null && !username.getText().toString().isEmpty() && password != null && !password.getText().toString().isEmpty()) {
                     loginDialog = new ProgressDialog(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
-                    loginDialog.setTitle("Login Process");
-                    loginDialog.setMessage("Please Wait...");
+                    loginDialog.setTitle(R.string.LoginProcess);
+
+                    loginDialog.setMessage(getString(R.string.PleaseWait));
                     loginDialog.setCanceledOnTouchOutside(false);
                     loginDialog.show();
-                    try{
-                        if (InternetConnection){
+                    try {
+                        if (InternetConnection) {
                             //Web Api Cagırıyoruz.
-                            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName="+ username.getText().toString()+"&password="+password.getText().toString()+"&appId="+AppId+"&appKey="+AppKey);
-                        }
-                        else{
-                            User login = dbHandler.AccountLogin(username.getText().toString(),password.getText().toString());
-                            if (login!=null){
+                            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName=" + username.getText().toString() + "&password=" + password.getText().toString() + "&appId=" + AppId + "&appKey=" + AppKey);
+                        } else {
+                            User login = dbHandler.AccountLogin(username.getText().toString(), password.getText().toString());
+                            if (login != null) {
                                 loginDialog.dismiss();
                                 //Toast.makeText(getApplicationContext(), "Xformbuilder Hoş geldiniz.",Toast.LENGTH_SHORT).show();
                                 bundle.putInt("ParentId", login.getParentId());
-                                bundle.putInt("UserId",login.getUserId());
-                                editor.putString("UserName",username.getText().toString());    //bilgileri ekle ve kaydet
+                                bundle.putInt("UserId", login.getUserId());
+                                editor.putString("UserName", username.getText().toString());    //bilgileri ekle ve kaydet
                                 editor.putString("Password", password.getText().toString());
-                                editor.putInt("UserId",login.getUserId());
-                                editor.putInt("ParentId",login.getParentId());
+                                editor.putInt("UserId", login.getUserId());
+                                editor.putInt("ParentId", login.getParentId());
                                 editor.commit();
 
-                                Intent i = new Intent(MainActivity.this,FormActivity.class);
+                                Intent i = new Intent(MainActivity.this, FormActivity.class);
                                 i.putExtras(bundle);
+                                User GetUserSync = dbHandler.GetUserByUserIdForSettings(login.getUserId());
 
-                                SendTag(String.valueOf(login.getParentId()));
+                                if (GetUserSync != null && GetUserSync.getPush().equals("true"))
+                                    SendTag(String.valueOf(jsonParentId));
+                                else
+                                    OneSignal.deleteTag("COMPANYID");
+
 
                                 startActivity(i);
 
 
-                            }
-                            else {
+                            } else {
                                 loginDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), "Böyle bir kullanıcı kaydı bulunamadı.",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), R.string.NoUser, Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }
-                    catch (Exception e){
-                        Intent i = new Intent(MainActivity.this,MainActivity.class);
+                    } catch (Exception e) {
+                        Intent i = new Intent(MainActivity.this, MainActivity.class);
                         startActivity(i);
                     }
 
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "Lutfen bilgilerinizi kontrol ediniz.",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -164,7 +170,6 @@ public class MainActivity extends Activity {
                     String addCompany = additionalData.getString("COMPANY");
 
 
-
                     if (additionalData.has("title"))
                         messageTitle = additionalData.getString("title");
                     if (additionalData.has("actionSelected"))
@@ -174,11 +179,11 @@ public class MainActivity extends Activity {
             } catch (JSONException e) {
             }
 
-            new AlertDialog.Builder(MainActivity.this,AlertDialog.THEME_HOLO_LIGHT)
+            new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT)
                     .setTitle(messageTitle)
                     .setMessage(messageBody)
                     .setCancelable(true)
-                    .setPositiveButton("OK", null)
+                    .setPositiveButton(R.string.OK, null)
                     .create().show();
         }
     }
@@ -189,6 +194,7 @@ public class MainActivity extends Activity {
         super.onPause();
         OneSignal.onPaused();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -198,12 +204,12 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this,AlertDialog.THEME_HOLO_LIGHT);
-        alertDialog.setMessage("Xformbuilder kapatılsın mı?");
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_LIGHT);
+        alertDialog.setMessage(R.string.Exit);
         alertDialog
                 .setTitle("xFormBuilder")
                 .setCancelable(false)
-                .setPositiveButton("Evet",
+                .setPositiveButton(R.string.Yes,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
@@ -213,7 +219,7 @@ public class MainActivity extends Activity {
 
                             }
                         })
-                .setNegativeButton("Hayır",
+                .setNegativeButton(R.string.No,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
@@ -229,7 +235,7 @@ public class MainActivity extends Activity {
     }
 
 
-    public String GET(String url){
+    public String GET(String url) {
 
         InputStream inputStream = null;
         String result = "";
@@ -245,10 +251,9 @@ public class MainActivity extends Activity {
             inputStream = httpResponse.getEntity().getContent();
 
             // convert inputstream to string
-            if(inputStream != null) {
+            if (inputStream != null) {
                 result = convertInputStreamToString(inputStream);
-            }
-            else
+            } else
                 result = "Did not work!";
 
         } catch (Exception e) {
@@ -258,12 +263,12 @@ public class MainActivity extends Activity {
         return result;
     }
 
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException{
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String line = "";
         String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line ;
+        while ((line = bufferedReader.readLine()) != null)
+            result += line;
         inputStream.close();
         return result;
 
@@ -275,64 +280,73 @@ public class MainActivity extends Activity {
 
             return GET(urls[0]);
         }
+
         @Override
         protected void onPostExecute(String result) {
             try {
                 JSONObject jsonObject = new JSONObject(result);
-                jsonUserName= jsonObject.getString("UserName").toString();
-                jsonFirstName=jsonObject.getString("FirstName").toString();
-                jsonLastName=jsonObject.getString("LastName").toString();
-                jsonPassword=jsonObject.getString("Password").toString();
-                jsonParentId=jsonObject.getInt("ParentId");
-                jsonUserId=jsonObject.getInt("UserId");
-                jsonCompany=jsonObject.getString("Company").toString();
+                jsonUserName = jsonObject.getString("UserName").toString();
+                jsonFirstName = jsonObject.getString("FirstName").toString();
+                jsonLastName = jsonObject.getString("LastName").toString();
+                jsonPassword = jsonObject.getString("Password").toString();
+                jsonParentId = jsonObject.getInt("ParentId");
+                jsonUserId = jsonObject.getInt("UserId");
+                jsonCompany = jsonObject.getString("Company").toString();
 
-                if (jsonUserName.equals(username.getText().toString()))
-                {
+                if (jsonUserName.equals(username.getText().toString())) {
                     editor.putString("UserName", jsonUserName);
                     editor.putString("Password", jsonPassword);
-                    editor.putInt("UserId",jsonUserId);
-                    editor.putInt("ParentId",jsonParentId);
+                    editor.putInt("UserId", jsonUserId);
+                    editor.putInt("ParentId", jsonParentId);
                     editor.commit();
-                    try{
+                    try {
 
-                        boolean  getUser = dbHandler.GetUserByUserId(jsonUserId);
-                        if (getUser){
-                            User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId),"true");
+
+                        boolean getUser = dbHandler.GetUserByUserId(jsonUserId);
+                        if (getUser) {
+                            try {
+                                User GetUserSync = dbHandler.GetUserByUserIdForSettings(jsonUserId);
+                                push = GetUserSync.getPush();
+                                sync = GetUserSync.getSync();
+                                if (push.equals("true"))
+                                    SendTag(String.valueOf(jsonParentId));
+                                else
+                                    OneSignal.deleteTag("COMPANYID");
+                            }
+                            catch (Exception e) {
+                                loginDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
+                            }
+                            User user = new User(0, String.valueOf(jsonUserName), String.valueOf(jsonFirstName), String.valueOf(jsonLastName), String.valueOf(jsonCompany), String.valueOf(jsonPassword), Integer.valueOf(jsonUserId), Integer.valueOf(jsonParentId), sync, push);
                             dbHandler.UpdateUser(user);
-                        }else{
-                            User user = new User(0,String.valueOf(jsonUserName),String.valueOf(jsonFirstName),String.valueOf(jsonLastName),String.valueOf(jsonCompany),String.valueOf(jsonPassword),Integer.valueOf(jsonUserId),Integer.valueOf(jsonParentId),"true");
+                        } else {
+                            User user = new User(0, String.valueOf(jsonUserName), String.valueOf(jsonFirstName), String.valueOf(jsonLastName), String.valueOf(jsonCompany), String.valueOf(jsonPassword), Integer.valueOf(jsonUserId), Integer.valueOf(jsonParentId), "true", "true");
                             dbHandler.CreateUser(user);
                         }
-                    }
-                    catch (Exception e){
+                    } catch (Exception e) {
 
                     }
 
-                    editor.putString("UserName",username.getText().toString());    //bilgileri ekle ve kaydet
+                    editor.putString("UserName", username.getText().toString());    //bilgileri ekle ve kaydet
                     editor.putString("Password", password.getText().toString());
-                    editor.putInt("UserId",jsonUserId);
-                    editor.putInt("ParentId",jsonParentId);
+                    editor.putInt("UserId", jsonUserId);
+                    editor.putInt("ParentId", jsonParentId);
                     editor.commit();
                     bundle.putInt("ParentId", jsonParentId);
-                    bundle.putInt("UserId",jsonUserId);
+                    bundle.putInt("UserId", jsonUserId);
                     loginDialog.dismiss();
-                    Intent i = new Intent(MainActivity.this,FormActivity.class);
+                    Intent i = new Intent(MainActivity.this, FormActivity.class);
                     i.putExtras(bundle);
-
-                    SendTag(String.valueOf(jsonParentId));
 
                     startActivity(i);
 
-                }
-                else
-                {
+                } else {
                     loginDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
                 loginDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "Lutfen bilgileri kontrol ediniz.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
                 Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
             }
         }
@@ -348,6 +362,7 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -361,7 +376,6 @@ public class MainActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 
 }

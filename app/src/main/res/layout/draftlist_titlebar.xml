@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Draft Listesi"
+                android:text="@string/DraftList"
                 android:id="@+id/textView_DraftList"
                 android:textColor="#ffffff" />
         </LinearLayout>

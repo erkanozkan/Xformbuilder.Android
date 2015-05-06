@@ -102,7 +102,7 @@
                             android:layout_height="wrap_content"
                             android:id="@+id/textView_draftCount"
                             android:textColor="#ff14c843"
-                            android:textSize="17dp"
+                            android:textSize="15dp"
                             android:layout_gravity="bottom"
                             android:layout_marginLeft="3px"
                             android:layout_marginBottom="4px"

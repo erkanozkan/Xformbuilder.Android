@@ -7,31 +7,58 @@ $(document).ready(function () {
     var lang = $('#lang')[0].value;
 
            $('input[type="file"]').change(function () {
-             var value = app.OpenFile();
-             if(value != null){
-            var array = new Array();
+           var value = app.OpenFile();
+           if(value != null){
+           var array = new Array();
            array = value.split("$^^$^^$");
            $(this).attr('data-val-type',array[1]);
            $(this).attr('data-val-value',value);
            var divId = $(this)[0].parentElement.parentElement.parentElement.id;
            var base64File = array[0];
-           var input = "<input type='button'  onclick=CallView(this)  id='btnView_"+divId+"'    data-val-value='"+base64File+"'  value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'    />";
 
-
-
-     if ($('#btnView_' + divId )[0] != undefined) {
+      if(array[3] == "true") {
+      var input = "<input type='button'  onclick=CallView(this)  id='btnView_"+divId+"'    data-val-value='"+base64File+"'  value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'    />";
+        if ($('#btnView_' + divId )[0] != undefined) {
                      $('#btnView_' + divId).remove();
                      $('#' + divId).append(input);
+                     if ($('#labelView_' + divId )[0] != undefined)
+                           $('#labelView_' + divId).remove();
                  }
                  else{
                      $('#' + divId).append(input);
+                        if ($('#labelView_' + divId )[0] != undefined)
+                           $('#labelView_' + divId).remove();
                   }
+}
+else{
+ var label = "<span id='labelView_"+divId+"' > file"+ array[1].substring(array[1].lastIndexOf("."),array[1].length) +"</span>";
+ if ($('#labelView_' + divId )[0] != undefined) {
+                     $('#labelView_' + divId).remove();
+                     $('#' + divId).append(label);
+
+                     if ($('#btnView_' + divId )[0] != undefined)
+                     $('#btnView_' + divId ).remove();
+                 }
+                 else{
+                     $('#' + divId).append(label);
+
+                      if ($('#btnView_' + divId )[0] != undefined)
+                                          $('#btnView_' + divId ).remove();
+                  }
+}
+
+ if ($('form').validate().errorList.length == 0 && $('form').valid()) {
+                                Submit(1,"1","1"); // form doğru dolduruldu ise
+
+                            }
+                            else {
+                                Submit(0,"1","1"); //form eksik dolduruldu ise
+                            }
+
+
                }
 
                 });
-
-
-
 
     if (lang == "tr-TR") {
         $.extend($.validator.messages, {
@@ -135,11 +162,11 @@ $('form').on("keypress", function(e) {
            });
 
            if ($('form').validate().errorList.length == 0 && $('form').valid()) {
-               Submit(1,"1"); // form doğru dolduruldu ise
+               Submit(1,"1","0"); // form doğru dolduruldu ise
 
            }
            else {
-               Submit(0,"1"); // form eksik dolduruldu ise
+               Submit(0,"1","0"); // form eksik dolduruldu ise
            }
 e.preventDefault();
     return false;
@@ -159,11 +186,11 @@ e.preventDefault();
         });
         
         if ($('form').validate().errorList.length == 0 && $('form').valid()) {
-            Submit(1,"0"); // form doğru dolduruldu ise
+            Submit(1,"0","0"); // form doğru dolduruldu ise
 
         }
         else {
-            Submit(0,"0"); // form eksik dolduruldu ise
+            Submit(0,"0","0"); // form eksik dolduruldu ise
         } 
 
         return false;
@@ -172,11 +199,16 @@ e.preventDefault();
 
 
 
-    function Submit(isUploadable,keyCode) {
+    function Submit(isUploadable,keyCode,forFile) {
 
         $('[type=text],[type=email],[type=date],[type=url],[type=tel],[type=file],[type=number],[type=hidden], textarea').each(function () {
             this.defaultValue = this.value;
         });
+
+          $('[type=button]').each(function () {
+        $(this).attr("onlick","CallView(this)");
+                });
+
         $('[type=checkbox], [type=radio]').each(function () {
             this.defaultChecked = this.checked;
         });
@@ -373,9 +405,7 @@ e.preventDefault();
       $('input[type="submit"]')[0].value = "Kaydediliyor...";
       $('input[type="submit"]').attr('disabled','disabled');
 
-      app.FormSubmit(html, json, isUploadable,keyCode, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
-
-
+      app.FormSubmit(html, json, isUploadable,keyCode ,forFile , field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
 
       $('input[type="submit"]').removeAttr('disabled');
 

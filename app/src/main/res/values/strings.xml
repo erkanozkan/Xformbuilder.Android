@@ -33,4 +33,40 @@
 
 
 
+    <string name="LoginProcess">Login process</string>
+    <string name="PleaseWait">Please wait</string>
+     <string name="SyncProcess">Synchronization processes</string>
+    <string name="SessionTimeOut">Your session expired, please login again.</string>
+    <string name="CheckYourInfo">Please check your login credentials.</string>
+    <string name="Exit">Would you like to exit?</string>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
+    <string name="GetFormDataError">There is an error when getting form datas, please login again.</string>
+    <string name="LogOut">Would you to logout ?</string>
+    <string name="ThereAreFillFields">There are fields to fill correctly!</string>
+    <string name="FormSaveAsDraft">Form was saved as draft</string>
+    <string name="UnsavedEdits">You could have unsaved edits to this page. Are you sure to exit ?</string>
+    <string name="CheckYourNetwork">Please check your internet connection.</string>
+    <string name="NoUser">There is no user with this credentials.</string>
+    <string name="OK">OK</string>
+    <string name="SavedProcess">Saved Process</string>
+    <string name="Error">Hata var Panik Yok bekleyin</string>
+    <string name="UploadForms">We are uploading your forms.</string>
+    <string name="UploadFormsError">There was an error when uploading datas, please wait.</string>
+    <string name="LoadForms">We are loading your forms.</string>
+    <string name="NoDataForms">There is no data with this form, you are being redirected to form list.</string>
+    <string name="AllDataDelete">Are you sure you want to delete all your datas ?</string>
+
+    <string name="Settings">Settings</string>
+    <string name="DraftList">Draft List</string>
+    <string name="FormList">Form List</string>
+    <string name="ViewerPicture">Viewer Picture</string>
+    <string name="FileCorrupted">Selected file is corrupted or another file select.You are being redirected to organize data.</string>
+
+
+
+
+
+
+
 </resources>
