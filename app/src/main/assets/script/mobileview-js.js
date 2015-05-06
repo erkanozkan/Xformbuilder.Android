@@ -47,7 +47,7 @@ else{
                   }
 }
 
- if ($('form').validate().errorList.length == 0 && $('form').valid()) {
+      if ($('form').validate().errorList.length == 0 && $('form').valid()) {
                                 Submit(1,"1","1"); // form doğru dolduruldu ise
 
                             }

@@ -301,9 +301,9 @@ if(!formId.equals("")){
                         draftId = dbHandler.GetLastDraftId(formId);
                     }
 
-                    if(isUploadable.equals("0") && forFile.equals("1"))
+                    if(isUploadable.equals("0") && forFile.equals("0"))
                         AlertMessagge(getString(R.string.ThereAreFillFields));
-                    else if (keyCode.equals("0") && forFile.equals("1")) {
+                    else if (keyCode.equals("0") && forFile.equals("0")) {
                         AlertMessagge(getString(R.string.FormSaveAsDraft));
                     }
                 }
@@ -341,7 +341,7 @@ if(!formId.equals("")){
         @JavascriptInterface
         public String OpenFile() {
             String IsImage="false";
-            if(fileName.contains(".png") || fileName.contains(".jpg") || fileName.contains(".jpeg") || fileName.contains(".gif")){
+            if(fileName.toLowerCase().contains(".png") || fileName.toLowerCase().contains(".jpg") || fileName.toLowerCase().contains(".jpeg") || fileName.toLowerCase().contains(".gif")){
                 IsImage="true";
             }
             String returnValue = fileStringByte + "$^^$^^$" + fileName + "$^^$^^$" + fileSize+ "$^^$^^$" +IsImage;

@@ -7,8 +7,6 @@
     android:background="#ffffff"
     android:gravity="center">
 
-
-
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,7 +41,6 @@
                     android:paddingLeft="10dp"
                     android:background="@null"
                     android:layout_marginTop="4dp"
-                    android:text="admin"
                     android:hint="@string/placeholder_username"
                     android:singleLine="true" />
 
@@ -65,7 +62,6 @@
                     android:paddingLeft="10dp"
                     android:background="@null"
                     android:hint="@string/placeholder_password"
-                    android:text="admin"
                     android:singleLine="true"
                     android:layout_marginTop="4dp" />
 
