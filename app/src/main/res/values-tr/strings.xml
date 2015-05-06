@@ -54,7 +54,16 @@
     <string name="ViewerPicture">Resim Görüntüleyici</string>
     <string name="FileCorrupted">Seçilen dosya bozuk ya da başka bir dosya seçin.Veriyi düzenlemeniz için yönlendiriliyorsunuz.</string>
     <string name="Skip">Atla</string>
-
+    <string name="About">Hakkında</string>
+    <string name="Maintenance">Bakım</string>
+    <string name="Advanced">Gelişmiş</string>
+    <string name="AboutX">Xformbuilder hakkında</string>
+    <string name="Version">Sürüm:1.0.1.2</string>
+    <string name="ContactXformbuilder">İletişim Xformbuilder</string>
+    <string name="CleanLocal">Local veritabanını temizleyin</string>
+    <string name="AutoSync">Otomatik senkronizasyon</string>
+    <string name="PushNotification">Bildirimleri Etkinleştir</string>
+    <string name="CleanLocalDesc">Bütün local veritabanını silmek için seçiniz</string>
 
 
 

@@ -64,6 +64,17 @@
     <string name="FileCorrupted">Selected file is corrupted or another file select.You are being redirected to organize data.</string>
     <string name="Skip">Skip</string>
 
+    <string name="About">ABOUT</string>
+    <string name="Maintenance">MAINTENANCE</string>
+    <string name="Advanced">ADVANCED</string>
+    <string name="AboutX">About Xformbuilder</string>
+    <string name="Version">Version:1.0.1.2</string>
+    <string name="ContactXformbuilder">Contact Xformbuilder</string>
+    <string name="CleanLocal">Clean local database</string>
+    <string name="AutoSync">Auto sync</string>
+    <string name="PushNotification">Enable push notification</string>
+    <string name="CleanLocalDesc">Select to clear all data from local database</string>
+
 
 
 
