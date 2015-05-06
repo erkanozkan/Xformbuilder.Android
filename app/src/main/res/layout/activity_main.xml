@@ -27,7 +27,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="155dp"
                 android:id="@+id/imageView"
-                android:src="@mipmap/xformbuilder" />
+                android:src="@mipmap/xformbuilder_big" />
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
