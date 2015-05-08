@@ -5,8 +5,7 @@ $(document).ready(function () {
 
 
     var lang = $('#lang')[0].value;
-
-           $('input[type="file"]').change(function () {
+            $('input[type="file"]').change(function () {
            var value = app.OpenFile();
            if(value != null){
            var array = new Array();
@@ -54,8 +53,6 @@ else{
                             else {
                                 Submit(0,"1","1"); //form eksik dolduruldu ise
                             }
-
-
                }
 
                 });
@@ -203,7 +200,11 @@ e.preventDefault();
 
         $('[type=text],[type=email],[type=date],[type=url],[type=tel],[type=file],[type=number],[type=hidden], textarea').each(function () {
             this.defaultValue = this.value;
-        });
+         });
+
+
+
+
 
           $('[type=button]').each(function () {
         $(this).attr("onlick","CallView(this)");
@@ -405,14 +406,13 @@ e.preventDefault();
       $('input[type="submit"]')[0].value = "Kaydediliyor...";
       $('input[type="submit"]').attr('disabled','disabled');
 
-      app.FormSubmit(html, json, isUploadable,keyCode ,forFile , field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
+      app.FormSubmit(html, json, isUploadable,keyCode ,forFile,field1_title, field1_value, field2_title, field2_value, field3_title, field3_value);
 
       $('input[type="submit"]').removeAttr('disabled');
 
 
      $('input[type="submit"]')[0].value = $('#submitText')[0].value;
-
-        return false;
+         return false;
     }
 
 });
@@ -422,3 +422,4 @@ e.preventDefault();
        var base64File =  $('#'+id)[0].attributes["data-val-value"].value;
       app.ViewFile(base64File);
         }
+

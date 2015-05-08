@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.media.Image;
 import android.media.audiofx.BassBoost;
 import android.net.ConnectivityManager;
@@ -27,18 +28,22 @@ import android.widget.Toast;
 
 import com.onesignal.OneSignal;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 
 public class SettingsActivity extends Activity {
 
     DatabaseHandler dbHandler;
     ListView lv;
-    int parentId = 0;
-    int userId = 0,getParentId=0;
+    int parentId = 0,userId = 0 ;
     LinearLayout AboutButton,FaqButton,ContactButton,ClearDatabase;
     CheckBox checkBoxSync,checkBoxPushNotification;
     User GetUserSync;
     LinearLayout layoutBack;
     ImageButton imgBtnBack;
+    String  sessionPassword = "",sessionUserName ="",currentDateTimeString ="",versionName="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +63,22 @@ public class SettingsActivity extends Activity {
         checkBoxSync=(CheckBox)findViewById(R.id.checkBox_sync);
         checkBoxPushNotification = (CheckBox)findViewById(R.id.checkBox_PushNotification);
         layoutBack=(LinearLayout)findViewById(R.id.LinearLayoutBack);
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        sessionUserName = preferences.getString("UserName", "NULL");
+        sessionPassword = preferences.getString("Password", "NULL");
+        try {
 
+            versionName = getApplicationContext().getPackageManager()
+                    .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")) {
+            Intent i = new Intent(SettingsActivity.this, MainActivity.class);
+            startActivity(i);
+        }
         layoutBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,10 +97,15 @@ public class SettingsActivity extends Activity {
             }
         });
 
-
         dbHandler = new DatabaseHandler(getApplicationContext());
         if(userId != 0 && parentId != 0){
-            GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+            try{
+                GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+
+            }
+            catch (Exception e){
+                dbHandler.CreateLog(new LogError(0, "GetUserSync  SettingsActivity","Sync için kullanıcı bilgilerini çekerken hata ile karşılaştı.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+               }
             if (GetUserSync != null && GetUserSync.getSync().equals("true")){
                 checkBoxSync.setChecked(true);
             }else{
@@ -95,7 +120,12 @@ public class SettingsActivity extends Activity {
         }
 
         if(userId != 0 && parentId != 0){
-            GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+            try{
+                GetUserSync = dbHandler.GetUserByUserIdForSettings(userId);
+            }
+            catch (Exception e){
+                dbHandler.CreateLog(new LogError(0, "GetUserSync  SettingsActivity","Push için kullanıcı bilgilerini çekerken hata ile karşılaştı.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+            }
             if (GetUserSync != null && GetUserSync.getPush().equals("true")){
                 checkBoxPushNotification.setChecked(true);
             }else{
@@ -195,13 +225,23 @@ public class SettingsActivity extends Activity {
         checkBoxSync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(userId != 0){
+                if(userId != 0 || parentId != 0){
                     if (checkBoxSync.isChecked()) {
-                        dbHandler.SettingSyncUpdate("true",userId);
+                        try{
+                            dbHandler.SettingSyncUpdate("true",userId);
+
+                        }catch (Exception e){
+                            dbHandler.CreateLog(new LogError(0, "checkBoxSync  SettingsActivity","kullanıcı auto sync bilgisini güncellerken  hata ile karşılaştı.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                        }
                     }
                     else
                     {
-                        dbHandler.SettingSyncUpdate("false",userId);
+                        try{
+                            dbHandler.SettingSyncUpdate("false",userId);
+
+                        }catch (Exception e){
+                            dbHandler.CreateLog(new LogError(0, "checkBoxSync  SettingsActivity","kullanıcı auto sync bilgisini güncellerken  hata ile karşılaştı.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                        }
                     }
                 }
                 else{
@@ -220,13 +260,25 @@ public class SettingsActivity extends Activity {
             public void onClick(View v) {
                 if(userId != 0){
                     if (checkBoxPushNotification.isChecked()) {
-                        OneSignal.sendTag("COMPANYID",String.valueOf(parentId));
-                        dbHandler.SettingPushNotificationUpdate("true", userId);
+                        try{
+
+                            OneSignal.sendTag("COMPANYID",String.valueOf(parentId));
+                            dbHandler.SettingPushNotificationUpdate("true", userId);
+                        }catch (Exception e){
+                            dbHandler.CreateLog(new LogError(0, "checkBoxPushNotification  SettingsActivity","Push notification bilgisini güncellerken  hata ile karşılaştı.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                 }
+
                     }
                     else
                     {
-                        OneSignal.deleteTag("COMPANYID");
-                        dbHandler.SettingPushNotificationUpdate("false", userId);
+                        try{
+                            OneSignal.deleteTag("COMPANYID");
+                            dbHandler.SettingPushNotificationUpdate("false", userId);
+                        }
+                        catch (Exception e){
+                            dbHandler.CreateLog(new LogError(0, "checkBoxPushNotification  SettingsActivity","Push notification bilgisini güncellerken  hata ile karşılaştı.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                        }
+
                     }
                 }
                 else{
@@ -265,13 +317,23 @@ public class SettingsActivity extends Activity {
 
     public  void backProcess() {
         if(userId != 0 || parentId != 0){
-            final Bundle bundle=getIntent().getExtras();
-            Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
-            bundle.putInt("UserId", userId);
-            bundle.putInt("ParentId",parentId);
-            goBackFormList.putExtras(bundle);
-            startActivity(goBackFormList);
-            overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+            try{
+                final Bundle bundle=getIntent().getExtras();
+                Intent goBackFormList = new Intent(SettingsActivity.this,FormActivity.class);
+                bundle.putInt("UserId", userId);
+                bundle.putInt("ParentId",parentId);
+                goBackFormList.putExtras(bundle);
+                startActivity(goBackFormList);
+                overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+            }
+            catch (Exception e){
+                dbHandler.CreateLog(new LogError(0, "backProcess  SettingsActivity","bundle verileri çekilirken hata ile karşılaşıldı.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(SettingsActivity.this,MainActivity.class);
+                startActivity(intent);
+            }
+
         }
         else{
             Toast.makeText(getApplicationContext(), R.string.SessionTimeOut, Toast.LENGTH_SHORT).show();

@@ -9,7 +9,7 @@
     <string name="attempts">Attempts Left</string>
     <string name="title_activity_result">ResultActivity</string>
     <string name="title_activity_form">Form List</string>
-    <string name="signIn">Sign In</string>
+    <string name="signIn">Giriş</string>
     <string name="title_activity_form_response">FormResponse</string>
     <string name="placeholder_username">Kullanıcı Adı/E-posta</string>
     <string name="placeholder_password">Şifre</string>

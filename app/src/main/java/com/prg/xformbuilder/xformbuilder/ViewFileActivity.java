@@ -2,8 +2,11 @@ package com.prg.xformbuilder.xformbuilder;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -24,15 +27,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.util.Date;
 
 
 public class ViewFileActivity extends Activity {
+    DatabaseHandler dbHandler;
 
     Bundle bundleMain = new Bundle();
     int userId =0, parentId=0;
-    String formTitle="",formId="",draftId="";
+    String formTitle="",formId="",draftId="",sessionUserName="",sessionPassword="",currentDateTimeString="",versionName="";
      LinearLayout layoutBack;
     ImageButton imgBtnBack;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,21 +50,60 @@ public class ViewFileActivity extends Activity {
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
         TextView txtSettings = (TextView)findViewById(R.id.textView_FormName);
         txtSettings.setText(getString(R.string.ViewerPicture));
+        byte [] imgBytes = null;
+        currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        try {
 
+            versionName = getApplicationContext().getPackageManager()
+                    .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        sessionUserName = preferences.getString("UserName", "NULL");
+        sessionPassword = preferences.getString("Password", "NULL");
+        if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")) {
+            Intent i = new Intent(ViewFileActivity.this, MainActivity.class);
+            startActivity(i);
+        }
         try{
-            bundleMain = getIntent().getExtras();
-            byte [] imgBytes = bundleMain.getByteArray("base64");
-            userId = bundleMain.getInt("UserId");
-            parentId=bundleMain.getInt("ParentId");
-            formTitle = bundleMain.getString("FormTitle");
-            draftId = bundleMain.getString("DraftId");
-            formId = bundleMain.getString("FormId");
-            InputStream stream = new ByteArrayInputStream(Base64.decode(imgBytes, Base64.DEFAULT));
-            Bitmap bmp =  BitmapFactory.decodeStream(stream);
-            ImageView img = (ImageView)findViewById(R.id.imageView_viewFile);
-            img.setImageBitmap(bmp);
+            try{
+                bundleMain = getIntent().getExtras();
+                 imgBytes = bundleMain.getByteArray("base64");
+                userId = bundleMain.getInt("UserId");
+                parentId=bundleMain.getInt("ParentId");
+                formTitle = bundleMain.getString("FormTitle");
+                draftId = bundleMain.getString("DraftId");
+                formId = bundleMain.getString("FormId");
+            }
+            catch (Exception e){
+                dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "bundleden veriler çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+            }
+
+             if(imgBytes != null){
+                 InputStream stream = new ByteArrayInputStream(Base64.decode(imgBytes, Base64.DEFAULT));
+                 Bitmap bmp =  BitmapFactory.decodeStream(stream);
+                 ImageView img = (ImageView)findViewById(R.id.imageView_viewFile);
+                 img.setImageBitmap(bmp);
+             }
+              else{
+                 if(userId != 0 && parentId != 0 & !formId.equals(""))
+                 {
+                     bundleMain.putInt("UserId", userId);
+                     bundleMain.putInt("ParentId", parentId);
+                     formTitle = bundleMain.getString("FormTitle");
+                     draftId = bundleMain.getString("DraftId");
+                     formId = bundleMain.getString("FormId");
+                     Toast.makeText(getApplicationContext(),getString(R.string.FileCorrupted), Toast.LENGTH_SHORT).show();
+                     Intent intent = new Intent(ViewFileActivity.this,FormResponseActivity.class);
+                     startActivity(intent);
+                 }
+             }
         }
         catch(Exception e){
+            dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "Dosya convert işlemi sırasında hata oluştu", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
 
             if(userId != 0 && parentId != 0 & !formId.equals(""))
             {
@@ -103,6 +150,7 @@ public class ViewFileActivity extends Activity {
 
         if(userId != 0 && parentId != 0)
         {
+
             bundleMain = getIntent().getExtras();
             bundleMain.putInt("UserId", userId);
             bundleMain.putInt("ParentId", parentId);

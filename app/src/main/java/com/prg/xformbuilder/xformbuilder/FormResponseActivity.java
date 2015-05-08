@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -73,7 +74,7 @@ import java.util.Date;
 
 public class FormResponseActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId = "", draftId = "", formTitle = "", fileStringByte = "", fileName = "", fileSize = "";
+    String formId = "", draftId = "", formTitle = "", fileStringByte = "", fileName = "", fileSize = "",sessionUserName ="",sessionPassword ="",versionName="";
     int userId = 0, parentId = 0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
@@ -85,33 +86,34 @@ public class FormResponseActivity extends Activity {
     private static final int FILECHOOSER_RESULTCODE = 2888;
     private ValueCallback<Uri> mUploadMessage;
     private Uri mCapturedImageURI = null;
-    final Bundle bundleFormResponse = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
-
+    final Bundle bundleFormResponse = new Bundle();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//----------------------------------------Session Kontrol
-        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
-        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
-        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        // editor = preferences.edit();
+        SharedPreferences preferences;
 
-        String sessionUserName = preferences.getString("UserName", "NULL");
-        String sessionPassword = preferences.getString("Password", "NULL");
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        sessionUserName  = preferences.getString("UserName", "NULL");
+        sessionPassword  = preferences.getString("Password", "NULL");
 
         if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")) {
             Intent i = new Intent(FormResponseActivity.this, MainActivity.class);
             startActivity(i);
         }
-//----------------------------------------Session Kontrol
+
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_form_response);
-
         overridePendingTransition(R.anim.right_animation, R.anim.out_left_animation);
-
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.response_title);
+        try {
+
+            versionName = getApplicationContext().getPackageManager()
+                    .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
         dbHandler = new DatabaseHandler(getApplicationContext());
         Bundle bundle = getIntent().getExtras();
         formId = bundle.getString("FormId");
@@ -280,30 +282,46 @@ if(!formId.equals("")){
          * This method can be called from Android. @JavascriptInterface
          * required after SDK version 17.
          */
+
+
         @JavascriptInterface
-        public void FormSubmit( String html,  String json,  String isUploadable, String keyCode,String forFile, String field1_title,  String field1_value,  String field2_title
+        public void FormSubmit(String html,  String json,  String isUploadable, String keyCode,String forFile, String field1_title,  String field1_value,  String field2_title
                 ,  String field2_value,  String field3_title,  String field3_value) {
 
             try {
+
                 bundleFormResponse.putString("FormId", formId);
                 bundleFormResponse.putInt("UserId", userId);
                 bundleFormResponse.putInt("ParentId", parentId);
                 bundleFormResponse.putString("FormTitle", formTitle);
                 if(!formId.equals("")){
                     if (draftId != null) {
-                        DraftForm draftForm = new DraftForm(Integer.parseInt(draftId), Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
-                        dbHandler.UpdateDraft(draftForm);
+                        try{
+                            DraftForm draftForm = new DraftForm(Integer.parseInt(draftId), Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
+                            dbHandler.UpdateDraft(draftForm);
+                        }
+                        catch (Exception e){
+                            dbHandler.CreateLog(new LogError(0, "FormSubmit  FormResponse", "Kullanıcı  bilgileri update edilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                       }
 
-                    } else {
-                        //  String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                        DraftForm form = new DraftForm(0, Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
-                        dbHandler.CreateDraftForm(form);
-                        draftId = dbHandler.GetLastDraftId(formId);
+                          }
+                    else {
+                        try{
+                            DraftForm form = new DraftForm(0, Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
+                            dbHandler.CreateDraftForm(form);
+                             draftId = dbHandler.GetLastDraftId(formId);
+                        }
+                        catch (Exception e){
+                            dbHandler.CreateLog(new LogError(0, "FormSubmit  FormResponse", "Kullanıcı  bilgileri kayıt edilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                        }
+
+
                     }
 
                     if(isUploadable.equals("0") && forFile.equals("0"))
                         AlertMessagge(getString(R.string.ThereAreFillFields));
-                    else if (keyCode.equals("0") && forFile.equals("0")) {
+                    else if (keyCode.equals("0") && forFile.equals("0") ) {
                         AlertMessagge(getString(R.string.FormSaveAsDraft));
                     }
                 }
@@ -319,9 +337,10 @@ if(!formId.equals("")){
                         startActivity(i);
                     }
                 }
-
-
             } catch (Exception e) {
+                dbHandler.CreateLog(new LogError(0, "FormSubmit  FormResponse", "(ilk try)Bundledan user  bilgisi çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+
                 if(userId != 0 || parentId != 0)
                 {
                     Toast.makeText(getApplicationContext(),R.string.Error, Toast.LENGTH_SHORT).show();
@@ -341,37 +360,53 @@ if(!formId.equals("")){
         @JavascriptInterface
         public String OpenFile() {
             String IsImage="false";
-            if(fileName.toLowerCase().contains(".png") || fileName.toLowerCase().contains(".jpg") || fileName.toLowerCase().contains(".jpeg") || fileName.toLowerCase().contains(".gif")){
-                IsImage="true";
+            if(!fileName.equals("")){
+                if(fileName.toLowerCase().contains(".png") || fileName.toLowerCase().contains(".jpg") || fileName.toLowerCase().contains(".jpeg") || fileName.toLowerCase().contains(".gif")){
+                    IsImage="true";
+                }
             }
+
             String returnValue = fileStringByte + "$^^$^^$" + fileName + "$^^$^^$" + fileSize+ "$^^$^^$" +IsImage;
             return returnValue;
         }
+
+
+
 
         @JavascriptInterface
         public void ViewFile(String base64File) throws IOException {
 
             if (!base64File.equals("")) {
 
-                bundleFormResponse.putInt("UserId", userId);
-                bundleFormResponse.putInt("ParentId", parentId);
-                bundleFormResponse.putString("FormTitle", formTitle);
-                bundleFormResponse.putString("DraftId", draftId);
-                bundleFormResponse.putString("FormId", formId);
+                try{
+                    bundleFormResponse.putInt("UserId", userId);
+                    bundleFormResponse.putInt("ParentId", parentId);
+                    bundleFormResponse.putString("FormTitle", formTitle);
+                    bundleFormResponse.putString("DraftId", draftId);
+                    bundleFormResponse.putString("FormId", formId);
+                    byte [] FormImageByte = null;
 
-                byte [] FormImageByte = null;
-                try {
-                    FormImageByte = base64File.getBytes("UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    if(!base64File.equals("")){
+                        try {
+                            FormImageByte = base64File.getBytes("UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            dbHandler.CreateLog(new LogError(0, "ViewFile  FormResponse", "(ikinci try)base64 string byte converti sırasında oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                              e.printStackTrace();
+                        }
+                    }
+                    if(FormImageByte!= null){
+                        bundleFormResponse.putByteArray("base64", FormImageByte);
+
+                        Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
+                        i.putExtras(bundleFormResponse);
+                        startActivity(i);
+                        overridePendingTransition(R.anim.left_animation, R.anim.out_right_animation);
+                    }
                 }
-                bundleFormResponse.putByteArray("base64", FormImageByte);
+                catch (Exception e){
+                    dbHandler.CreateLog(new LogError(0, "ViewFile  FormResponse", "(ilk try)bundledan bilgiler çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
 
-                Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
-                i.putExtras(bundleFormResponse);
-                startActivity(i);
-                overridePendingTransition(R.anim.left_animation, R.anim.out_right_animation);
-
+                }
             }
         }
 
@@ -421,11 +456,6 @@ if(!formId.equals("")){
             // Video files
             intent.setDataAndType(uri, "video/*");
         } else {
-            //if you want you can also define the intent type for any other file
-
-            //additionally use else clause below, to manage other unknown extensions
-            //in this case, Android will show all applications installed on the device
-            //so you can choose which application to use
             intent.setDataAndType(uri, "*/*");
         }
 
@@ -450,8 +480,10 @@ if(!formId.equals("")){
                         progressDialog.dismiss();
                         progressDialog = null;
                     }
-                } catch (Exception exception) {
-                    exception.printStackTrace();
+                } catch (Exception e) {
+                    dbHandler.CreateLog(new LogError(0, "onPageFinished  FormResponse", "", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                    e.printStackTrace();
                 }
             }
 
@@ -499,16 +531,13 @@ if(!formId.equals("")){
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
-
             }
-
         });
     }
 
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode,  Intent intent) {
 
         if (requestCode == FILECHOOSER_RESULTCODE) {
 
@@ -525,16 +554,19 @@ if(!formId.equals("")){
                     result = intent == null ? mCapturedImageURI : intent.getData();
                 }
             } catch (Exception e) {
+                dbHandler.CreateLog(new LogError(0, "onActivity  FormResponse", "", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
                 Toast.makeText(getApplicationContext(), "activity :" + e, Toast.LENGTH_LONG).show();
             }
             if (result != null) {
 
                 String path = getPath(getApplicationContext(), result);
-                fileStringByte = ConvertFile(path);
-                mUploadMessage.onReceiveValue(result);
-                mUploadMessage = null;
-
-            }
+                if(!path.equals("")){
+                    fileStringByte = ConvertFile(path);
+                    mUploadMessage.onReceiveValue(result);
+                    mUploadMessage = null;
+                }
+             }
             else{
                 mUploadMessage.onReceiveValue(result);
                 mUploadMessage = null;
@@ -546,59 +578,66 @@ if(!formId.equals("")){
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public String getPath(final Context context, final Uri uri) {
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-        // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
+        try{
+            final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+            // DocumentProvider
+            if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+                // ExternalStorageProvider
+                if (isExternalStorageDocument(uri)) {
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
 
-                if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    if ("primary".equalsIgnoreCase(type)) {
+                        return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    }
+
+                    // TODO handle non-primary volumes
                 }
+                // DownloadsProvider
+                else if (isDownloadsDocument(uri)) {
 
-                // TODO handle non-primary volumes
-            }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-
-                final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = Uri.parse(Uri.parse("content://downloads/public_downloads/") + Long.valueOf(id).toString());
-                return getDataColumn(context, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                    final String id = DocumentsContract.getDocumentId(uri);
+                    final Uri contentUri = Uri.parse(Uri.parse("content://downloads/public_downloads/") + Long.valueOf(id).toString());
+                    return getDataColumn(context, contentUri, null, null);
                 }
+                // MediaProvider
+                else if (isMediaDocument(uri)) {
+                    final String docId = DocumentsContract.getDocumentId(uri);
+                    final String[] split = docId.split(":");
+                    final String type = split[0];
 
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
+                    Uri contentUri = null;
+                    if ("image".equals(type)) {
+                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("video".equals(type)) {
+                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                    } else if ("audio".equals(type)) {
+                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                    }
 
-                return getDataColumn(context, contentUri, selection, selectionArgs);
+                    final String selection = "_id=?";
+                    final String[] selectionArgs = new String[]{
+                            split[1]
+                    };
+
+                    return getDataColumn(context, contentUri, selection, selectionArgs);
+                }
+            }
+            // MediaStore (and general)
+            else if ("content".equalsIgnoreCase(uri.getScheme())) {
+                return getDataColumn(context, uri, null, null);
+            }
+            // File
+            else if ("file".equalsIgnoreCase(uri.getScheme())) {
+                return uri.getPath();
             }
         }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            return getDataColumn(context, uri, null, null);
+        catch (Exception e){
+            dbHandler.CreateLog(new LogError(0, "getPath  FormResponse", "File pathi çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+            return null;
         }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
+
 
         return null;
     }
@@ -606,25 +645,35 @@ if(!formId.equals("")){
     public String getDataColumn(Context context, Uri uri, String selection,
                                 String[] selectionArgs) {
 
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {
-                column
-        };
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int column_index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(column_index);
-            }
+        try{
+            Cursor cursor = null;
+            final String column = "_data";
+            final String[] projection = {
+                    column
+            };
+            try {
+                cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                        null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    final int column_index = cursor.getColumnIndexOrThrow(column);
+                    return cursor.getString(column_index);
+                }
 
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (cursor != null)
-                cursor.close();
+            } catch (Exception e) {
+                dbHandler.CreateLog(new LogError(0, "getDataColumn  FormResponse", "path çekilirken", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                throw e;
+            } finally {
+                if (cursor != null)
+                    cursor.close();
+            }
         }
+        catch (Exception e){
+            dbHandler.CreateLog(new LogError(0, "getDataColumn  FormResponse", "path çekilirken", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+            return null;
+        }
+
         return null;
     }
 
@@ -655,37 +704,52 @@ if(!formId.equals("")){
 
 
     public String ConvertFile(String path) {
+
+
         String byteString = null;
         byte[] buffer = null;
         FileInputStream stream = null;
 
-        File file = new File(path);
+        try{
+            if (!path.equals("")){
 
-        fileSize = String.valueOf(file.length());
-        fileName = file.getName();
+                File file = new File(path);
+                fileSize = String.valueOf(file.length());
+                fileName = file.getName();
+                buffer = new byte[(int) file.length()];
 
+                try {
+                    stream = new FileInputStream(file);
+                  } catch (FileNotFoundException e) {
+                    dbHandler.CreateLog(new LogError(0, "ConvertFile  FormResponse", "file convert işlemi", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
 
-        buffer = new byte[(int) file.length()];
+                    e.printStackTrace();
+                  }
+                assert stream != null;
+                try {
 
-        try {
-            stream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+                    stream.read(buffer);
+
+                } catch (IOException e) {
+                    dbHandler.CreateLog(new LogError(0, "ConvertFile  FormResponse", "file convert işlemi", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                    e.printStackTrace();
+                }
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    dbHandler.CreateLog(new LogError(0, "ConvertFile  FormResponse", "stream close işlemi", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                    e.printStackTrace();
+                }
+                byteString = Base64.encodeToString(buffer, Base64.DEFAULT);
+                return byteString;
+            }
         }
-        assert stream != null;
-        try {
-            stream.read(buffer);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        catch (Exception e){
+            dbHandler.CreateLog(new LogError(0, "ConvertFile  FormResponse", "byte stringin bozuk olmasından kaynaklanan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+            return byteString;
         }
-        try {
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        byteString = Base64.encodeToString(buffer, Base64.DEFAULT);
         return byteString;
     }
 
@@ -697,47 +761,58 @@ if(!formId.equals("")){
 
 
     public void BackPressed() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
-        alertDialog.setMessage(getString(R.string.UnsavedEdits));
-        alertDialog
-                .setTitle("XFORMBUILDER")
-                .setCancelable(false)
-                .setPositiveButton(R.string.Yes,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                bundleFormResponse.putInt("UserId", userId);
-                                bundleFormResponse.putInt("ParentId", parentId);
-                                bundleFormResponse.putString("FormTitle", formTitle);
-                                bundleFormResponse.putString("DraftId", draftId);
-                                bundleFormResponse.putString("FormId", formId);
 
-                                if (draftId != null) {
-                                    Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
-                                    i.putExtras(bundleFormResponse);
-                                    startActivity(i);
-                                    finish();
-                                } else {
-                                    Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
-                                    i.putExtras(bundleFormResponse);
-                                    startActivity(i);
-                                    overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
-                                    finish();
+       /* if(unsavedEdit.equals("1"))
+        {*/
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormResponseActivity.this, AlertDialog.THEME_HOLO_LIGHT);
+            alertDialog.setMessage(getString(R.string.UnsavedEdits));
+            alertDialog
+                    .setTitle("XFORMBUILDER")
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.Yes,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    try{
+                                        bundleFormResponse.putInt("UserId", userId);
+                                        bundleFormResponse.putInt("ParentId", parentId);
+                                        bundleFormResponse.putString("FormTitle", formTitle);
+                                        bundleFormResponse.putString("DraftId", draftId);
+                                        bundleFormResponse.putString("FormId", formId);
+
+                                        if (draftId != null) {
+                                            Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
+                                            i.putExtras(bundleFormResponse);
+                                            startActivity(i);
+                                            finish();
+                                        } else {
+                                            Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
+                                            i.putExtras(bundleFormResponse);
+                                            startActivity(i);
+                                            overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+                                            finish();
+                                        }
+                                    }
+                                    catch (Exception e){
+                                        dbHandler.CreateLog(new LogError(0, "BackPressed  FormResponse", "bundledaki bilgilerin çekilmesi sırasında oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                                             }
+
                                 }
-                            }
-                        })
-                .setNegativeButton(R.string.No,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
+                            })
+                    .setNegativeButton(R.string.No,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
 
-                                dialog.cancel();
+                                    dialog.cancel();
 
-                            }
-                        });
+                                }
+                            });
 
-        AlertDialog alert = alertDialog.create();
-        alert.show();
+            AlertDialog alert = alertDialog.create();
+            alert.show();
+
+
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -22,17 +23,19 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 
 public class DraftFormActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId="",formTitle="";
+    String formId="",formTitle="",currentDateTimeString="",versionName="" ,sessionUserName="" ,sessionPassword="";
     int parentId=0,userId=0;
     DraftAdapter draftAdapter;
     ListView lv;
     ImageButton buttonNewResponse,imgBtnBack;
-    TextView title1,title2,title3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,26 +44,38 @@ public class DraftFormActivity extends Activity {
         overridePendingTransition(R.anim.right_animation, R.anim.out_left_animation);
 
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.draftlist_titlebar);
-        //----------------------------------------Session Kontrol
-        SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
-        //SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
-        preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        // editor = preferences.edit();
-        String sessionUserName=preferences.getString("UserName", "NULL");
-        String sessionPassword=preferences.getString("Password", "NULL");
+         SharedPreferences preferences;
+         preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+          sessionUserName=preferences.getString("UserName", "NULL");
+          sessionPassword=preferences.getString("Password", "NULL");
 
         if (sessionUserName.contains("NULL") && sessionPassword.contains("NULL")){
             Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
             startActivity(i);
         }
-        //----------------------------------------Session Kontrol
+       currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        try {
+
+            versionName = getApplicationContext().getPackageManager()
+                    .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
         dbHandler = new DatabaseHandler(getApplicationContext());
-        final Bundle bundleForm = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
-        Bundle bundle=getIntent().getExtras();
-        formId=bundle.getString("FormId");
-        formTitle=bundle.getString("FormTitle");
-        parentId=bundle.getInt("ParentId");
-        userId=bundle.getInt("UserId");
+        final Bundle bundleForm = new Bundle();
+
+        try{
+            Bundle bundle=getIntent().getExtras();
+            formId=bundle.getString("FormId");
+            formTitle=bundle.getString("FormTitle");
+            parentId=bundle.getInt("ParentId");
+            userId=bundle.getInt("UserId");
+        }
+        catch (Exception e)
+        {
+            dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "bundleden veriler çekilirken karşılasılan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+        }
+
         lv = (ListView) findViewById(R.id.listView_draftForm);
         buttonNewResponse=(ImageButton) findViewById(R.id.buttonNewResponse);
 
@@ -82,76 +97,101 @@ public class DraftFormActivity extends Activity {
         });
 
 
-        //buttonExit=(Button) findViewById(R.id.button_exit);
-        /*buttonExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-                //----------------------------------------Session Kontrol
-                SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
-                SharedPreferences.Editor editor;        //preferences içerisine bilgi girmek için tanımlama
-                preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                editor = preferences.edit();
-                editor.remove("UserName");
-                editor.remove("Password");
-                editor.remove("UserId");
-                editor.remove("ParentId");
-                editor.commit();
-                //----------------------------------------Session Kontrol
-
-              Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
-              startActivity(i);
-
-            }
-        });*/
        buttonNewResponse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(getApplicationContext(), "Form yükleniyor...", Toast.LENGTH_SHORT).show();
-                bundleForm.putString("FormId", formId);
-                bundleForm.putInt("UserId", userId);
-                bundleForm.putInt("ParentId", parentId);
-                bundleForm.putString("FormTitle", formTitle);
-                Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
-                i.putExtras(bundleForm);
-                startActivity(i);
-                finish();
+ try{
+     bundleForm.putString("FormId", formId);
+     bundleForm.putInt("UserId", userId);
+     bundleForm.putInt("ParentId", parentId);
+     bundleForm.putString("FormTitle", formTitle);
+     Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
+     i.putExtras(bundleForm);
+     startActivity(i);
+     finish();
+ }
+ catch (Exception e){
+     dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "bundleden veriler çekilirken karşılasılan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+ }
+
+
             }
         });
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
-                String selectDraftId =  ((TextView)view .findViewById(R.id.draftId)).getText().toString();
-                //Toast.makeText(getApplicationContext(), " Form  Yükleniyor...", Toast.LENGTH_SHORT).show();
-                bundleForm.putString("FormId", selectFormId);
-                bundleForm.putString("DraftId", selectDraftId);
-                bundleForm.putInt("UserId", userId);
-                bundleForm.putInt("ParentId",parentId);
-                bundleForm.putString("FormTitle", formTitle);
-                Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
-                i.putExtras(bundleForm);
-                startActivity(i);
-                finish();
+
+              try{
+                  String selectFormId =  ((TextView)view .findViewById(R.id.frmId)).getText().toString();
+                  String selectDraftId =  ((TextView)view .findViewById(R.id.draftId)).getText().toString();
+                  //Toast.makeText(getApplicationContext(), " Form  Yükleniyor...", Toast.LENGTH_SHORT).show();
+                  bundleForm.putString("FormId", selectFormId);
+                  bundleForm.putString("DraftId", selectDraftId);
+                  bundleForm.putInt("UserId", userId);
+                  bundleForm.putInt("ParentId",parentId);
+                  bundleForm.putString("FormTitle", formTitle);
+                  Intent i = new Intent(DraftFormActivity.this,FormResponseActivity.class);
+                  i.putExtras(bundleForm);
+                  startActivity(i);
+                  finish();
+
+              }
+              catch (Exception e){
+
+                  dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "bundleden veriler çekilirken karşılasılan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+              }
             }
         });
 
         try{
             if(!formId.equals("")){
-                List<DraftForm> draftForms=  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
-                DraftList   draftArray[] = new DraftList[draftForms.size()];
-                for (int i=0;i<draftForms.size();i++){
-                    draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
-                }
-                draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
+                List<DraftForm> draftForms = null ;
+                try{
+                    draftForms =  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
 
-                lv.setAdapter(draftAdapter);
+                }
+                catch (Exception e){
+                    dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "forma ait draftlar çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                }
+                DraftList   draftArray[] = new DraftList[draftForms.size()];
+                if(draftForms.size() > 0){
+                    for (int i=0;i< draftForms.size();i++){
+                        draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
+                    }
+                    draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
+
+                    lv.setAdapter(draftAdapter);
+                }
             }
             else{
-                Toast.makeText(getApplicationContext(), getString(R.string.NoDataForms) , Toast.LENGTH_SHORT).show();
+                if(userId != 0 || parentId != 0){
+                    Toast.makeText(getApplicationContext(), getString(R.string.NoDataForms) , Toast.LENGTH_SHORT).show();
 
+                    Bundle bundleReturn = new Bundle();
+                    bundleReturn.putInt("UserId", userId);
+                    bundleReturn.putInt("ParentId", parentId);
+                    Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
+                    i.putExtras(bundleReturn);
+                    startActivity(i);
+                }
+                else{
+
+                    Toast.makeText(getApplicationContext(), getString(R.string.SessionTimeOut) , Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
+                     startActivity(i);
+                }
+
+            }
+        }
+        catch (Exception e){
+            dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+            if(userId != 0 || parentId != 0) {
+                 Toast.makeText(getApplicationContext(), getString(R.string.NoDataForms), Toast.LENGTH_SHORT).show();
                 Bundle bundleReturn = new Bundle();
                 bundleReturn.putInt("UserId", userId);
                 bundleReturn.putInt("ParentId", parentId);
@@ -159,15 +199,13 @@ public class DraftFormActivity extends Activity {
                 i.putExtras(bundleReturn);
                 startActivity(i);
             }
-        }
-        catch (Exception e){
-             Toast.makeText(getApplicationContext(), getString(R.string.NoDataForms), Toast.LENGTH_SHORT).show();
-            Bundle bundleReturn = new Bundle();
-            bundleReturn.putInt("UserId", userId);
-            bundleReturn.putInt("ParentId", parentId);
-            Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
-            i.putExtras(bundleReturn);
-            startActivity(i);
+            else{
+
+                Toast.makeText(getApplicationContext(), getString(R.string.SessionTimeOut) , Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
+                startActivity(i);
+            }
+
         }
     }
 
@@ -177,20 +215,24 @@ public class DraftFormActivity extends Activity {
     }
 
     public void BackPressed() {
-        final Bundle bundleForm = new Bundle();//Formlar aras� veri transferi i�in kullan�yoruz
-        Bundle bundle=getIntent().getExtras();
-        bundleForm.putString("FormId", formId);
-        bundleForm.putInt("UserId", userId);
-        bundleForm.putInt("ParentId", parentId);
-        bundleForm.putString("FormTitle", formTitle);
-        Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
-        i.putExtras(bundleForm);
-        startActivity(i);
-        overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+        try{
+            final Bundle bundleForm = new Bundle();
+            Bundle bundle=getIntent().getExtras();
+            bundleForm.putString("FormId", formId);
+            bundleForm.putInt("UserId", userId);
+            bundleForm.putInt("ParentId", parentId);
+            bundleForm.putString("FormTitle", formTitle);
+            Intent i = new Intent(DraftFormActivity.this,FormActivity.class);
+            i.putExtras(bundleForm);
+            startActivity(i);
+            overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+            finish();
+        }
+        catch (Exception e){
+            dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "bundleden veriler çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
 
+        }
 
-
-        finish();
     }
 
     @Override

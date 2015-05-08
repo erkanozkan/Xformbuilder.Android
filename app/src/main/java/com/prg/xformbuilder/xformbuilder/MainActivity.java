@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -35,6 +36,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 
@@ -43,13 +46,16 @@ public class MainActivity extends Activity {
     private EditText username = null;
     private EditText password = null;
     private Button login;
-    String jsonUserName = "", jsonCompany = "", jsonLastName = "", jsonFirstName = "", jsonPassword = "",push="",sync="";
+    String jsonUserName = "", jsonCompany = "", jsonLastName = "", jsonFirstName = "", jsonPassword = "",push="",sync="",versionName = "",currentDateTimeString="";
     int jsonParentId = 0, jsonUserId = 0;
     DatabaseHandler dbHandler;
     boolean InternetConnection = false;
     final Bundle bundle = new Bundle();//Formlar arası veri transferi için kullanıyoruz
     final static String AppId = "20a9d85f-3a67-4c91-be5b-0aff74fa00df";
     final static String AppKey = "61993513-c1c5-4ce1-aacd-3d37e36627b7";
+
+
+
 
     ProgressDialog loginDialog;
 
@@ -59,6 +65,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -66,12 +74,25 @@ public class MainActivity extends Activity {
         OneSignal.init(this, "71156653394", "52ee36a0-e8c3-11e4-b391-0370dbb1438c", new ExampleNotificationOpenedHandler());
 
         dbHandler = new DatabaseHandler(getApplicationContext());
+        currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+
+
+        try {
+            versionName = getApplicationContext().getPackageManager()
+                 .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         editor = preferences.edit();
         username = (EditText) findViewById(R.id.editText_userName);
         password = (EditText) findViewById(R.id.editText_password);
+
+
+
+
         // dbHandler.ClearLocalDatabase();
         login = (Button) findViewById(R.id.button_login);
         try {
@@ -118,18 +139,22 @@ public class MainActivity extends Activity {
                                 editor.putInt("ParentId", login.getParentId());
                                 editor.commit();
 
-                                Intent i = new Intent(MainActivity.this, FormActivity.class);
-                                i.putExtras(bundle);
-                                User GetUserSync = dbHandler.GetUserByUserIdForSettings(login.getUserId());
 
-                                if (GetUserSync != null && GetUserSync.getPush().equals("true"))
-                                    SendTag(String.valueOf(jsonParentId));
-                                else
-                                    OneSignal.deleteTag("COMPANYID");
+                                try{
+                                    Intent i = new Intent(MainActivity.this, FormActivity.class);
+                                    i.putExtras(bundle);
+                                    User GetUserSync = dbHandler.GetUserByUserIdForSettings(login.getUserId());
 
+                                    if (GetUserSync != null && GetUserSync.getPush().equals("true"))
+                                        SendTag(String.valueOf(jsonParentId));
+                                    else
+                                        OneSignal.deleteTag("COMPANYID");
 
-                                startActivity(i);
-
+                                    startActivity(i);
+                                }
+                                catch (Exception e){
+                                    dbHandler.CreateLog(new LogError(0, "login click Network olmadığı zaman  MainActivity", "(ilk try)Kullanıcı  bilgileri çekilmediğinden kaynaklanan bir hata", e.getMessage().toString(), currentDateTimeString,username.getText().toString(),versionName,login != null ? login.getUserId() : 0,login != null ? login.getUserId() : 0));
+                                   }
 
                             } else {
                                 loginDialog.dismiss();
@@ -137,7 +162,9 @@ public class MainActivity extends Activity {
                             }
                         }
                     } catch (Exception e) {
-                        Intent i = new Intent(MainActivity.this, MainActivity.class);
+
+                         dbHandler.CreateLog(new LogError(0, "login button click MainActivity", "(ilk try bloğuna ait catch)Giriş yaparken  bir hata.", e.getMessage().toString(), currentDateTimeString,username.getText().toString(),versionName,0,0));
+                         Intent i = new Intent(MainActivity.this, MainActivity.class);
                         startActivity(i);
                     }
 
@@ -284,6 +311,7 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             try {
+                 if(!result.equals("")) {
                 JSONObject jsonObject = new JSONObject(result);
                 jsonUserName = jsonObject.getString("UserName").toString();
                 jsonFirstName = jsonObject.getString("FirstName").toString();
@@ -300,8 +328,6 @@ public class MainActivity extends Activity {
                     editor.putInt("ParentId", jsonParentId);
                     editor.commit();
                     try {
-
-
                         boolean getUser = dbHandler.GetUserByUserId(jsonUserId);
                         if (getUser) {
                             try {
@@ -312,8 +338,9 @@ public class MainActivity extends Activity {
                                     SendTag(String.valueOf(jsonParentId));
                                 else
                                     OneSignal.deleteTag("COMPANYID");
-                            }
-                            catch (Exception e) {
+                            } catch (Exception e) {
+                                dbHandler.CreateLog(new LogError(0, "web api user kontrol için AsyncTask   içindeki onPostExecute  MainActivity", "(üçüncü try)Kullanıcı Sync ve Push bilgileri çekilmediğinden kaynaklanan bir hata", e.getMessage().toString(), currentDateTimeString,jsonUserName,versionName,jsonUserId,jsonParentId));
+
                                 loginDialog.dismiss();
                                 Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
                             }
@@ -324,8 +351,8 @@ public class MainActivity extends Activity {
                             dbHandler.CreateUser(user);
                         }
                     } catch (Exception e) {
-
-                    }
+                        dbHandler.CreateLog(new LogError(0, "web api user kontrol için AsyncTask task içindeki onPostExecute  MainActivity", "(ikinci try)Kullanıcı olup olmadığını kontrol ederken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,jsonUserName,versionName,jsonUserId,jsonParentId));
+                     }
 
                     editor.putString("UserName", username.getText().toString());    //bilgileri ekle ve kaydet
                     editor.putString("Password", password.getText().toString());
@@ -342,11 +369,17 @@ public class MainActivity extends Activity {
 
                 } else {
                     loginDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
                 }
+            }
+                else{
+                     Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
+                 }
+
             } catch (Exception e) {
                 loginDialog.dismiss();
-                Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
+                dbHandler.CreateLog(new LogError(0, "web api user kontrol için AsyncTask task içindeki onPostExecute  MainActivity", "(ilk try)result değerindeki yanlışlıktan kaynaklanan bir hata", e.getMessage().toString(), currentDateTimeString,jsonUserName,versionName,jsonUserId,jsonParentId));
+                 Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
                 Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
             }
         }
