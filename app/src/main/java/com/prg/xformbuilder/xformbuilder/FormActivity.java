@@ -380,8 +380,6 @@ public class FormActivity extends Activity {
 
     }
 
-
-
     private  void SendServerLogData(){
         List<LogError> logList = null;
         try{
