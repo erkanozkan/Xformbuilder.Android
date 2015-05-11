@@ -9,6 +9,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +37,8 @@ public class DraftFormActivity extends Activity {
     DraftAdapter draftAdapter;
     ListView lv;
     ImageButton buttonNewResponse,imgBtnBack;
+    DraftList   draftArray[] = null;
+    List<DraftForm> draftForms = null ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +81,7 @@ public class DraftFormActivity extends Activity {
         }
 
         lv = (ListView) findViewById(R.id.listView_draftForm);
+        registerForContextMenu(lv);
         buttonNewResponse=(ImageButton) findViewById(R.id.buttonNewResponse);
 
         LinearLayout backFormList = (LinearLayout)findViewById(R.id.LinearLayout_BackFormList);
@@ -146,24 +151,25 @@ public class DraftFormActivity extends Activity {
             }
         });
 
+        GetDraftList();
+    }
+
+
+    private void GetDraftList(){
         try{
             if(!formId.equals("")){
-                List<DraftForm> draftForms = null ;
                 try{
                     draftForms =  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
-
                 }
                 catch (Exception e){
                     dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "forma ait draftlar çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
-
-                }
-                DraftList   draftArray[] = new DraftList[draftForms.size()];
+                    }
+                draftArray  = new DraftList[draftForms.size()];
                 if(draftForms.size() > 0){
                     for (int i=0;i< draftForms.size();i++){
                         draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
                     }
                     draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
-
                     lv.setAdapter(draftAdapter);
                 }
             }
@@ -182,7 +188,7 @@ public class DraftFormActivity extends Activity {
 
                     Toast.makeText(getApplicationContext(), getString(R.string.SessionTimeOut) , Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
-                     startActivity(i);
+                    startActivity(i);
                 }
 
             }
@@ -191,7 +197,7 @@ public class DraftFormActivity extends Activity {
             dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
 
             if(userId != 0 || parentId != 0) {
-                 Toast.makeText(getApplicationContext(), getString(R.string.NoDataForms), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.NoDataForms), Toast.LENGTH_SHORT).show();
                 Bundle bundleReturn = new Bundle();
                 bundleReturn.putInt("UserId", userId);
                 bundleReturn.putInt("ParentId", parentId);
@@ -207,6 +213,68 @@ public class DraftFormActivity extends Activity {
             }
 
         }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+         getMenuInflater().inflate(R.menu.ctx_menu_draftlist,menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        String selectDraftId ="";
+        boolean delete =false;
+
+        switch (item.getItemId()){
+             case R.id.delete:
+                 selectDraftId = ((TextView)info.targetView.findViewById(R.id.draftId)).getText().toString();
+                   try{
+                     delete =  dbHandler.DeleteDraftFormByDraftId(Integer.parseInt(selectDraftId));
+                 }
+                 catch (Exception e){
+                     delete = false;
+                 }
+                 if(delete){
+
+                              if(!formId.equals("")){
+                                  try{
+                                      draftForms =  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
+                                  }
+                                  catch (Exception e){
+                                      dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "forma ait draftlar çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                                  }
+                                  draftArray  = new DraftList[draftForms.size()];
+                                  if(draftForms.size() > 0){
+                                      for (int i=0;i< draftForms.size();i++){
+                                          draftArray[i] = new DraftList (R.mipmap.appbar_draw_pencil,draftForms.get(i).getDateDraft(), String.valueOf(draftForms.get(i).getFormId()),String.valueOf(draftForms.get(i).getId()));
+                                      }
+                                      draftAdapter = new DraftAdapter(this.getApplicationContext(), R.layout.draf_line_layout, draftArray);
+                                      lv.setAdapter(draftAdapter);
+                                  }
+                                  else{
+                                       if(parentId != 0 || userId != 0){
+                                           onBackPressed();
+                                       }
+                                      else{
+                                           Toast.makeText(getApplicationContext(), getString(R.string.SessionTimeOut) , Toast.LENGTH_SHORT).show();
+                                           Intent i = new Intent(DraftFormActivity.this,MainActivity.class);
+                                           startActivity(i);
+                                       }
+                                  }
+                              }
+                  }
+                 else{
+
+                 }
+                 return true;
+             case R.id.cancel:
+
+                 return  true;
+             default:
+                 return super.onContextItemSelected(item);
+         }
+
     }
 
     @Override

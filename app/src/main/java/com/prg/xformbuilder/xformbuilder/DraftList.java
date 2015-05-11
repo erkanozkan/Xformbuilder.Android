@@ -7,11 +7,8 @@ package com.prg.xformbuilder.xformbuilder;
 
 public class DraftList {
 
-
     private int draftImage;
     private String draftDate,formId,draftId;
-
-
 
     public DraftList(int _draftImage, String _draftDate , String _formId,String _draftId){
         this.formId = _formId;

@@ -74,7 +74,10 @@
     <string name="AutoSync">Auto sync</string>
     <string name="PushNotification">Enable push notification</string>
     <string name="CleanLocalDesc">Select to clear all data from local database</string>
+    <string name="title_activity_test_swipe_layout">TestSwipeLayout</string>
+    <string name="delete">Delete</string>
 
+    <string name="cancel">Cancel</string>
 
 
 
