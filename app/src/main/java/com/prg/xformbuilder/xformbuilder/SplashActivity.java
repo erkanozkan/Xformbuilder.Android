@@ -81,7 +81,7 @@ public class SplashActivity extends Activity implements BaseSliderView.OnSliderC
         HashMap<String,Integer> file_maps = new HashMap<String, Integer>();
 
         file_maps.put("b", R.drawable.splash_screen1new);
-        file_maps.put("c",R.drawable.splash_image2);
+        file_maps.put("c",R.drawable.splash_image2_new);
         file_maps.put("d",R.drawable.splash_image3);
         file_maps.put("a",R.drawable.splash_image4);
 
