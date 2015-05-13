@@ -547,23 +547,23 @@ if(!formId.equals("")){
             if (result != null) {
 
                 String path = getPath(getApplicationContext(), result);
+
+
+                //Assign string path to File
+                Utility.Default_DIR = new File(path);
+
+                // Create new dir MY_IMAGES_DIR if not created and copy image into that dir and store that image path in valid_photo
+                Utility.Create_MY_IMAGES_DIR();
+
+                // Copy your image
+                Utility.copyFile(Utility.Default_DIR, Utility.MY_IMG_DIR);
+
+
                 if(!path.equals("")){
                     fileStringByte = ConvertFile(path);
-              File directory = getApplicationContext().getDir("imageDir",Context.MODE_PRIVATE);
-              File mypath = new File(directory+fileName);
-              FileOutputStream fos = null;
-                    try {
 
-                        fos = new FileOutputStream(mypath);
-                        // Use the compress method on the BitMap object to write image to the OutputStream
+                     Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
 
-                        fos.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    bundleFormResponse.putString("path",directory.getAbsolutePath());
-                    Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
-                    i.putExtras(bundleFormResponse);
                     startActivity(i);
 
                     try{

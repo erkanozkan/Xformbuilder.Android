@@ -71,14 +71,18 @@ public class ViewFileActivity extends Activity {
         }
         try{
             try {
-                path = bundleMain.getString("path");
+                // Get new image path and decode it
+                Bitmap b = Utility.decodeFile(Utility.Paste_Target_Location);
 
-                File f=new File(path, "profile.jpg");
-                Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+                // use new copied path and use anywhere
+                 b = Bitmap.createScaledBitmap(b, 150, 150, true);
+
+                //set your selected image in image view
+
                 ImageView img = (ImageView)findViewById(R.id.imageView_viewFile);
                 img.setImageBitmap(b);
             }
-            catch (FileNotFoundException e)
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
