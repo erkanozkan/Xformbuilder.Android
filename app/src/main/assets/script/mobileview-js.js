@@ -3,57 +3,44 @@
 
 $(document).ready(function () {
 
-
     var lang = $('#lang')[0].value;
             $('input[type="file"]').change(function () {
-           var value = app.OpenFile();
+           var value = null;
            if(value != null){
+
            var array = new Array();
            array = value.split("$^^$^^$");
-           $(this).attr('data-val-type',array[1]);
-           $(this).attr('data-val-value',value);
-           var divId = $(this)[0].parentElement.parentElement.parentElement.id;
-           var base64File = array[0];
 
-      if(array[3] == "true") {
-      var input = "<input type='button'  onclick=CallView(this)  id='btnView_"+divId+"'    data-val-value='"+base64File+"'  value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'    />";
-        if ($('#btnView_' + divId )[0] != undefined) {
+           $(this).attr('data-val-type',array[1]);
+
+           var divId = $(this)[0].parentElement.parentElement.parentElement.id;
+
+        var input = "<input type='button'  onclick=CallView(this)  id='btnView_"+divId+"'    value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'    />";
+
+        if ($('#btnView_' + divId)[0] != undefined) {
                      $('#btnView_' + divId).remove();
                      $('#' + divId).append(input);
-                     if ($('#labelView_' + divId )[0] != undefined)
-                           $('#labelView_' + divId).remove();
+
                  }
                  else{
+
                      $('#' + divId).append(input);
-                        if ($('#labelView_' + divId )[0] != undefined)
-                           $('#labelView_' + divId).remove();
                   }
-}
-else{
- var label = "<span id='labelView_"+divId+"' > file"+ array[1].substring(array[1].lastIndexOf("."),array[1].length) +"</span>";
- if ($('#labelView_' + divId )[0] != undefined) {
-                     $('#labelView_' + divId).remove();
-                     $('#' + divId).append(label);
-
-                     if ($('#btnView_' + divId )[0] != undefined)
-                     $('#btnView_' + divId ).remove();
-                 }
-                 else{
-                     $('#' + divId).append(label);
-
-                      if ($('#btnView_' + divId )[0] != undefined)
-                                          $('#btnView_' + divId ).remove();
-                  }
-}
 
       if ($('form').validate().errorList.length == 0 && $('form').valid()) {
-                                Submit(1,"1","1"); // form doğru dolduruldu ise
-
+                               if (validateCheckBoxElement())
+                               {
+                               Submit(1, "0", "1");
+                               }
+                                else{
+                                     Submit(0, "0", "1");
+                               }
                             }
                             else {
                                 Submit(0,"1","1"); //form eksik dolduruldu ise
                             }
                }
+
 
                 });
 
@@ -97,9 +84,6 @@ else{
             min: $.validator.format('Please enter a value greater than or equal to {0}.')
         });
     };
-
-
-
 
 
 
@@ -157,13 +141,16 @@ $('form').on("keypress", function(e) {
                    }
                }
            });
-
            if ($('form').validate().errorList.length == 0 && $('form').valid()) {
-               Submit(1,"1","0"); // form doğru dolduruldu ise
+                     if (validateCheckBoxElement())
+                                 {
+                     Submit(1, "1", "0"); } else {
 
+               Submit(0,"1","0");
+                     }
            }
            else {
-               Submit(0,"1","0"); // form eksik dolduruldu ise
+           Submit(0,"1","0");
            }
 e.preventDefault();
     return false;
@@ -181,14 +168,24 @@ e.preventDefault();
                 }
             }
         });
-        
+
         if ($('form').validate().errorList.length == 0 && $('form').valid()) {
-            Submit(1,"0","0"); // form doğru dolduruldu ise
+            if (validateCheckBoxElement())
+            {
+
+             Submit(1, "0", "0");
+            }
+            else
+            {
+
+            Submit(0, "0", "0");
+            }
 
         }
         else {
+
             Submit(0,"0","0"); // form eksik dolduruldu ise
-        } 
+        }
 
         return false;
     });
@@ -202,13 +199,9 @@ e.preventDefault();
             this.defaultValue = this.value;
          });
 
-
-
-
-
           $('[type=button]').each(function () {
-        $(this).attr("onlick","CallView(this)");
-                });
+                $(this).attr("onclick","CallView(this)");
+         });
 
         $('[type=checkbox], [type=radio]').each(function () {
             this.defaultChecked = this.checked;
@@ -227,14 +220,17 @@ e.preventDefault();
             field3_title = '',
             field3_value = '';
         var fieldDiv = $('.field');
+
+
+
         for (var i = 0; i < fieldDiv.length; i++) {
+
             if (fieldDiv[i].attributes['data-val-type'] == undefined)
                 continue;
 
             var type = fieldDiv[i].attributes['data-val-type'].value
             var elementId = fieldDiv[i].attributes['data-val-id'] != undefined ? fieldDiv[i].attributes['data-val-id'].value : '';
             var formId = fieldDiv[i].attributes['data-val-formId'] != undefined ? fieldDiv[i].attributes['data-val-formId'].value : '';
-
 
             if (type != 'form' && (i == 1 || i == 2 || i == 3)) {
                 if (type == 'name') {
@@ -274,7 +270,6 @@ e.preventDefault();
                     }
                 }
             }
-
             var mobileObject = new Object();
             switch (type) {
                 case 'form':
@@ -299,14 +294,14 @@ e.preventDefault();
                         'id': elementId
                     };
                     break;
-                case 'signature': 
+                case 'signature':
                     mobileObject = {
                         'type': type,
                         'value': fieldDiv[i].children[2].value,
                         'id': elementId
                     };
                     break;
-                case 'link': 
+                case 'link':
                     mobileObject = {
                         'type': type,
                         'value': fieldDiv[i].children[1].innerText,
@@ -339,21 +334,26 @@ e.preventDefault();
                     break;
                 case 'checkbox':
                 case 'radio':
+
                     var checkDiv = $('#' + fieldDiv[i].id + ' div');
                     mobileObject = {
                         'type': type,
                         'value': '',
                         'id': elementId
                     };
+
                     var optionObject = new Object();
                     mobileObject.Options = new Array();
+
                     for (var c = 0; c < checkDiv.length; c++) {
+
                         if (checkDiv[c].children[0].checked == true) {
                             optionObject = {
                                 'data_val_checked': checkDiv[c].children[0].checked,
                                 'text': checkDiv[c].children[1].innerText,
                                 'id': checkDiv[c].children[0].id.split('_')[2]
                             };
+
                             mobileObject.Options.push(optionObject);
                         }
                     }
@@ -397,9 +397,9 @@ e.preventDefault();
                     break;
             }
             mobileFieldArray.push(mobileObject);
-        } 
+        }
 
-        json = JSON.stringify(mobileFieldArray);  
+        json = JSON.stringify(mobileFieldArray);
         var mobileDivHtml = $('#mobilediv').html();
 
 
@@ -418,8 +418,36 @@ e.preventDefault();
 });
 
   function CallView(sender){
-      var id = sender.id;
-       var base64File =  $('#'+id)[0].attributes["data-val-value"].value;
-      app.ViewFile(base64File);
+       var id = sender.id;
+
+       app.ViewFile(base64File);
         }
 
+        function validateCheckBox(element) {
+
+            var size = $('#' + element.id + " input[type='checkbox']:checked").length;
+            if ($("#divError_" + element.id) != undefined) {
+                $("#divError_" + element.id).remove();
+            }
+            if (size == 0) {
+                $(element).append("<label id='divError_" + element.id + "' class='errorDiv' style='background-color: #dbdbdb;'> Please select one at least. </label>");
+                return false;
+            };
+
+            return true;
+        }
+
+        function validateCheckBoxElement() {
+
+            var returnValueArray = new Array();
+            $('div.require-one').each(function (i, e) {
+
+                var rValue = validateCheckBox(e);
+                returnValueArray.push(rValue);
+            });
+            if ($.inArray(false, returnValueArray) != -1)
+                return false;
+            else
+                return true;
+
+        }

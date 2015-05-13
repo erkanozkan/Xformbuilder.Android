@@ -199,7 +199,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
             db.insert(TABLE_DRAFTFORM, null, values);
 
-         }catch (Exception e){}
+         }catch (Exception e){
+            
+        }
 
     }
 

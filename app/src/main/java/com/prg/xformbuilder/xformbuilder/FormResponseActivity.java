@@ -21,6 +21,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.provider.Contacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
@@ -42,6 +43,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +65,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -259,7 +262,29 @@ if(!formId.equals("")){
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
+                                try{
+                                    bundleFormResponse.putInt("UserId", userId);
+                                    bundleFormResponse.putInt("ParentId", parentId);
+                                    bundleFormResponse.putString("FormTitle", formTitle);
+                                    bundleFormResponse.putString("DraftId", draftId);
+                                    bundleFormResponse.putString("FormId", formId);
 
+                                    if (draftId != null) {
+                                        Intent i = new Intent(FormResponseActivity.this, DraftFormActivity.class);
+                                        i.putExtras(bundleFormResponse);
+                                        startActivity(i);
+                                        finish();
+                                    } else {
+                                        Intent i = new Intent(FormResponseActivity.this, FormActivity.class);
+                                        i.putExtras(bundleFormResponse);
+                                        startActivity(i);
+                                        overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);
+                                        finish();
+                                    }
+                                }
+                                catch (Exception e){
+                                    dbHandler.CreateLog(new LogError(0, "BackPressed  FormResponse", "bundledaki bilgilerin çekilmesi sırasında oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                                }
                             }
                         });
         AlertDialog alert = alertDialog.create();
@@ -303,7 +328,6 @@ if(!formId.equals("")){
                         catch (Exception e){
                             dbHandler.CreateLog(new LogError(0, "FormSubmit  FormResponse", "Kullanıcı  bilgileri update edilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
                        }
-
                           }
                     else {
                         try{
@@ -315,8 +339,6 @@ if(!formId.equals("")){
                             dbHandler.CreateLog(new LogError(0, "FormSubmit  FormResponse", "Kullanıcı  bilgileri kayıt edilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
 
                         }
-
-
                     }
 
                     if(isUploadable.equals("0") && forFile.equals("0"))
@@ -358,23 +380,24 @@ if(!formId.equals("")){
 
 
         @JavascriptInterface
-        public String OpenFile() {
-            String IsImage="false";
-            if(!fileName.equals("")){
-                if(fileName.toLowerCase().contains(".png") || fileName.toLowerCase().contains(".jpg") || fileName.toLowerCase().contains(".jpeg") || fileName.toLowerCase().contains(".gif")){
-                    IsImage="true";
-                }
-            }
+        public void test1(String a ){
 
-            String returnValue = fileStringByte + "$^^$^^$" + fileName + "$^^$^^$" + fileSize+ "$^^$^^$" +IsImage;
-            return returnValue;
         }
 
 
+        @JavascriptInterface
+        public String OpenFile() {
+          try     {
+         String returnValue = fileStringByte + "$^^$^^$" + fileName + "$^^$^^$" + fileSize ;
+        return returnValue;
+           } catch (Exception e) {
+        throw e;
+         }
 
+        }
 
         @JavascriptInterface
-        public void ViewFile(String base64File) throws IOException {
+        public void ViewFile(String base64File)  {
 
             if (!base64File.equals("")) {
 
@@ -396,7 +419,6 @@ if(!formId.equals("")){
                     }
                     if(FormImageByte!= null){
                         bundleFormResponse.putByteArray("base64", FormImageByte);
-
                         Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
                         i.putExtras(bundleFormResponse);
                         startActivity(i);
@@ -409,7 +431,6 @@ if(!formId.equals("")){
                 }
             }
         }
-
     }
 
 
@@ -422,43 +443,13 @@ if(!formId.equals("")){
         // Check what kind of file you are trying to open, by comparing the url with extensions.
         // When the if condition is matched, plugin sets the correct intent (mime) type,
         // so Android knew what application to use to open the file
-        if (url.toString().contains(".doc") || url.toString().contains(".docx")) {
-            // Word document
-            intent.setDataAndType(uri, "application/msword");
-        } else if (url.toString().contains(".pdf")) {
-            // PDF file
-            intent.setDataAndType(uri, "application/pdf");
-        } else if (url.toString().contains(".ppt") || url.toString().contains(".pptx")) {
-            // Powerpoint file
-            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");
-        } else if (url.toString().contains(".xls") || url.toString().contains(".xlsx")) {
-            // Excel file
-            intent.setDataAndType(uri, "application/vnd.ms-excel");
-        } else if (url.toString().contains(".zip") || url.toString().contains(".rar")) {
-            // WAV audio file
-            intent.setDataAndType(uri, "application/x-wav");
-        } else if (url.toString().contains(".rtf")) {
-            // RTF file
-            intent.setDataAndType(uri, "application/rtf");
-        } else if (url.toString().contains(".wav") || url.toString().contains(".mp3")) {
-            // WAV audio file
-            intent.setDataAndType(uri, "audio/x-wav");
-        } else if (url.toString().contains(".gif")) {
+            if (url.toString().contains(".gif")) {
             // GIF file
             intent.setDataAndType(uri, "image/gif");
         } else if (url.toString().contains(".jpg") || url.toString().contains(".jpeg") || url.toString().contains(".png")) {
             // JPG file
             intent.setDataAndType(uri, "image/jpeg");
-        } else if (url.toString().contains(".txt")) {
-            // Text file
-            intent.setDataAndType(uri, "text/plain");
-        } else if (url.toString().contains(".3gp") || url.toString().contains(".mpg") || url.toString().contains(".mpeg") || url.toString().contains(".mpe") || url.toString().contains(".mp4") || url.toString().contains(".avi")) {
-            // Video files
-            intent.setDataAndType(uri, "video/*");
-        } else {
-            intent.setDataAndType(uri, "*/*");
         }
-
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
@@ -473,7 +464,6 @@ if(!formId.equals("")){
 
             // Called when all page resources loaded
             public void onPageFinished(WebView view, String url) {
-
                 try {
                     // Close progressDialog
                     if (progressDialog.isShowing()) {
@@ -500,7 +490,7 @@ if(!formId.equals("")){
                 mUploadMessage = uploadMsg;
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
-                i.setType("*/*");
+                i.setType("image/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
@@ -514,31 +504,27 @@ if(!formId.equals("")){
 
                 i.addCategory(Intent.CATEGORY_OPENABLE);
 
-                i.setType("*/*");
+                i.setType("image/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
             }
 
             public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
-
                 mUploadMessage = uploadMsg;
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-
                 i.addCategory(Intent.CATEGORY_OPENABLE);
-
-                i.setType("*/*");
+                i.setType("image/*");
                 FormResponseActivity.this.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
                         FILECHOOSER_RESULTCODE);
             }
+
+
         });
     }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode,  Intent intent) {
-
         if (requestCode == FILECHOOSER_RESULTCODE) {
 
             if (null == this.mUploadMessage) {
@@ -563,8 +549,30 @@ if(!formId.equals("")){
                 String path = getPath(getApplicationContext(), result);
                 if(!path.equals("")){
                     fileStringByte = ConvertFile(path);
-                    mUploadMessage.onReceiveValue(result);
-                    mUploadMessage = null;
+              File directory = getApplicationContext().getDir("imageDir",Context.MODE_PRIVATE);
+              File mypath = new File(directory+fileName);
+              FileOutputStream fos = null;
+                    try {
+
+                        fos = new FileOutputStream(mypath);
+                        // Use the compress method on the BitMap object to write image to the OutputStream
+
+                        fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    bundleFormResponse.putString("path",directory.getAbsolutePath());
+                    Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
+
+                    try{
+                        mUploadMessage.onReceiveValue(result);
+                        mUploadMessage = null;
+                    }
+                    catch (Exception e){
+                        throw e;
+                    }
                 }
              }
             else{
@@ -573,7 +581,6 @@ if(!formId.equals("")){
             }
         }
     }
-
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public String getPath(final Context context, final Uri uri) {

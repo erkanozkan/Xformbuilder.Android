@@ -233,16 +233,16 @@ public class DraftFormActivity extends Activity {
                      delete =  dbHandler.DeleteDraftFormByDraftId(Integer.parseInt(selectDraftId));
                  }
                  catch (Exception e){
-                     delete = false;
+                     dbHandler.CreateLog(new LogError(0, "draftDelete  DraftFormActivity", "forma ait draft silinirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+               delete = false;
                  }
                  if(delete){
-
                               if(!formId.equals("")){
                                   try{
                                       draftForms =  dbHandler.getAllDraftFormListVw(String.valueOf(formId));
                                   }
                                   catch (Exception e){
-                                      dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "forma ait draftlar çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                                      dbHandler.CreateLog(new LogError(0, "draftDelete  DraftFormActivity", "forma ait draftlar çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
                                   }
                                   draftArray  = new DraftList[draftForms.size()];
                                   if(draftForms.size() > 0){
@@ -268,13 +268,10 @@ public class DraftFormActivity extends Activity {
 
                  }
                  return true;
-             case R.id.cancel:
 
-                 return  true;
              default:
                  return super.onContextItemSelected(item);
          }
-
     }
 
     @Override

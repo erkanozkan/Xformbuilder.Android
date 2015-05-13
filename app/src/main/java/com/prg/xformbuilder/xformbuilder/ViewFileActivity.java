@@ -22,6 +22,8 @@ import android.widget.Toast;
 import com.loopj.android.http.Base64;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,7 +38,7 @@ public class ViewFileActivity extends Activity {
 
     Bundle bundleMain = new Bundle();
     int userId =0, parentId=0;
-    String formTitle="",formId="",draftId="",sessionUserName="",sessionPassword="",currentDateTimeString="",versionName="";
+    String formTitle="",formId="",draftId="",sessionUserName="",sessionPassword="",currentDateTimeString="",versionName="",path="";
      LinearLayout layoutBack;
     ImageButton imgBtnBack;
 
@@ -68,7 +70,23 @@ public class ViewFileActivity extends Activity {
             startActivity(i);
         }
         try{
-            try{
+            try {
+                path = bundleMain.getString("path");
+
+                File f=new File(path, "profile.jpg");
+                Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+                ImageView img = (ImageView)findViewById(R.id.imageView_viewFile);
+                img.setImageBitmap(b);
+            }
+            catch (FileNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+
+
+
+         /*   try{
                 bundleMain = getIntent().getExtras();
                  imgBytes = bundleMain.getByteArray("base64");
                 userId = bundleMain.getInt("UserId");
@@ -100,7 +118,7 @@ public class ViewFileActivity extends Activity {
                      Intent intent = new Intent(ViewFileActivity.this,FormResponseActivity.class);
                      startActivity(intent);
                  }
-             }
+             }*/
         }
         catch(Exception e){
             dbHandler.CreateLog(new LogError(0, "onCreate  DraftFormActivity", "Dosya convert işlemi sırasında hata oluştu", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
@@ -142,15 +160,12 @@ public class ViewFileActivity extends Activity {
                 backProcess();
             }
         });
-
-
     }
 
     private void backProcess() {
 
         if(userId != 0 && parentId != 0)
         {
-
             bundleMain = getIntent().getExtras();
             bundleMain.putInt("UserId", userId);
             bundleMain.putInt("ParentId", parentId);

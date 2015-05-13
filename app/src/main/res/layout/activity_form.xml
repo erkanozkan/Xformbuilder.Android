@@ -32,6 +32,13 @@
 
     </in.srain.cube.views.ptr.PtrClassicFrameLayout>
 
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/imageView_noForms"
+        android:focusableInTouchMode="false"
+        android:visibility="gone" />
+
 
 </RelativeLayout>
 

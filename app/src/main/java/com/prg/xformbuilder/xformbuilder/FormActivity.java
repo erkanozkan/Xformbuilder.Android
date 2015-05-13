@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +61,7 @@ public class FormActivity extends Activity {
     int parentId = 0, userId = 0, jsonParentId = 0, jsonFormId = 0, PutUserId, PutFormId,  draftId,draftCount=0,totalCount_=0,totalDraftCount=0,counter_ = 1;
     FormAdaptor adaptor;
     ImageButton ButtonLogout, ButtonSync, ButtonSettings;
+    ImageView imgNoForms;
     ListView lv;
     DatabaseHandler dbHandler;
     final Bundle bundleForm = new Bundle();
@@ -98,6 +100,7 @@ public class FormActivity extends Activity {
         ButtonLogout = (ImageButton) findViewById(R.id.imageButton_logout);
         ButtonSync = (ImageButton) findViewById(R.id.imageButton_sync);
         ButtonSettings = (ImageButton) findViewById(R.id.imageButton_settings);
+        imgNoForms = (ImageView)findViewById(R.id.imageView_noForms);
         //------------------------------------Session Kontrol
         SharedPreferences preferences;     //preferences için bir nesne tanımlıyorum.
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -178,7 +181,7 @@ public class FormActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (NetWorkControl()) {
-                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId+"&appId="+AppId+"&appKey="+AppKey);
+                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId+"&mobileType=1&appId="+AppId+"&appKey="+AppKey);
                     SendServerDraftData();
                     SendServerLogData();
                     progressDialogFormList.show();
@@ -283,7 +286,7 @@ public class FormActivity extends Activity {
 
     private class GetDataAsync extends AsyncTask<String, String, String> {
         protected String doInBackground(String... strings) {
-            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId+"&appId="+AppId+"&appKey="+AppKey);
+            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId=" + userId+"&mobileType=1&appId="+AppId+"&appKey="+AppKey);
             return null;
         }
 
@@ -317,6 +320,8 @@ public class FormActivity extends Activity {
 
                 if(formList.size() > 0)
                 {
+                    lv.setVisibility(View.VISIBLE);
+                    imgNoForms.setVisibility(View.GONE);
                     FormList formArray[] = new FormList[formList.size()];
                     for (int i = 0; i < formList.size(); i++) {
                         Bitmap bmp = null;
@@ -334,20 +339,23 @@ public class FormActivity extends Activity {
                         try{
                             int count = dbHandler.getFormCount(String.valueOf(formList.get(i).getFormId()));
                             if (count >= 1) {
-                                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,String.valueOf(count),R.mipmap.appbar_draw_pencil);
+                                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(),"Created By " + formList.get(i).getUserName(), bmp,String.valueOf(count),R.mipmap.appbar_draw_pencil);
                             }
                             else{
-                                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(), formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
+                                formArray[i] = new FormList(formList.get(i).getFormId(), formList.get(i).getFormTitle(),"Created By "+ formList.get(i).getUserName(), bmp,"",R.mipmap.appbar_draw_pencil_white);
                             }
                         }
                         catch (Exception e){
                             dbHandler.CreateLog(new LogError(0, "SetFormListInListView  FormActivity", "Formlistesi çekilirken ve listviewe basılırken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
                         }
-
-
                     }
                     adaptor = new FormAdaptor(getApplicationContext(), R.layout.line_layout, formArray);
                     lv.setAdapter(adaptor);
+                }
+                else{
+                    lv.setVisibility(View.GONE);
+                    imgNoForms.setVisibility(View.VISIBLE);
+                    imgNoForms.setImageResource(R.drawable.splash_image1);
                 }
             }
             else{
@@ -494,8 +502,8 @@ public class FormActivity extends Activity {
                  }
                 //Internet baglantısı var ise web apiden formları cekiyoruz.
                 if (NetWorkControl() &&  GetUserSync != null && GetUserSync.getSync().equals("true")) {
-                    progressDialogFormList.show();
-                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId="+userId+"&appId=20a9d85f-3a67-4c91-be5b-0aff74fa00df&appKey=61993513-c1c5-4ce1-aacd-3d37e36627b7");
+                    progressDialogFormList.show();//api/AppForm?userId={userId}&mobileType={mobileType}&appId={appId}&appKey={appKey}
+                    new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppForm?userId="+userId+"&mobileType=1&appId=20a9d85f-3a67-4c91-be5b-0aff74fa00df&appKey=61993513-c1c5-4ce1-aacd-3d37e36627b7");
                     SendServerDraftData();
                 }
                 else {
