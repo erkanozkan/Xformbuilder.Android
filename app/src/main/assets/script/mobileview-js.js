@@ -5,29 +5,21 @@ $(document).ready(function () {
 
     var lang = $('#lang')[0].value;
             $('input[type="file"]').change(function () {
-           var value = null;
+             var divId = $(this)[0].parentElement.parentElement.parentElement.id;
+             var elementId = divId.split('_')[1];
+             var value = app.OpenFile(elementId);
            if(value != null){
-
-           var array = new Array();
-           array = value.split("$^^$^^$");
-
-           $(this).attr('data-val-type',array[1]);
-
-           var divId = $(this)[0].parentElement.parentElement.parentElement.id;
-
-        var input = "<input type='button'  onclick=CallView(this)  id='btnView_"+divId+"'    value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'    />";
-
-        if ($('#btnView_' + divId)[0] != undefined) {
+            var input = "<input type='button'  onclick=CallView(this)  id='btnView_"+divId+"' data-val-value='"+value+"'    value='" + $('#viewText')[0].value + "' class='btn btn-primary btn-file'    />";
+           if ($('#btnView_' + divId)[0] != undefined) {
                      $('#btnView_' + divId).remove();
                      $('#' + divId).append(input);
-
+                     $('#' + divId).attr("data-val-value",value);
                  }
                  else{
-
                      $('#' + divId).append(input);
+                     $('#' + divId).attr("data-val-value",value);
                   }
-
-      if ($('form').validate().errorList.length == 0 && $('form').valid()) {
+        if ($('form').validate().errorList.length == 0 && $('form').valid()) {
                                if (validateCheckBoxElement())
                                {
                                Submit(1, "0", "1");
@@ -40,8 +32,6 @@ $(document).ready(function () {
                                 Submit(0,"1","1"); //form eksik dolduruldu ise
                             }
                }
-
-
                 });
 
     if (lang == "tr-TR") {
@@ -198,7 +188,6 @@ e.preventDefault();
         $('[type=text],[type=email],[type=date],[type=url],[type=tel],[type=file],[type=number],[type=hidden], textarea').each(function () {
             this.defaultValue = this.value;
          });
-
           $('[type=button]').each(function () {
                 $(this).attr("onclick","CallView(this)");
          });
@@ -315,14 +304,6 @@ e.preventDefault();
                         'id': elementId
                     };
                     break;
-                case 'file':
-                         mobileObject = {
-                            'type': type,
-                            'data_val_type':fieldDiv[i].children[1].children[0].children[0].attributes['data-val-type'] != undefined ?  fieldDiv[i].children[1].children[0].children[0].attributes['data-val-type'].value : '',
-                            'value':fieldDiv[i].children[1].children[0].children[0].attributes['data-val-value'] != undefined ?  fieldDiv[i].children[1].children[0].children[0].attributes['data-val-value'].value : '',
-                            'id': elementId
-                        };
-                    break;
                 case 'select':
                     var selectValue = $('#' + fieldDiv[i].id + ' select')[0].value;
                     mobileObject = {
@@ -419,8 +400,8 @@ e.preventDefault();
 
   function CallView(sender){
        var id = sender.id;
-
-       app.ViewFile(base64File);
+      var path = $('#'+id)[0].attributes["data-val-value"].value;
+       app.ViewFile(path);
         }
 
         function validateCheckBox(element) {

@@ -77,7 +77,7 @@ import java.util.Date;
 
 public class FormResponseActivity extends Activity {
     DatabaseHandler dbHandler;
-    String formId = "", draftId = "", formTitle = "", fileStringByte = "", fileName = "", fileSize = "",sessionUserName ="",sessionPassword ="",versionName="";
+    String formId = "", draftId = "", formTitle = "", fileStringByte = "", fileName = "", fileSize = "",sessionUserName ="",sessionPassword ="",versionName="",fileId = "",elementId = "",FilePath="";
     int userId = 0, parentId = 0;
     StringBuilder html = new StringBuilder();
     private WebView webView;
@@ -89,6 +89,7 @@ public class FormResponseActivity extends Activity {
     private static final int FILECHOOSER_RESULTCODE = 2888;
     private ValueCallback<Uri> mUploadMessage;
     private Uri mCapturedImageURI = null;
+    File uploadFile = null;
     final Bundle bundleFormResponse = new Bundle();
 
     @Override
@@ -123,6 +124,7 @@ public class FormResponseActivity extends Activity {
         userId = bundle.getInt("UserId");
         draftId = bundle.getString("DraftId");
         formTitle = bundle.getString("FormTitle");
+
         parentId = bundle.getInt("ParentId");
         TextView frmname = (TextView) findViewById(R.id.textView_FormName);
         frmname.setText(formTitle);
@@ -324,6 +326,10 @@ if(!formId.equals("")){
                         try{
                             DraftForm draftForm = new DraftForm(Integer.parseInt(draftId), Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
                             dbHandler.UpdateDraft(draftForm);
+                            if(!elementId.equals("")){
+                                Files file = new Files(0,formId,elementId,FilePath,draftId);
+                                dbHandler.UpdateFiles(file);
+                            }
                         }
                         catch (Exception e){
                             dbHandler.CreateLog(new LogError(0, "FormSubmit  FormResponse", "Kullanıcı  bilgileri update edilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
@@ -333,7 +339,10 @@ if(!formId.equals("")){
                         try{
                             DraftForm form = new DraftForm(0, Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
                             dbHandler.CreateDraftForm(form);
-                             draftId = dbHandler.GetLastDraftId(formId);
+                            draftId = dbHandler.GetLastDraftId(formId);
+                            Files file = new Files(0,formId,elementId,FilePath,draftId);
+                            dbHandler.CreateFiles(file);
+
                         }
                         catch (Exception e){
                             dbHandler.CreateLog(new LogError(0, "FormSubmit  FormResponse", "Kullanıcı  bilgileri kayıt edilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
@@ -380,16 +389,19 @@ if(!formId.equals("")){
 
 
         @JavascriptInterface
-        public void test1(String a ){
+        public void test1(String a){
 
         }
 
 
         @JavascriptInterface
-        public String OpenFile() {
+        public String OpenFile(String eId) {
           try     {
-         String returnValue = fileStringByte + "$^^$^^$" + fileName + "$^^$^^$" + fileSize ;
-        return returnValue;
+
+             String returnValue =  uploadFile.getPath();
+              elementId = eId;
+              FilePath = returnValue;
+             return returnValue;
            } catch (Exception e) {
         throw e;
          }
@@ -397,9 +409,44 @@ if(!formId.equals("")){
         }
 
         @JavascriptInterface
-        public void ViewFile(String base64File)  {
+        public String FileName(String path) {
+            try     {
+                String returnValue = "";
+                if(!path.equals("")){
+                    File file = new File(path);
+                     returnValue =  uploadFile.getName();
+                    return returnValue;
+                }
+                else{
+                    return returnValue;
+                }
 
-            if (!base64File.equals("")) {
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        @JavascriptInterface
+        public String FileValue(String path) {
+            try     {
+                String returnValue = "";
+                if(!path.equals("")){
+                     fileStringByte =  ConvertFile(path);
+                    returnValue =  fileStringByte + "$^^$^^$" + fileName + "$^^$^^$" + fileSize ;
+                    return returnValue;
+                }
+                else{
+                    return returnValue;
+                }
+
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+
+        @JavascriptInterface
+        public void ViewFile(String path)  {
+
+            if (!path.equals("")) {
 
                 try{
                     bundleFormResponse.putInt("UserId", userId);
@@ -407,23 +454,11 @@ if(!formId.equals("")){
                     bundleFormResponse.putString("FormTitle", formTitle);
                     bundleFormResponse.putString("DraftId", draftId);
                     bundleFormResponse.putString("FormId", formId);
-                    byte [] FormImageByte = null;
-
-                    if(!base64File.equals("")){
-                        try {
-                            FormImageByte = base64File.getBytes("UTF-8");
-                        } catch (UnsupportedEncodingException e) {
-                            dbHandler.CreateLog(new LogError(0, "ViewFile  FormResponse", "(ikinci try)base64 string byte converti sırasında oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
-                              e.printStackTrace();
-                        }
-                    }
-                    if(FormImageByte!= null){
-                        bundleFormResponse.putByteArray("base64", FormImageByte);
-                        Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
-                        i.putExtras(bundleFormResponse);
-                        startActivity(i);
-                        overridePendingTransition(R.anim.left_animation, R.anim.out_right_animation);
-                    }
+                    bundleFormResponse.putString("fileId", fileId);
+                    bundleFormResponse.putString("uploadFilePath",path);
+                    Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
+                    i.putExtras(bundleFormResponse);
+                    startActivity(i);
                 }
                 catch (Exception e){
                     dbHandler.CreateLog(new LogError(0, "ViewFile  FormResponse", "(ilk try)bundledan bilgiler çekilirken oluşan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
@@ -547,25 +582,15 @@ if(!formId.equals("")){
             if (result != null) {
 
                 String path = getPath(getApplicationContext(), result);
-
-
                 //Assign string path to File
-                Utility.Default_DIR = new File(path);
-
+                File  Default_DIR = new File(path);
                 // Create new dir MY_IMAGES_DIR if not created and copy image into that dir and store that image path in valid_photo
                 Utility.Create_MY_IMAGES_DIR();
-
                 // Copy your image
-                Utility.copyFile(Utility.Default_DIR, Utility.MY_IMG_DIR);
-
+                 uploadFile =  Utility.copyFile(Default_DIR, Utility.MY_IMG_DIR);
 
                 if(!path.equals("")){
-                    fileStringByte = ConvertFile(path);
-
-                     Intent i = new Intent(FormResponseActivity.this,ViewFileActivity.class);
-
-                    startActivity(i);
-
+                 //   fileStringByte = ConvertFile(path);
                     try{
                         mUploadMessage.onReceiveValue(result);
                         mUploadMessage = null;
@@ -712,7 +737,6 @@ if(!formId.equals("")){
 
     public String ConvertFile(String path) {
 
-
         String byteString = null;
         byte[] buffer = null;
         FileInputStream stream = null;
@@ -736,11 +760,9 @@ if(!formId.equals("")){
                 try {
 
                     stream.read(buffer);
-
                 } catch (IOException e) {
                     dbHandler.CreateLog(new LogError(0, "ConvertFile  FormResponse", "file convert işlemi", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
-
-                    e.printStackTrace();
+                       e.printStackTrace();
                 }
                 try {
                     stream.close();

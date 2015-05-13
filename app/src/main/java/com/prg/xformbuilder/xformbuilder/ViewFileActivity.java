@@ -71,9 +71,17 @@ public class ViewFileActivity extends Activity {
         }
         try{
             try {
-                // Get new image path and decode it
-                Bitmap b = Utility.decodeFile(Utility.Paste_Target_Location);
 
+                bundleMain = getIntent().getExtras();
+                path = bundleMain.getString("uploadFilePath");
+                userId = bundleMain.getInt("UserId");
+                parentId=bundleMain.getInt("ParentId");
+                formTitle = bundleMain.getString("FormTitle");
+                draftId = bundleMain.getString("DraftId");
+                formId = bundleMain.getString("FormId");
+                 File f = new File(path);
+                // Get new image path and decode it
+                Bitmap b = Utility.decodeFile(f);
                 // use new copied path and use anywhere
                  b = Bitmap.createScaledBitmap(b, 150, 150, true);
 
@@ -81,6 +89,8 @@ public class ViewFileActivity extends Activity {
 
                 ImageView img = (ImageView)findViewById(R.id.imageView_viewFile);
                 img.setImageBitmap(b);
+
+
             }
             catch (Exception e)
             {
@@ -176,7 +186,7 @@ public class ViewFileActivity extends Activity {
             bundleMain.putString("FormTitle", formTitle);
             bundleMain.putString("DraftId", draftId);
             bundleMain.putString("FormId", formId);
-            Intent i = new Intent(ViewFileActivity.this,FormResponseActivity.class);
+             Intent i = new Intent(ViewFileActivity.this,FormResponseActivity.class);
             i.putExtras(bundleMain);
             startActivity(i);
             overridePendingTransition(R.anim.right_start_animation, R.anim.left_start_animation);

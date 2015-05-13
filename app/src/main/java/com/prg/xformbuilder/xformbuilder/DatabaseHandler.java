@@ -59,6 +59,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             KEY_ERRORDATE="errordate",
             KEY_METHODNAME="methodname",
             KEY_VERSION="version",
+            KEY_DRAFTID="draftid",
+            KEY_ELEMENTID="elementid",
+            KEY_PATH="path",
             KEY_ERRORMESSAGE="errormessage";
 
 
@@ -92,6 +95,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 +KEY_FORMIMAGE + " TEXT)");
         Log.d("DBHelper", "SQL : " + sqlForm);
         db.execSQL(sqlForm);
+
+
+        String sqlFıles= ("CREATE TABLE IF NOT EXISTS  "+TABLE_FILES + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_DRAFTID + " TEXT,"
+                +KEY_FORMID + " TEXT,"
+                +KEY_ELEMENTID + " TEXT,"
+                +KEY_PATH + " TEXT)");
+        Log.d("DBHelper", "SQL : " + sqlFıles);
+        db.execSQL(sqlFıles);
 
         String sqlDraftForm= ("CREATE TABLE IF NOT EXISTS  "+TABLE_DRAFTFORM + "(" +KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 +KEY_FORMID+ " TEXT,"
@@ -223,6 +235,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
     }
+    public void CreateFiles (Files file){
+        try{
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(KEY_DRAFTID, file.getDraftId());
+            values.put(KEY_FORMID,file.getFormId());
+            values.put(KEY_PATH,file.getPath());
+            values.put(KEY_ELEMENTID,file.getElementId());
+            db.insert(TABLE_FILES, null, values);
+        }
+        catch(Exception e){
+
+        }
+
+    }
+
+
+    public void UpdateFiles(Files file){
+        try
+        {
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(KEY_DRAFTID, file.getDraftId());
+            values.put(KEY_FORMID,file.getFormId());
+            values.put(KEY_PATH,file.getPath());
+            values.put(KEY_ELEMENTID,file.getElementId());
+            db.update(TABLE_FILES, values, KEY_ELEMENTID + "=?", new String[]{String.valueOf(file.getElementId())});
+        }
+        catch (Exception e){
+
+        }
+
+    }
+
+
 
     public boolean CreateSplash (){
         boolean state = false;
@@ -332,6 +379,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
              }
             return id;
  }
+        catch (Exception e){
+            return id;
+        }
+    }
+
+    public String GetLastFileId(String draftId){
+        String id=null;
+
+        try{
+            SQLiteDatabase db = getReadableDatabase();
+            String sql = "SELECT "+KEY_ID+" FROM "+TABLE_FILES+ " WHERE "+KEY_DRAFTID+"='"+draftId+"' ORDER BY "+KEY_ID+" DESC LIMIT 1";
+            Cursor cursor = db.rawQuery(sql,null);
+            if (cursor != null){
+                cursor.moveToFirst();
+                id = String.valueOf(cursor.getInt(cursor.getColumnIndex(KEY_ID)));
+            }
+            return id;
+        }
         catch (Exception e){
             return id;
         }

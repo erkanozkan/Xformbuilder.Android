@@ -355,7 +355,7 @@ public class FormActivity extends Activity {
                 else{
                     lv.setVisibility(View.GONE);
                     imgNoForms.setVisibility(View.VISIBLE);
-                    imgNoForms.setImageResource(R.drawable.splash_image1);
+                    imgNoForms.setImageResource(R.drawable.noformfound);
                 }
             }
             else{
@@ -827,7 +827,6 @@ public class FormActivity extends Activity {
                progressDialogFormList.dismiss();
            }
             super.onProgressUpdate(values);
-
         }
         @Override
         protected void onPreExecute(){
@@ -851,6 +850,8 @@ public class FormActivity extends Activity {
                 nameValuePair.add(new BasicNameValuePair("ErrorDesc", list.get(i).getDescription() + "UserId:"+  String.valueOf(list.get(i).getUserId()) + "ParentId:"+ String.valueOf(list.get(i).getParentId())+ "UserName:"+ String.valueOf(list.get(i).getUserName()) ));
                 nameValuePair.add(new BasicNameValuePair("Version", list.get(i).getVersion()));
                 nameValuePair.add(new BasicNameValuePair("ErrorTime", list.get(i).getDate()));
+                nameValuePair.add(new BasicNameValuePair("UserId",String.valueOf(list.get(i).getUserId())));
+                nameValuePair.add(new BasicNameValuePair("MobileTypeId","1"));
                 try {
                     httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
 
