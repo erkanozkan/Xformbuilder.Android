@@ -327,8 +327,16 @@ if(!formId.equals("")){
                             DraftForm draftForm = new DraftForm(Integer.parseInt(draftId), Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
                             dbHandler.UpdateDraft(draftForm);
                             if(!elementId.equals("")){
-                                Files file = new Files(0,formId,elementId,FilePath,draftId);
-                                dbHandler.UpdateFiles(file);
+                              int  fileCount = dbHandler.FileControl(elementId,draftId);
+                                if(fileCount>0){
+                                    Files file = new Files(0,formId,elementId,FilePath,draftId);
+                                    dbHandler.UpdateFiles(file);
+                                }
+                                else{
+                                    Files file = new Files(0, formId, elementId, FilePath, draftId);
+                                    dbHandler.CreateFiles(file);
+                                }
+
                             }
                         }
                         catch (Exception e){
@@ -340,8 +348,10 @@ if(!formId.equals("")){
                             DraftForm form = new DraftForm(0, Integer.parseInt(formId), html, json, currentDateTimeString, userId, field1_title, field1_value, field2_title, field2_value, field3_title, field3_value, isUploadable);
                             dbHandler.CreateDraftForm(form);
                             draftId = dbHandler.GetLastDraftId(formId);
-                            Files file = new Files(0,formId,elementId,FilePath,draftId);
-                            dbHandler.CreateFiles(file);
+                            if(!elementId.equals("")) {
+                                Files file = new Files(0, formId, elementId, FilePath, draftId);
+                                dbHandler.CreateFiles(file);
+                            }
 
                         }
                         catch (Exception e){
@@ -397,14 +407,14 @@ if(!formId.equals("")){
         @JavascriptInterface
         public String OpenFile(String eId) {
           try     {
-
              String returnValue =  uploadFile.getPath();
               elementId = eId;
               FilePath = returnValue;
              return returnValue;
-           } catch (Exception e) {
-        throw e;
-         }
+           }
+          catch (Exception e) {
+            throw e;
+           }
 
         }
 

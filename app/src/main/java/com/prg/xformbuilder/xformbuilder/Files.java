@@ -7,7 +7,7 @@ package com.prg.xformbuilder.xformbuilder;
 public class Files {
      private String  _formId,_path,_elementId,_draftId;
       private  int _id;
-    public Files (int id, String formId, String elementId,String  path,String draftId){
+    public Files (int id, String formId, String elementId,String path,String draftId){
         _id=id;
           _formId=formId;
         _elementId=elementId;

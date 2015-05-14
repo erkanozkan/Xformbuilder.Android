@@ -269,8 +269,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
-
-
     public boolean CreateSplash (){
         boolean state = false;
         try{
@@ -494,6 +492,24 @@ catch (Exception e){
             String sql="SELECT * FROM " + TABLE_DRAFTFORM + " WHERE " + KEY_FORMID + "='" + formID +"' AND isuploadable='1'";
             Cursor cursor = db.rawQuery(sql, null);
            count = cursor.getCount();
+            cursor.close();
+            return count;
+        }
+        catch (Exception e){
+            return count;
+
+        }
+
+    }
+
+
+    public int FileControl(String elementId,String draftId){
+        int count =0;
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            String sql="SELECT * FROM " + TABLE_FILES + " WHERE " + KEY_ELEMENTID + "='" + elementId +"' AND "  + KEY_DRAFTID + "='"+draftId+"'" ;
+            Cursor cursor = db.rawQuery(sql, null);
+            count = cursor.getCount();
             cursor.close();
             return count;
         }
@@ -754,6 +770,74 @@ try{
 
     }
 
+
+
+    public Files GetFilesByDraftId(String draftId){
+        Files  files=null;
+
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            String sql="SELECT * FROM " + TABLE_FILES + " WHERE " + KEY_ID + "='" + draftId+"'";
+            Cursor cursor = db.rawQuery(sql, null);
+            if (cursor !=null && cursor.moveToFirst()) {
+            /*cursor.moveToFirst();*/
+                files  = new Files(
+                        cursor.getInt(cursor.getColumnIndex(KEY_ID)),
+                        cursor.getString(cursor.getColumnIndex(KEY_FORMID)),
+                        cursor.getString(cursor.getColumnIndex(KEY_ELEMENTID)),
+                        cursor.getString(cursor.getColumnIndex(KEY_PATH)),
+                        cursor.getString(cursor.getColumnIndex(KEY_DRAFTID)));
+                return files;
+            }
+            cursor.close();
+            return files;
+        }
+        catch (Exception e){
+
+            return files;
+        }
+
+    }
+
+
+    public List<Files> GetFilesListByDraftId(String draftId) {
+
+
+        try{
+            List<Files> files = new ArrayList<Files>();
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.query(TABLE_FILES, new String[]{KEY_ID
+                    , KEY_FORMID
+                    , KEY_ELEMENTID
+                    ,KEY_PATH ,KEY_DRAFTID}, KEY_DRAFTID + "=?", new String[] {draftId}, null, null, null, null);
+
+            while (cursor.moveToNext()) {
+                Files file = new Files(
+                        Integer.parseInt(cursor.getString(0)),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4));
+                files.add(file);
+            }
+            cursor.close();
+            return files;
+        }
+        catch (Exception e){
+            List<Files> files = new ArrayList<Files>();
+            return files;
+        }
+
+
+
+    }
+
+
+
+
+
+
+
     public void UpdateDraft(DraftForm draftForm){
         try {
             SQLiteDatabase db= getReadableDatabase();
@@ -917,6 +1001,22 @@ catch (Exception e){
              return false;
          }
     }
+
+    //Draft Form Database Siler
+    public boolean DeleteFilesByDraftId(String draftId){
+        try    {
+
+            SQLiteDatabase db = getWritableDatabase();
+            String sql="DELETE FROM " + TABLE_FILES + " WHERE " + KEY_DRAFTID + "='" + draftId +"'" ;
+            db.execSQL(sql);
+            return true;
+        }
+        catch ( Exception e) {
+            return false;
+        }
+    }
+
+
     public boolean DeleteLogById(int Id){
         try    {
 

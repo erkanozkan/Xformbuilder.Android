@@ -304,6 +304,12 @@ e.preventDefault();
                         'id': elementId
                     };
                     break;
+               case 'file':
+                mobileObject = {
+                    'type': type,
+                     'id': elementId
+                };
+                break;
                 case 'select':
                     var selectValue = $('#' + fieldDiv[i].id + ' select')[0].value;
                     mobileObject = {

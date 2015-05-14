@@ -41,6 +41,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -709,19 +712,98 @@ public class FormActivity extends Activity {
         //----------------------------------------Session Kontrol
     }
 
+    public String [] ConvertFile(String path) {
+
+        String [] value =  null;
+        byte[] buffer = null;
+        FileInputStream stream = null;
+        File file = null;
+
+        try{
+            if (!path.equals("")){
+                value =  new String[3];
+                try{
+                      file = new File(path);
+                }
+                catch (Exception e){
+                    dbHandler.CreateLog(new LogError(0, "ConvertFile  FormActivity", "file convert işlemi", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+               }
+
+                value[0] = String.valueOf(file.length());
+                value[1] = file.getName();
+                buffer = new byte[(int) file.length()];
+
+                try {
+                    stream = new FileInputStream(file);
+                } catch (FileNotFoundException e) {
+                    dbHandler.CreateLog(new LogError(0, "ConvertFile  FormActivity", "file convert işlemi", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                    e.printStackTrace();
+                }
+                assert stream != null;
+                try {
+
+                    stream.read(buffer);
+                } catch (IOException e) {
+                    dbHandler.CreateLog(new LogError(0, "ConvertFile  FormActivity", "file convert işlemi", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                    e.printStackTrace();
+                }
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    dbHandler.CreateLog(new LogError(0, "ConvertFile  FormActivity", "stream close işlemi", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                    e.printStackTrace();
+                }
+                value[2] = Base64.encodeToString(buffer, Base64.DEFAULT);
+                return value;
+            }
+        }
+        catch (Exception e){
+            dbHandler.CreateLog(new LogError(0, "ConvertFile  FormResponse", "byte stringin bozuk olmasından kaynaklanan bir hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+            return value;
+        }
+        return value;
+    }
+
+
     public String PUT(String url, String JsonCode, String formId, String uId, String DraftId) {
         InputStream inputStream = null;
         String result = "";
         String rValue = "False";
+        List<Files> files = null;
+        String [] value = new String[3];
+        String JsonFile = "";
         try {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPut httpPost = new HttpPut(url);
 
+
+            try{
+                 files = dbHandler.GetFilesListByDraftId(DraftId);
+               }
+            catch (Exception e){
+                dbHandler.CreateLog(new LogError(0, "PUT  FormActivity", "file listesi çekilirken hata oluştu.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+             }
+            if(files != null && files.size() > 0){
+                 JSONObject jobject = new JSONObject();
+                JSONArray jArray = new JSONArray();
+                for(int i=0;i<files.size();i++){
+
+                    value = ConvertFile(files.get(i).getPath());
+                    jobject.put("ElementId",files.get(i).getElementId());
+                    jobject.put("FileSize",value[0]);
+                    jobject.put("FileName",value[1]);
+                    jobject.put("FileBase64",value[2]);
+                    jArray.put(jobject);
+                }
+                JsonFile =  jArray.toString();
+            }
             List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>();
             nameValuePair.add(new BasicNameValuePair("JsonCode",JsonCode));
             nameValuePair.add(new BasicNameValuePair("FormId", formId));
             nameValuePair.add(new BasicNameValuePair("UserId", uId));
             nameValuePair.add(new BasicNameValuePair("DraftId", DraftId));
+            nameValuePair.add(new BasicNameValuePair("JsonFile",JsonFile ));
             //Encoding POST data
             try {
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
@@ -759,8 +841,9 @@ public class FormActivity extends Activity {
                         jDraftId = jsonObj.getInt("DraftId");
                         jSave = jsonObj.getBoolean("Save");
                         if (jSave) {
-                            boolean success = dbHandler.DeleteDraftFormByDraftId(jDraftId);
-                            rValue = "True";
+                             dbHandler.DeleteDraftFormByDraftId(jDraftId);
+                             dbHandler.DeleteFilesByDraftId(String.valueOf(jDraftId));
+                             rValue = "True";
 
                         }
                     }
