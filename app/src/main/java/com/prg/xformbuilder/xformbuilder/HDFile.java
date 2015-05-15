@@ -12,6 +12,7 @@ public class HDFile {
     private String Size;
     private String Url;
 
+
     public String getId() {
         return Id;
     }
@@ -23,6 +24,8 @@ public class HDFile {
     public String getName() {
         return Name;
     }
+
+
 
     public void setName(String name) {
         Name = name;

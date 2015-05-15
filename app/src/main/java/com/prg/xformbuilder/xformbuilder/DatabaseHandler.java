@@ -793,17 +793,13 @@ try{
             return files;
         }
         catch (Exception e){
-
             return files;
         }
-
     }
 
 
     public List<Files> GetFilesListByDraftId(String draftId) {
-
-
-        try{
+           try{
             List<Files> files = new ArrayList<Files>();
             SQLiteDatabase db = this.getReadableDatabase();
             Cursor cursor = db.query(TABLE_FILES, new String[]{KEY_ID
@@ -832,12 +828,6 @@ try{
 
     }
 
-
-
-
-
-
-
     public void UpdateDraft(DraftForm draftForm){
         try {
             SQLiteDatabase db= getReadableDatabase();
@@ -857,9 +847,30 @@ try{
             db.update(TABLE_DRAFTFORM, values, KEY_ID + "=?", new String[]{String.valueOf(draftForm.getId())});
         }
         catch (Exception e){
-
         }
+    }
 
+
+    public void UpdateFiles(DraftForm draftForm){
+        try {
+            SQLiteDatabase db= getReadableDatabase();
+            ContentValues values = new ContentValues();
+
+            values.put(KEY_DRAFHTML,draftForm.getDraftHtml());
+            values.put(KEY_DRAFTJSON,draftForm.getDraftJson());
+            values.put(KEY_DATEDRAFT,draftForm.getDateDraft());
+            values.put(KEY_FIELD1_TITLE,draftForm.getField1Title());
+            values.put(KEY_FIELD2_TITLE,draftForm.getField2Title());
+            values.put(KEY_FIELD3_TITLE,draftForm.getField3Title());
+            values.put(KEY_FIELD1_VALUE,draftForm.getField1Value());
+            values.put(KEY_FIELD2_VALUE,draftForm.getField2Value());
+            values.put(KEY_FIELD3_VALUE,draftForm.getField3Value());
+            values.put(KEY_ISUPLOADABLE,draftForm.getIsUploadable());
+
+            db.update(TABLE_DRAFTFORM, values, KEY_ID + "=?", new String[]{String.valueOf(draftForm.getId())});
+        }
+        catch (Exception e){
+        }
     }
 
 

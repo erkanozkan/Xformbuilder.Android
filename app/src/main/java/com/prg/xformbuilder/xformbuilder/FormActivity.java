@@ -27,28 +27,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
+ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,8 +52,12 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import com.hintdesk.core.utils.JSONHttpClient;
 import com.loopj.android.http.Base64;
 import com.onesignal.OneSignal;
+import com.prg.xformbuilder.xformbuilder.common.UploadErrorCode;
+import com.prg.xformbuilder.xformbuilder.events.UploadFilesCompleteListener;
+
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
@@ -88,7 +79,9 @@ public class FormActivity extends Activity {
     final static String AppKey ="61993513-c1c5-4ce1-aacd-3d37e36627b7";
 
     PtrClassicFrameLayout ptrFrameLayout;
-    private DefaultHttpClient mHttpClient;
+     private List<HDFile> uploadedFiles;
+    private UploadFilesCompleteListener uploadFilesCompleteListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -847,26 +840,28 @@ public class FormActivity extends Activity {
                             if(files != null && files.size() > 0){
                                 JSONObject jobject = new JSONObject();
                                 JSONArray jArray = new JSONArray();
+                                List<HDFile> selectedFiles = new ArrayList<HDFile>();
                                 for(int i=0;i<files.size();i++){
                                     String    JsonFile = "";
-                                    value = ConvertFile(files.get(i).getPath());
+                                   //value = ConvertFile(files.get(i).getPath());
                                     try {
-                                     /*     File file = new File(files.get(i).getPath());
-                                      HttpPost httppost = new HttpPost("http://developer.xformbuilder.com/api/AppLogin?userName=admin&password=admin&appId=" + AppId + "&appKey=" + AppKey);
-                                        MultipartEntity multipartEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-                                        multipartEntity.addPart("Title", new StringBody("Title"));
-                                        multipartEntity.addPart("Nick", new StringBody("Nick"));
-                                        multipartEntity.addPart("Email", new StringBody("Email"));
-                                        multipartEntity.addPart("Description", new StringBody("Desc"));
-                                        multipartEntity.addPart("Image", new FileBody(file));
-                                        httppost.setEntity(multipartEntity);
-
-                                        mHttpClient.execute(httppost, new PhotoUploadResponseHandler());*/
-
-                                    } catch (Exception e) {
+                                        File file = new File(files.get(i).getPath());
+                                        HDFile f = new HDFile();
+                                        f.setFilePath(files.get(i).getPath());
+                                         f.setName(file.getName());
+                                        f.setId(String.valueOf(files.get(i).getId()));
+                                        f.setSelected(true);
+                                        f.setSize(null);
+                                        f.setUrl(null);
+                                        selectedFiles.add(i,f);
+                                        uploadFiles(selectedFiles);
 
                                      }
-                                    jobject.put("ElementId",files.get(i).getElementId());
+                                    catch (Exception e)
+                                    {
+
+                                    }
+                                   /* jobject.put("ElementId",files.get(i).getElementId());
                                     jobject.put("FileSize",value[0]);
                                     jobject.put("FileName",value[1]);
                                     jobject.put("FileBase64",value[2]);
@@ -875,8 +870,7 @@ public class FormActivity extends Activity {
                                     jobject.put("UserId",jUserId);
                                     jArray.put(jobject);
                                     JsonFile =  jArray.toString();
-
-                                  new  FileAsyncTask().execute(JsonFile,String.valueOf(jUserId),String.valueOf(jFormId));
+                                  new  FileAsyncTask().execute(JsonFile,String.valueOf(jUserId),String.valueOf(jFormId));*/
                                 }
                             }
                              rValue = "True";
@@ -901,26 +895,66 @@ public class FormActivity extends Activity {
     }
 
 
-    private void ServerCommunication() {
-        HttpParams params = new BasicHttpParams();
-        params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
-        mHttpClient = new DefaultHttpClient(params);
-    }
 
-    private class PhotoUploadResponseHandler implements ResponseHandler<Object> {
 
-        @Override
-        public Object handleResponse(HttpResponse response)
-                throws ClientProtocolException, IOException {
-
-            HttpEntity r_entity = response.getEntity();
-            String responseString = EntityUtils.toString(r_entity);
-            Log.d("UPLOAD", responseString);
-
-            return null;
+    public void uploadFiles(List<HDFile> files) {
+        try{
+            new UploadFilesTask().execute(files.toArray(new HDFile[files.size()]));
+        }
+        catch (Exception e){
+           throw e;
         }
 
     }
+
+
+
+  public class UploadFilesTask extends AsyncTask<HDFile, String, Integer> {
+        Integer totalCount = 0;
+
+        @Override
+        protected Integer doInBackground(HDFile... params) {
+            Integer uploadCount = 0;
+            totalCount = params.length;
+            uploadedFiles = new ArrayList<HDFile>();
+            for (int index = 0; index < params.length; index++) {
+                File file = new File(params[index].getFilePath());
+                JSONHttpClient jsonHttpClient = new JSONHttpClient();
+                HDFile[] hdFiles = null;
+                try{
+                      hdFiles = jsonHttpClient.PostFile("http://developer.xformbuilder.com/api/HDFiles",params[index].getId(), file, params[index].getName(),HDFile[].class);
+                 }
+                catch (Exception e){
+                    throw e;
+                }
+                if (hdFiles != null && hdFiles.length == 1) {
+                    uploadCount++;
+                    uploadedFiles.add(hdFiles[0]);
+                }
+            }
+            return uploadCount;
+        }
+
+        @Override
+        protected void onPostExecute(Integer uploadCount) {
+            UploadErrorCode errorCode = UploadErrorCode.OK;
+            if (uploadCount == 0)
+                errorCode = UploadErrorCode.Failed;
+            else if (uploadCount < totalCount)
+                errorCode = UploadErrorCode.PartlySuccessful;
+            if (uploadFilesCompleteListener != null)
+                uploadFilesCompleteListener.onCompleted(errorCode);
+
+
+        }
+    }
+
+
+
+
+
+
+
 
     private static String PutConvertInputStreamToString(InputStream inputStream) throws IOException {
         String line = "";
