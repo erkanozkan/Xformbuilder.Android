@@ -865,9 +865,9 @@ public class FormActivity extends Activity {
                                     jobject.put("FileSize",value[0]);
                                     jobject.put("FileName",value[1]);
                                     jobject.put("FileBase64",value[2]);
-                                    jobject.put("Guid",guid);
-                                    jobject.put("FormId",jFormId);
-                                    jobject.put("UserId",jUserId);
+                                    jobject.put("Guid",guid.toString());
+                                    jobject.put("FormId",String.valueOf(jFormId));
+                                    jobject.put("UserId",String.valueOf(jUserId));
                                     jArray.put(jobject);
                                     JsonFile =  jArray.toString();
                                   new  FileAsyncTask().execute(JsonFile,String.valueOf(jUserId),String.valueOf(jFormId));*/
@@ -1109,7 +1109,7 @@ public class FormActivity extends Activity {
 
         @Override
         protected String doInBackground(String... urls) {
-            String HostUrl = "http://10.0.2.2:83/api/FileUpload?userId="+urls[1]+"&formId="+urls[2]+"&appId="+AppId+"&appKey="+AppKey;
+            String HostUrl = "http://developer.xformbuilder.com/api/FileUpload?userId="+urls[1]+"&formId="+urls[2]+"&appId="+AppId+"&appKey="+AppKey;
             return FILEPUT(HostUrl, urls[0]);
 
         }
