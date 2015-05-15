@@ -125,7 +125,7 @@ public class MainActivity extends Activity {
                     try {
                         if (InternetConnection) {
                             //Web Api Cagırıyoruz.
-                            new HttpAsyncTask().execute("http://10.0.2.2:8080/api/AppLogin?userName=" + username.getText().toString() + "&password=" + password.getText().toString() + "&appId=" + AppId + "&appKey=" + AppKey);
+                            new HttpAsyncTask().execute("http://developer.xformbuilder.com/api/AppLogin?userName=" + username.getText().toString() + "&password=" + password.getText().toString() + "&appId=" + AppId + "&appKey=" + AppKey);
                         } else {
                             User login = dbHandler.AccountLogin(username.getText().toString(), password.getText().toString());
                             if (login != null) {
