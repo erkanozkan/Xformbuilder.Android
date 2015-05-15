@@ -920,9 +920,10 @@ public class FormActivity extends Activity {
             for (int index = 0; index < params.length; index++) {
                 File file = new File(params[index].getFilePath());
                 JSONHttpClient jsonHttpClient = new JSONHttpClient();
+
                 HDFile[] hdFiles = null;
                 try{
-                      hdFiles = jsonHttpClient.PostFile("http://developer.xformbuilder.com/api/HDFiles",params[index].getId(), file, params[index].getName(),HDFile[].class);
+                      hdFiles = jsonHttpClient.PostFile("http://developer.xformbuilder.com/api/HDFiles?guid=123",params[index].getId(), file, params[index].getName(),HDFile[].class);
                  }
                 catch (Exception e){
                     throw e;
