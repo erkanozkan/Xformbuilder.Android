@@ -27,15 +27,28 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,6 +72,7 @@ import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrHandler;
 
+
 public class FormActivity extends Activity {
     String jsonFormTitle = "", jsonUserName = "", jsonMobileHtml = "", jsonImage = "", PutJsonCode="",versionName="",sessionUserName = "", sessionPassword = "",currentDateTimeString ="";
     int parentId = 0, userId = 0, jsonParentId = 0, jsonFormId = 0, PutUserId, PutFormId,  draftId,draftCount=0,totalCount_=0,totalDraftCount=0,counter_ = 1;
@@ -74,6 +88,7 @@ public class FormActivity extends Activity {
     final static String AppKey ="61993513-c1c5-4ce1-aacd-3d37e36627b7";
 
     PtrClassicFrameLayout ptrFrameLayout;
+    private DefaultHttpClient mHttpClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +98,7 @@ public class FormActivity extends Activity {
 
         // Pass in your app's Context, Google Project number, your OneSignal App ID, and NotificationOpenedHandler
         OneSignal.init(this, "71156653394", "52ee36a0-e8c3-11e4-b391-0370dbb1438c", new ExampleNotificationOpenedHandler());
+
 
 
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.formlist_titlebar);
@@ -772,38 +788,14 @@ public class FormActivity extends Activity {
         String rValue = "False";
         List<Files> files = null;
         String [] value = new String[3];
-        String JsonFile = "";
         try {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPut httpPost = new HttpPut(url);
-
-
-            try{
-                 files = dbHandler.GetFilesListByDraftId(DraftId);
-               }
-            catch (Exception e){
-                dbHandler.CreateLog(new LogError(0, "PUT  FormActivity", "file listesi çekilirken hata oluştu.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
-             }
-            if(files != null && files.size() > 0){
-                 JSONObject jobject = new JSONObject();
-                JSONArray jArray = new JSONArray();
-                for(int i=0;i<files.size();i++){
-
-                    value = ConvertFile(files.get(i).getPath());
-                    jobject.put("ElementId",files.get(i).getElementId());
-                    jobject.put("FileSize",value[0]);
-                    jobject.put("FileName",value[1]);
-                    jobject.put("FileBase64",value[2]);
-                    jArray.put(jobject);
-                }
-                JsonFile =  jArray.toString();
-            }
             List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>();
             nameValuePair.add(new BasicNameValuePair("JsonCode",JsonCode));
             nameValuePair.add(new BasicNameValuePair("FormId", formId));
             nameValuePair.add(new BasicNameValuePair("UserId", uId));
             nameValuePair.add(new BasicNameValuePair("DraftId", DraftId));
-            nameValuePair.add(new BasicNameValuePair("JsonFile",JsonFile ));
             //Encoding POST data
             try {
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
@@ -833,16 +825,60 @@ public class FormActivity extends Activity {
             if (inputStream != null) {
                 result = PutConvertInputStreamToString(inputStream);
 
-                int jFormId = 0, jDraftId = 0;
+                int jFormId = 0, jDraftId = 0,jUserId=0;
                 boolean jSave = false;
+                String guid = "";
                 try {
                     if(!result.equals("")){
                         JSONObject jsonObj = new JSONObject(result);
                         jDraftId = jsonObj.getInt("DraftId");
                         jSave = jsonObj.getBoolean("Save");
+                        guid = jsonObj.getString("GroupId");
+                        jFormId = jsonObj.getInt("FormId");
+                        jUserId = jsonObj.getInt("UserId");
                         if (jSave) {
                              dbHandler.DeleteDraftFormByDraftId(jDraftId);
-                             dbHandler.DeleteFilesByDraftId(String.valueOf(jDraftId));
+                            try{
+                                files = dbHandler.GetFilesListByDraftId(String.valueOf(jDraftId));
+                            }
+                            catch (Exception e){
+                                dbHandler.CreateLog(new LogError(0, "PUT  FormActivity", "file listesi çekilirken hata oluştu.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                            }
+                            if(files != null && files.size() > 0){
+                                JSONObject jobject = new JSONObject();
+                                JSONArray jArray = new JSONArray();
+                                for(int i=0;i<files.size();i++){
+                                    String    JsonFile = "";
+                                    value = ConvertFile(files.get(i).getPath());
+                                    try {
+                                     /*     File file = new File(files.get(i).getPath());
+                                      HttpPost httppost = new HttpPost("http://developer.xformbuilder.com/api/AppLogin?userName=admin&password=admin&appId=" + AppId + "&appKey=" + AppKey);
+                                        MultipartEntity multipartEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                                        multipartEntity.addPart("Title", new StringBody("Title"));
+                                        multipartEntity.addPart("Nick", new StringBody("Nick"));
+                                        multipartEntity.addPart("Email", new StringBody("Email"));
+                                        multipartEntity.addPart("Description", new StringBody("Desc"));
+                                        multipartEntity.addPart("Image", new FileBody(file));
+                                        httppost.setEntity(multipartEntity);
+
+                                        mHttpClient.execute(httppost, new PhotoUploadResponseHandler());*/
+
+                                    } catch (Exception e) {
+
+                                     }
+                                    jobject.put("ElementId",files.get(i).getElementId());
+                                    jobject.put("FileSize",value[0]);
+                                    jobject.put("FileName",value[1]);
+                                    jobject.put("FileBase64",value[2]);
+                                    jobject.put("Guid",guid);
+                                    jobject.put("FormId",jFormId);
+                                    jobject.put("UserId",jUserId);
+                                    jArray.put(jobject);
+                                    JsonFile =  jArray.toString();
+
+                                  new  FileAsyncTask().execute(JsonFile,String.valueOf(jUserId),String.valueOf(jFormId));
+                                }
+                            }
                              rValue = "True";
 
                         }
@@ -864,6 +900,28 @@ public class FormActivity extends Activity {
         return rValue;
     }
 
+
+    private void ServerCommunication() {
+        HttpParams params = new BasicHttpParams();
+        params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+        mHttpClient = new DefaultHttpClient(params);
+    }
+
+    private class PhotoUploadResponseHandler implements ResponseHandler<Object> {
+
+        @Override
+        public Object handleResponse(HttpResponse response)
+                throws ClientProtocolException, IOException {
+
+            HttpEntity r_entity = response.getEntity();
+            String responseString = EntityUtils.toString(r_entity);
+            Log.d("UPLOAD", responseString);
+
+            return null;
+        }
+
+    }
+
     private static String PutConvertInputStreamToString(InputStream inputStream) throws IOException {
         String line = "";
         String result = "";
@@ -876,9 +934,6 @@ public class FormActivity extends Activity {
 
 
     }
-
-
-
 
 
 
@@ -910,6 +965,26 @@ public class FormActivity extends Activity {
                progressDialogFormList.dismiss();
            }
             super.onProgressUpdate(values);
+        }
+        @Override
+        protected void onPreExecute(){
+
+        }
+    }
+
+    private class LogAsyncTask extends AsyncTask<List<LogError>, Void, String> {
+
+        @Override
+        protected String doInBackground(List<LogError>... urls) {
+            String HostUrl = "http://developer.xformbuilder.com/api/ElmahError?appId="+AppId+"&appKey="+AppKey;
+            return LOGPUT(HostUrl,urls[0]);
+
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            if(result != null){
+
+            }
         }
         @Override
         protected void onPreExecute(){
@@ -967,8 +1042,8 @@ public class FormActivity extends Activity {
                     try {
                         if(!result.equals("")){
                             JSONObject jsonObj = new JSONObject(result);
-                               Id = jsonObj.getInt("Id");
-                                boolean success = dbHandler.DeleteLogById(Id);
+                            Id = jsonObj.getInt("Id");
+                            boolean success = dbHandler.DeleteLogById(Id);
                             if(success){
                                 rValue = "True";
                             }
@@ -996,15 +1071,12 @@ public class FormActivity extends Activity {
     }
 
 
-
-
-
-    private class LogAsyncTask extends AsyncTask<List<LogError>, Void, String> {
+    private class FileAsyncTask extends AsyncTask<String, Void, String> {
 
         @Override
-        protected String doInBackground(List<LogError>... urls) {
-            String HostUrl = "http://developer.xformbuilder.com/api/ElmahError?appId="+AppId+"&appKey="+AppKey;
-            return LOGPUT(HostUrl,urls[0]);
+        protected String doInBackground(String... urls) {
+            String HostUrl = "http://10.0.2.2:83/api/FileUpload?userId="+urls[1]+"&formId="+urls[2]+"&appId="+AppId+"&appKey="+AppKey;
+            return FILEPUT(HostUrl, urls[0]);
 
         }
         @Override
@@ -1018,6 +1090,88 @@ public class FormActivity extends Activity {
 
         }
     }
+
+
+    public String FILEPUT(String url,String json) {
+        InputStream inputStream = null;
+        String result = "";
+        String rValue = "False";
+        try {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPut httpPost = new HttpPut(url);
+            List<NameValuePair> nameValuePair = null;
+               nameValuePair = new ArrayList<NameValuePair>();
+               nameValuePair.add(new BasicNameValuePair("JsonFile",json));
+                 try {
+                    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
+
+                } catch (UnsupportedEncodingException e) {
+                    dbHandler.CreateLog(new LogError(0, "FILEPUT  FormActivity", "log verileri servere yollanırken oluşan bir hata url den kaynaklı ya da parametrelerden kaynaklanıyo olabilir.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                    e.printStackTrace();
+                }
+
+                try {
+                   HttpResponse response = httpclient.execute(httpPost);
+                    inputStream = response.getEntity().getContent();
+                    // write response to log
+                    Log.d("Http Post Response:", response.toString());
+                } catch (ClientProtocolException e) {
+                    dbHandler.CreateLog(new LogError(0, "FILEPUT  FormActivity", "file verileri servere yollandıktan sonra alınan cevapta bir hata oldugundan kaynaklanan hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                    // Log exception
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    dbHandler.CreateLog(new LogError(0, "FILEPUT  FormActivity", "file verileri servere yollandıktan sonra alınan cevapta bir hata oldugundan kaynaklanan hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                    // Log exception
+                    e.printStackTrace();
+                }
+                if (inputStream != null) {
+                    result = PutConvertInputStreamToString(inputStream);
+
+                    boolean save = false;
+                    String id = "";
+
+                    try {
+                        if(!result.equals("")){
+                            JSONObject jsonObj = new JSONObject(result);
+                            save = jsonObj.getBoolean("Save");
+                            id= jsonObj.getString("FileId");
+                             if(save){
+                                 try{
+                                     boolean deleteFile = dbHandler.DeleteFilesByDraftId(Integer.parseInt(id));
+                                     if(deleteFile)
+                                     rValue = "True";
+                                     else
+                                      rValue = "False";
+                                 }
+                                 catch (Exception e){
+                                     dbHandler.CreateLog(new LogError(0, "FILEPUT  FormActivity", "file kaydının silinemediğinden hataya düşmüştür.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                                 }
+                            }
+                            else {
+                                rValue = "False";
+                            }
+
+                        }
+
+                    } catch (Exception e) {
+                        dbHandler.CreateLog(new LogError(0, "FILEPUT  FormActivity", "dönen sonucun json objeye dönüşmemesinden kaynaklanan hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
+                        Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
+                        Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
+                    }
+                } else
+                    rValue = "False";
+
+
+        } catch (Exception e) {
+            dbHandler.CreateLog(new LogError(0, "FILEPUT  FormActivity", "", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+        }
+        return rValue;
+    }
+
 
 
 

@@ -1003,11 +1003,11 @@ catch (Exception e){
     }
 
     //Draft Form Database Siler
-    public boolean DeleteFilesByDraftId(String draftId){
+    public boolean DeleteFilesByDraftId(int id){
         try    {
 
             SQLiteDatabase db = getWritableDatabase();
-            String sql="DELETE FROM " + TABLE_FILES + " WHERE " + KEY_DRAFTID + "='" + draftId +"'" ;
+            String sql="DELETE FROM " + TABLE_FILES + " WHERE " + KEY_ID + "=" + id;
             db.execSQL(sql);
             return true;
         }
