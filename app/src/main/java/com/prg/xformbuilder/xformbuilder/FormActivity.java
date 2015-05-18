@@ -848,10 +848,16 @@ public class FormActivity extends Activity {
                                         File file = new File(files.get(i).getPath());
                                         HDFile f = new HDFile();
                                         f.setFilePath(files.get(i).getPath());
-                                         f.setName(file.getName());
+                                        f.setName(file.getName());
                                         f.setId(String.valueOf(files.get(i).getId()));
+                                        f.setFileId(String.valueOf(files.get(i).getId()));
+                                        f.setElementId(files.get(i).getElementId());
+                                        f.setGuId(guid);
                                         f.setSelected(true);
-                                        f.setSize(null);
+                                        f.setSize(String.valueOf(file.length()));
+                                        f.setUserId(String.valueOf(jUserId));
+
+                                        f.setFormId(files.get(i).getFormId());
                                         f.setUrl(null);
                                         selectedFiles.add(i,f);
                                         uploadFiles(selectedFiles);
@@ -917,20 +923,34 @@ public class FormActivity extends Activity {
             Integer uploadCount = 0;
             totalCount = params.length;
             uploadedFiles = new ArrayList<HDFile>();
-            for (int index = 0; index < params.length; index++) {
+            for (int index = 0; index < params.length ; index++) {
                 File file = new File(params[index].getFilePath());
                 JSONHttpClient jsonHttpClient = new JSONHttpClient();
 
                 HDFile[] hdFiles = null;
                 try{
-                      hdFiles = jsonHttpClient.PostFile("http://developer.xformbuilder.com/api/HDFiles?guid=123",params[index].getId(), file, params[index].getName(),HDFile[].class);
-                 }
+                    String eId = params[index].getElementId();
+                    String RguId = params[index].getGuId();
+                    String fileSize = params[index].getSize();
+                    String formId = params[index].getFormId();
+                    String uId = params[index].getUserId();
+                    String fileId = params[index].getFileId();
+
+                    hdFiles = jsonHttpClient.PostFile("http://developer.xformbuilder.com/api/HDFiles?guid="+RguId+"&elementId="+eId+"&formId="+formId+"&fileSize="+fileSize+"&userId="+uId+"&fileId="+fileId,
+                            params[index].getId(), file, params[index].getName(),HDFile[].class);
+
+                }
                 catch (Exception e){
                     throw e;
                 }
                 if (hdFiles != null && hdFiles.length == 1) {
                     uploadCount++;
                     uploadedFiles.add(hdFiles[0]);
+                  boolean deleteFile =   dbHandler.DeleteFilesById(Integer.parseInt(hdFiles[0].getId()));
+                    if(deleteFile){
+                        uploadCount++;
+                    }
+
                 }
             }
             return uploadCount;
@@ -1174,11 +1194,7 @@ public class FormActivity extends Activity {
                             id= jsonObj.getString("FileId");
                              if(save){
                                  try{
-                                     boolean deleteFile = dbHandler.DeleteFilesByDraftId(Integer.parseInt(id));
-                                     if(deleteFile)
                                      rValue = "True";
-                                     else
-                                      rValue = "False";
                                  }
                                  catch (Exception e){
                                      dbHandler.CreateLog(new LogError(0, "FILEPUT  FormActivity", "file kaydının silinemediğinden hataya düşmüştür.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));

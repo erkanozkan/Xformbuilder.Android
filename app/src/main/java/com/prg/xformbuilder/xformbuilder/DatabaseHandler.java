@@ -1014,7 +1014,7 @@ catch (Exception e){
     }
 
     //Draft Form Database Siler
-    public boolean DeleteFilesByDraftId(int id){
+    public boolean DeleteFilesById(int id){
         try    {
 
             SQLiteDatabase db = getWritableDatabase();

@@ -11,6 +11,39 @@ public class HDFile {
     private String FilePath;
     private String Size;
     private String Url;
+    private String ElementId;
+    private String GuId;
+    private String FormId;
+    private String UserId;
+
+    private String FileId;
+
+
+    public  String getFileId() {return FileId;}
+
+    public void setFileId(String fileId){FileId=fileId;}
+
+
+
+    public  String getUserId() {return UserId;}
+
+    public void setUserId(String userId){UserId=userId;}
+
+
+    public  String getFormId() {return FormId;}
+
+    public void setFormId(String formId){FormId=formId;}
+
+
+
+    public  String getGuId() {return GuId;}
+    public void setGuId(String guid){GuId=guid;}
+
+
+
+    public  String getElementId() {return ElementId;}
+
+    public void setElementId(String elementId){ElementId=elementId;}
 
 
     public String getId() {
