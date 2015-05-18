@@ -941,14 +941,15 @@ public class FormActivity extends Activity {
 
                 }
                 catch (Exception e){
-                    throw e;
+                    dbHandler.CreateLog(new LogError(0, "UploadFilesTask doInBackground  FormActivity", "File upload işleminde hata oluştu.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
                 }
                 if (hdFiles != null && hdFiles.length == 1) {
-                    uploadCount++;
-                    uploadedFiles.add(hdFiles[0]);
+                     uploadedFiles.add(hdFiles[0]);
                   boolean deleteFile =   dbHandler.DeleteFilesById(Integer.parseInt(hdFiles[0].getId()));
                     if(deleteFile){
-                        uploadCount++;
+                       if(file.exists()){
+                           file.delete();
+                       }
                     }
 
                 }
