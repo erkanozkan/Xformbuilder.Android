@@ -842,8 +842,6 @@ public class FormActivity extends Activity {
                                 JSONArray jArray = new JSONArray();
                                 List<HDFile> selectedFiles = new ArrayList<HDFile>();
                                 for(int i=0;i<files.size();i++){
-                                    String    JsonFile = "";
-                                   //value = ConvertFile(files.get(i).getPath());
                                     try {
                                         File file = new File(files.get(i).getPath());
                                         HDFile f = new HDFile();
@@ -856,27 +854,16 @@ public class FormActivity extends Activity {
                                         f.setSelected(true);
                                         f.setSize(String.valueOf(file.length()));
                                         f.setUserId(String.valueOf(jUserId));
-
                                         f.setFormId(files.get(i).getFormId());
                                         f.setUrl(null);
                                         selectedFiles.add(i,f);
                                         uploadFiles(selectedFiles);
-
                                      }
                                     catch (Exception e)
                                     {
+                                        dbHandler.CreateLog(new LogError(0, "PUT  FormActivity", "Dosya bilgileri hdfile classına set edilirken hata oluştu.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
 
-                                    }
-                                   /* jobject.put("ElementId",files.get(i).getElementId());
-                                    jobject.put("FileSize",value[0]);
-                                    jobject.put("FileName",value[1]);
-                                    jobject.put("FileBase64",value[2]);
-                                    jobject.put("Guid",guid.toString());
-                                    jobject.put("FormId",String.valueOf(jFormId));
-                                    jobject.put("UserId",String.valueOf(jUserId));
-                                    jArray.put(jobject);
-                                    JsonFile =  jArray.toString();
-                                  new  FileAsyncTask().execute(JsonFile,String.valueOf(jUserId),String.valueOf(jFormId));*/
+                                     }
                                 }
                             }
                              rValue = "True";
@@ -886,10 +873,8 @@ public class FormActivity extends Activity {
 
                 } catch (Exception e) {
                     dbHandler.CreateLog(new LogError(0, "PUT  FormActivity","dönen sonucun json objeye dönüşmemesinden kaynaklanan hata", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
-
                     Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
-                    Log.d("ReadWeatherJSONFeedTask", e.getLocalizedMessage());
-                }
+                 }
             } else
                 rValue = "False";
 
@@ -908,7 +893,8 @@ public class FormActivity extends Activity {
             new UploadFilesTask().execute(files.toArray(new HDFile[files.size()]));
         }
         catch (Exception e){
-           throw e;
+            dbHandler.CreateLog(new LogError(0, "uploadFiles void  FormActivity", "upload file task execute edilirken hata ile karşılaşşıldı.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+
         }
 
     }
@@ -923,37 +909,43 @@ public class FormActivity extends Activity {
             Integer uploadCount = 0;
             totalCount = params.length;
             uploadedFiles = new ArrayList<HDFile>();
-            for (int index = 0; index < params.length ; index++) {
-                File file = new File(params[index].getFilePath());
-                JSONHttpClient jsonHttpClient = new JSONHttpClient();
+            if(params.length>0){
 
-                HDFile[] hdFiles = null;
-                try{
-                    String eId = params[index].getElementId();
-                    String RguId = params[index].getGuId();
-                    String fileSize = params[index].getSize();
-                    String formId = params[index].getFormId();
-                    String uId = params[index].getUserId();
-                    String fileId = params[index].getFileId();
+                for (int index = 0; index < params.length ; index++) {
+                    File file = new File(params[index].getFilePath());
+                    JSONHttpClient jsonHttpClient = new JSONHttpClient();
 
-                    hdFiles = jsonHttpClient.PostFile("http://developer.xformbuilder.com/api/HDFiles?guid="+RguId+"&elementId="+eId+"&formId="+formId+"&fileSize="+fileSize+"&userId="+uId+"&fileId="+fileId,
-                            params[index].getId(), file, params[index].getName(),HDFile[].class);
+                    HDFile[] hdFiles = null;
+                    if(file != null)
+                    {
+                        try
+                        {
+                            String eId =params[index].getElementId();
+                            String RguId = params[index].getGuId();
+                            String fileSize = params[index].getSize();
+                            String formId = params[index].getFormId();
+                            String uId = params[index].getUserId();
+                            String fileId = params[index].getFileId();
+                            hdFiles = jsonHttpClient.PostFile("http://developer.xformbuilder.com/api/HDFiles?guid="+RguId+"&elementId="+eId+"&formId="+formId+"&fileSize="+fileSize+"&userId="+uId+"&fileId="+fileId,
+                                    params[index].getId(), file, params[index].getName(),HDFile[].class);
 
-                }
-                catch (Exception e){
-                    dbHandler.CreateLog(new LogError(0, "UploadFilesTask doInBackground  FormActivity", "File upload işleminde hata oluştu.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
-                }
-                if (hdFiles != null && hdFiles.length == 1) {
-                     uploadedFiles.add(hdFiles[0]);
-                  boolean deleteFile =   dbHandler.DeleteFilesById(Integer.parseInt(hdFiles[0].getId()));
-                    if(deleteFile){
-                       if(file.exists()){
-                           file.delete();
-                       }
+                        }
+                        catch (Exception e){
+                            dbHandler.CreateLog(new LogError(0, "UploadFilesTask doInBackground  FormActivity", "File upload işleminde hata oluştu.", e.getMessage().toString(), currentDateTimeString,sessionUserName,versionName,userId,parentId));
+                        }
                     }
-
+                    if (hdFiles != null && hdFiles.length == 1) {
+                        uploadedFiles.add(hdFiles[0]);
+                        boolean deleteFile =   dbHandler.DeleteFilesById(Integer.parseInt(hdFiles[0].getId()));
+                        if(deleteFile){
+                            if(file.exists()){
+                                file.delete();
+                            }
+                        }
+                    }
                 }
             }
+
             return uploadCount;
         }
 

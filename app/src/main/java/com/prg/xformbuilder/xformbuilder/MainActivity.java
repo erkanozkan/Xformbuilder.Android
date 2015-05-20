@@ -340,9 +340,8 @@ public class MainActivity extends Activity {
                                     OneSignal.deleteTag("COMPANYID");
                             } catch (Exception e) {
                                 dbHandler.CreateLog(new LogError(0, "web api user kontrol için AsyncTask   içindeki onPostExecute  MainActivity", "(üçüncü try)Kullanıcı Sync ve Push bilgileri çekilmediğinden kaynaklanan bir hata", e.getMessage().toString(), currentDateTimeString,jsonUserName,versionName,jsonUserId,jsonParentId));
-
-                                loginDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), "Giriş Başarısız Lütfen tekrar deneyiniz.", Toast.LENGTH_SHORT).show();
+                                 loginDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), R.string.CheckYourInfo, Toast.LENGTH_SHORT).show();
                             }
                             User user = new User(0, String.valueOf(jsonUserName), String.valueOf(jsonFirstName), String.valueOf(jsonLastName), String.valueOf(jsonCompany), String.valueOf(jsonPassword), Integer.valueOf(jsonUserId), Integer.valueOf(jsonParentId), sync, push);
                             dbHandler.UpdateUser(user);
